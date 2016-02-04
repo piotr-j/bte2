@@ -16,11 +16,13 @@ allprojects {
     version = '1.0'
     ext {
         appName = "BTEv2"
-        gdxVersion = '1.9.0'
+        gdxVersion = '1.9.1'
         roboVMVersion = '1.12.0'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'
         aiVersion = '1.7.0'
+        jUnitVersion = '4.12'
+        mockitoVersion = '1.+'
     }
 
     repositories {
@@ -38,6 +40,10 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         compile "com.kotcrab.vis:vis-ui:0.9.5"
+        testCompile "junit:junit:$jUnitVersion"
+        testCompile "org.mockito:mockito-core:$mockitoVersion"
+        testCompile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }
 
