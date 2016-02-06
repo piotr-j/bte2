@@ -73,6 +73,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	protected boolean init;
 	protected boolean valid;
 	protected boolean dirty;
+	protected boolean readOnly;
 	protected int minChildren;
 	protected int maxChildren;
 	protected BTModel model;
@@ -95,7 +96,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 
 	public boolean canAdd (ModelTask task) {
 		// TODO special handling for some things maybe
-		return children.size < maxChildren;
+		return !readOnly && children.size < maxChildren;
 	}
 
 	public boolean isValid () {
@@ -121,6 +122,13 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 
 	public int getChildCount () {
 		return children.size;
+	}
+
+	public void setReadOnly (boolean readOnly) {
+		this.readOnly = readOnly;
+		for (int i = 0; i < children.size; i++) {
+			children.get(i).setReadOnly(readOnly);
+		}
 	}
 
 	public ModelTask getChild (int id) {
@@ -207,6 +215,11 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 		parent = null;
 		init = false;
 		name = null;
+		readOnly = false;
+	}
+
+	public boolean isReadOnly () {
+		return readOnly;
 	}
 
 	public abstract void free();

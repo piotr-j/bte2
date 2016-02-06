@@ -263,7 +263,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 				@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
 					if (payload.getType() == ViewPayload.Type.REMOVE) return false;
 					// TODO need to ask model if this is valid target
-					return model.canAdd(payload.task, task);
+					return !task.isReadOnly() && model.canAdd(payload.task, task);
 				}
 
 				@Override public void onDrop (ViewSource source, ViewPayload payload, float x, float y) {
@@ -291,12 +291,14 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			this.dad = view.dad;
 			this.model = view.model;
 			label.setText(task.getName());
-			if (task.getType() != ModelTask.Type.ROOT) {
+			if (task.getType() != ModelTask.Type.ROOT && !task.isReadOnly()) {
 				dad.addSource(source);
 			}
-			if (task.isValid()) {
+			if (task.isReadOnly()){
+				label.setColor(Color.GRAY);
+			} else if (task.isValid()) {
 				label.setColor(Color.WHITE);
-			} else {
+			} else  {
 				label.setColor(COLOR_INVALID);
 			}
 			dad.addTarget(target);

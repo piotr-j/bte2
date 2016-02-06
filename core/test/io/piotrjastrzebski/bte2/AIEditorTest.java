@@ -102,6 +102,9 @@ public class AIEditorTest extends Game {
 
 		BehaviorTree<Dog> actualBehavior = new BehaviorTree<>(createDogBehavior());
 		library.registerArchetypeTree("dog.actual", actualBehavior);
+
+		BehaviorTree<Dog> other = new BehaviorTree<>(createDogOtherBehavior());
+		library.registerArchetypeTree("dog.other", other);
 	}
 
 	private static Task<Dog> createDogBehavior () {
@@ -126,6 +129,13 @@ public class AIEditorTest extends Game {
 		sequence.addChild(new MarkTask());
 
 		return selector;
+	}
+
+	private static Task<Dog> createDogOtherBehavior () {
+		Parallel<Dog> parallel = new Parallel<>();
+		parallel.addChild(new AlwaysSucceed<>(new RestTask()));
+		parallel.addChild(new BarkTask());
+		return parallel;
 	}
 
 	@Override public void render () {

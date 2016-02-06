@@ -76,6 +76,7 @@ public class BTModel<E> {
 		// TODO pool those
 		Command command = AddCommand.obtain(what, target);
 		commands.execute(command);
+		tree.reset();
 		notifyChanged();
 	}
 
@@ -103,12 +104,14 @@ public class BTModel<E> {
 		dirty = true;
 		Command command = RemoveCommand.obtain(what);
 		commands.execute(command);
+		tree.reset();
 		notifyChanged();
 	}
 
 	public void undo () {
 		dirty = true;
 		if (commands.undo()) {
+			tree.reset();
 			notifyChanged();
 		}
 	}
@@ -116,13 +119,14 @@ public class BTModel<E> {
 	public void redo() {
 		dirty = true;
 		if (commands.redo()) {
+			tree.reset();
 			notifyChanged();
 		}
 	}
 
-	private void notifyChanged () {
-		for (BTChangeListener listener : listeners) {
-			listener.onChange(this);
+	public void notifyChanged () {
+		for (int i = 0; i < listeners.size; i++) {
+			listeners.get(i).onChange(this);
 		}
 	}
 
