@@ -65,6 +65,7 @@ public class AIEditorTest extends Game {
 		editor = new AIEditor<>(skin);
 		// we probably dont care about the blackboard, do we?
 		editor.initialize(tree);
+		// add default task classes to task drawer with default tags
 		editor.addDefaultTaskClasses();
 		addTaskClasses();
 

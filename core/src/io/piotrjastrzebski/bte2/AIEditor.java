@@ -57,12 +57,9 @@ public class AIEditor<E> implements Disposable {
 	 * @param skin Skin to use
 	 */
 	public AIEditor (Skin skin) {
-		if (skin == null) {
+		if (skin == null && VisUI.getSkin() == null) {
 			ownsSkin = true;
 			skin = new Skin(VisUI.SkinScale.X1.getSkinFile());
-		}
-		// if skin is set, it was already set somewhere
-		if (VisUI.getSkin() == null) {
 			VisUI.load(skin);
 		}
 		model = new BTModel<>();
