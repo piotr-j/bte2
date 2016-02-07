@@ -9,6 +9,7 @@ import com.badlogic.gdx.ai.btree.annotation.TaskConstraint;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.decorator.Repeat;
 import com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool;
@@ -153,6 +154,8 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	}
 
 	public void insertChild (int at, ModelTask task) {
+		// if at is larger then size, we will insert as last
+		at = Math.min(at, children.size);
 		children.insert(at, task);
 		task.setParent(this);
 		dirty = true;

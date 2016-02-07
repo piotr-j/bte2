@@ -15,15 +15,23 @@ public class AddCommand extends Command {
 	public static Command obtain (ModelTask what, ModelTask where) {
 		return pool.obtain().init(what, where);
 	}
+	public static Command obtain (int at, ModelTask what, ModelTask where) {
+		return pool.obtain().init(at, what, where);
+	}
 	private ModelTask what;
-
 	private ModelTask target;
+	private int at = -1;
 
 	protected AddCommand () {
 		super(Type.ADD);
 	}
 
 	public Command init (ModelTask what, ModelTask target) {
+		return init(-1, what, target);
+	}
+
+	public Command init (int at, ModelTask what, ModelTask target) {
+		this.at = at;
 		// we can make a copy of what, but cant of target duh
 		// do we even want to copy stuff?
 		this.what = what.copy();
@@ -33,7 +41,11 @@ public class AddCommand extends Command {
 
 	public void execute () {
 		// TODO do we want this to return something?
-		target.addChild(what);
+		if (at > -1) {
+			target.insertChild(at, what);
+		} else {
+			target.addChild(what);
+		}
 	}
 
 	public void undo () {
@@ -48,5 +60,6 @@ public class AddCommand extends Command {
 		// TODO free or whatever
 		what = null;
 		target = null;
+		at = -1;
 	}
 }

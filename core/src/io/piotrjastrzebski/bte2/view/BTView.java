@@ -37,12 +37,12 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 	private BTModel model;
 	private VisTable topMenu;
 	private VisScrollPane drawerScrollPane;
+	private VisScrollPane treeScrollPane;
 	private VisTree taskDrawer;
 	private VisTree tree;
 	private VisTable taskEdit;
 	private DragAndDrop dad;
 	private ViewTarget removeTarget;
-	private Actor dim;
 	private SpriteDrawable dimImg;
 
 	public BTView (final BTModel model) {
@@ -51,8 +51,6 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		model.addChangeListener(this);
 		dimImg = new SpriteDrawable((SpriteDrawable)VisUI.getSkin().getDrawable(DRAWABLE_WHITE));
 		dimImg.getSprite().setColor(Color.WHITE);
-		dim = new Image(dimImg);
-		dim.setVisible(false);
 		// create label style with background used by ViewPayloads
 		VisTextButton.ButtonStyle btnStyle = VisUI.getSkin().get(VisTextButton.ButtonStyle.class);
 		VisLabel.LabelStyle labelStyle = new Label.LabelStyle(VisUI.getSkin().get(VisLabel.LabelStyle.class));
@@ -90,13 +88,13 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		tree.setYSpacing(0);
 		// add dim to tree so its in same coordinates as nodes
 		treeView.add(tree).fill().expand();
-		treeView.addActor(dim);
+		treeScrollPane = new VisScrollPane(treeView);
 		taskEdit = new VisTable(true);
 		drawerScrollPane = new VisScrollPane(taskDrawer);
 		taskDrawer.debugAll();
 		// TODO understand how this bullshit works
 		add(drawerScrollPane).expand(1, 1).fill().pad(5);
-		add(treeView).expand(2, 1).fill().pad(5, 0, 5, 0);
+		add(treeScrollPane).expand(2, 1).fill().pad(5, 0, 5, 0);
 		add(taskEdit).expand(1, 1).fill().pad(5);
 
 
@@ -263,11 +261,12 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		protected VisLabel label;
 		protected ViewTarget target;
 		protected ViewSource source;
-		protected Actor separator;
+		protected VisImage separator;
 
 		public ViewTask () {
 			super(new VisTable());
 			container = (VisTable)getActor();
+			separator = new VisImage();
 //			container.debugAll();
 
 			label = new VisLabel();
@@ -387,7 +386,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			this.task = task;
 			this.dad = view.dad;
 			this.model = view.model;
-			this.separator = new VisImage(view.dimImg);
+			separator.setDrawable(view.dimImg);
 			separator.setVisible(false);
 			container.addActor(separator);
 			label.setText(task.getName());
@@ -406,6 +405,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 				dad.removeSource(source);
 				dad.removeTarget(target);
 			}
+			separator.setVisible(false);
 			model = null;
 			for (Tree.Node node : getChildren()) {
 				free((ViewTask)node);

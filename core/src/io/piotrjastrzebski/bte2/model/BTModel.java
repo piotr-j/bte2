@@ -62,22 +62,40 @@ public class BTModel<E> {
 
 	public boolean canAddBefore (ModelTask what, ModelTask target) {
 		// check if can insert what before target
-		return false;
+		ModelTask parent = target.getParent();
+		if (parent == null) return false;
+		if (!parent.canAdd(what)) return false;
+		return true;
 	}
 
 	public void addBefore (ModelTask what, ModelTask target) {
 		if (!canAddBefore(what, target)) return;
+		ModelTask parent = target.getParent();
+		int id = parent.getChildId(target);
 
+		Command command = AddCommand.obtain(id, what, parent);
+		commands.execute(command);
+		tree.reset();
+		notifyChanged();
 	}
 
 	public boolean canAddAfter (ModelTask what, ModelTask target) {
 		// check if can insert what after target
-		return false;
+		ModelTask parent = target.getParent();
+		if (parent == null) return false;
+		if (!parent.canAdd(what)) return false;
+		return true;
 	}
 
 	public void addAfter (ModelTask what, ModelTask target) {
 		if (!canAddAfter(what, target)) return;
+		ModelTask parent = target.getParent();
+		int id = parent.getChildId(target);
 
+		Command command = AddCommand.obtain(id + 1, what, parent);
+		commands.execute(command);
+		tree.reset();
+		notifyChanged();
 	}
 
 	/**
@@ -94,7 +112,6 @@ public class BTModel<E> {
 	public void add (ModelTask what, ModelTask target) {
 		if (!canAdd(what, target)) return;
 		dirty = true;
-		// TODO pool those
 		Command command = AddCommand.obtain(what, target);
 		commands.execute(command);
 		tree.reset();
