@@ -54,8 +54,12 @@ public class AIEditorTest extends Game {
 		root = new Table();
 		root.setFillParent(true);
 		stage.addActor(root);
-
-		VisUI.load();
+		// TODO need better detection maybe
+		if (Gdx.graphics.getPpiX() > 100) {
+			VisUI.load(VisUI.SkinScale.X2);
+		} else {
+			VisUI.load(VisUI.SkinScale.X1);
+		}
 		skin = VisUI.getSkin();
 
 		editor = new AIEditor<>(skin);
