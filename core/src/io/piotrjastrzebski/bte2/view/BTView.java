@@ -102,7 +102,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		removeTarget = new ViewTarget(drawerScrollPane) {
 			@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
 				// TODO this should be move
-				return payload.getType() == ViewPayload.Type.REMOVE;
+				return payload.getType() == ViewPayload.Type.MOVE;
 			}
 
 			@Override public void onDrop (ViewSource source, ViewPayload payload, float x, float y) {
@@ -277,18 +277,35 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 				@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
 					Actor actor = getActor();
 					DropPoint dropPoint = getDropPoint(actor, y);
-					boolean isValid = (payload.getType() != ViewPayload.Type.REMOVE) && !task.isReadOnly();
+					boolean isValid = !task.isReadOnly();
 					if (isValid) {
 						switch (dropPoint) {
 						case ABOVE:
-							isValid = model.canAddBefore(payload.task, task);
+							if (payload.getType() == ViewPayload.Type.MOVE) {
+//								if (task.getName().equals("Parallel")) {
+//									Gdx.app.log("", "");
+//								}
+								isValid = model.canMoveBefore(payload.task, task);
+//								Gdx.app.log(TAG, "canMoveBefore " + payload.task.getName() + " to " + task.getName() + " = " + isValid);
+							} else {
+								isValid = model.canAddBefore(payload.task, task);
+							}
 							break;
 						case MIDDLE:
-							isValid = model.canAdd(payload.task, task);
+							if (payload.getType() == ViewPayload.Type.MOVE) {
+								isValid = model.canMove(payload.task, task);
+							} else {
+								isValid = model.canAdd(payload.task, task);
+							}
 							break;
 						case BELOW:
-							isValid = model.canAddAfter(payload.task, task);
+							if (payload.getType() == ViewPayload.Type.MOVE) {
+								isValid = model.canMoveAfter(payload.task, task);
+							} else {
+								isValid = model.canAddAfter(payload.task, task);
+							}
 							break;
+						default: isValid = false;
 						}
 					}
 					updateSeparator(dropPoint, isValid);
@@ -296,17 +313,28 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 				}
 
 				@Override public void onDrop (ViewSource source, ViewPayload payload, float x, float y) {
-//					Gdx.app.log("", "drop " + payload);
 					DropPoint dropPoint = getDropPoint(getActor(), y);
 					switch (dropPoint) {
 					case ABOVE:
-						model.addBefore(payload.task, task);
+						if (payload.getType() == ViewPayload.Type.MOVE) {
+							model.moveBefore(payload.task, task);
+						} else {
+							model.addBefore(payload.task, task);
+						}
 						break;
 					case MIDDLE:
-						model.add(payload.task, task);
+						if (payload.getType() == ViewPayload.Type.MOVE) {
+							model.move(payload.task, task);
+						} else {
+							model.add(payload.task, task);
+						}
 						break;
 					case BELOW:
-						model.addAfter(payload.task, task);
+						if (payload.getType() == ViewPayload.Type.MOVE) {
+							model.moveAfter(payload.task, task);
+						} else {
+							model.addAfter(payload.task, task);
+						}
 						break;
 					}
 				}
@@ -317,7 +345,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			};
 			source = new ViewSource(label) {
 				@Override public DragAndDrop.Payload dragStart (InputEvent event, float x, float y, int pointer) {
-					return ViewPayload.obtain(task.getName(), task).asRemove();
+					return ViewPayload.obtain(task.getName(), task).asMove();
 				}
 
 				@Override public void dragStop (InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload,
@@ -336,7 +364,6 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		public static final float DROP_MARGIN = 0.25f;
 		private DropPoint getDropPoint (Actor actor, float y) {
 			float a = y / actor.getHeight();
-			System.out.println(a);
 			if (a < DROP_MARGIN) {
 				return DropPoint.BELOW;
 			} else if (a > 1 - DROP_MARGIN) {

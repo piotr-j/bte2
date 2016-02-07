@@ -32,6 +32,7 @@ public class ModelFakeRoot<E> extends ModelTask<E> {
 	}
 
 	@Override public String getName () {
-		return "ROOT1";
+		// TODO could use tree file name or something
+		return "ROOT";
 	}
 }

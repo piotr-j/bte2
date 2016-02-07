@@ -3,10 +3,7 @@ package io.piotrjastrzebski.bte2.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.utils.Array;
-import io.piotrjastrzebski.bte2.model.edit.AddCommand;
-import io.piotrjastrzebski.bte2.model.edit.Command;
-import io.piotrjastrzebski.bte2.model.edit.CommandManager;
-import io.piotrjastrzebski.bte2.model.edit.RemoveCommand;
+import io.piotrjastrzebski.bte2.model.edit.*;
 import io.piotrjastrzebski.bte2.model.tasks.ModelFakeRoot;
 import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
 
@@ -73,8 +70,7 @@ public class BTModel<E> {
 		ModelTask parent = target.getParent();
 		int id = parent.getChildId(target);
 
-		Command command = AddCommand.obtain(id, what, parent);
-		commands.execute(command);
+		commands.execute(AddCommand.obtain(id, what, parent));
 		tree.reset();
 		notifyChanged();
 	}
@@ -91,9 +87,7 @@ public class BTModel<E> {
 		if (!canAddAfter(what, target)) return;
 		ModelTask parent = target.getParent();
 		int id = parent.getChildId(target);
-
-		Command command = AddCommand.obtain(id + 1, what, parent);
-		commands.execute(command);
+		commands.execute(AddCommand.obtain(id + 1, what, parent));
 		tree.reset();
 		notifyChanged();
 	}
@@ -112,10 +106,17 @@ public class BTModel<E> {
 	public void add (ModelTask what, ModelTask target) {
 		if (!canAdd(what, target)) return;
 		dirty = true;
-		Command command = AddCommand.obtain(what, target);
-		commands.execute(command);
+		commands.execute(AddCommand.obtain(what, target));
 		tree.reset();
 		notifyChanged();
+	}
+
+	public boolean canMoveBefore (ModelTask what, ModelTask target) {
+		if (!canAddBefore(what, target)) return false;
+		ModelTask parent = what.getParent();
+		if (parent == null) return false;
+		// since we dont actually add to add, this is fine
+		return what == target || !what.hasChild(target);
 	}
 
 	/**
@@ -123,7 +124,27 @@ public class BTModel<E> {
 	 * It is not possible to move task into its own children for example
 	 */
 	public boolean canMove (ModelTask what, ModelTask target) {
-		return target.hasChild(what);
+		if (!canAdd(what, target)) return false;
+		return !what.hasChild(target);
+	}
+
+	public boolean canMoveAfter (ModelTask what, ModelTask target) {
+		if (!canAddAfter(what, target))
+			return false;
+		ModelTask parent = what.getParent();
+		if (parent == null)
+			return false;
+		// since we dont actually add to add, this is fine
+		return what == target || !what.hasChild(target);
+	}
+
+	public void moveBefore (ModelTask what, ModelTask target) {
+		if (!canMoveBefore(what, target)) return;
+		ModelTask parent = target.getParent();
+		int id = parent.getChildId(target);
+		commands.execute(MoveCommand.obtain(id, what, parent));
+		dirty = true;
+		notifyChanged();
 	}
 
 	/**
@@ -131,6 +152,17 @@ public class BTModel<E> {
 	 */
 	public void move (ModelTask what, ModelTask target) {
 		if (!canMove(what, target)) return;
+		commands.execute(MoveCommand.obtain(what, target));
+		tree.reset();
+		dirty = true;
+		notifyChanged();
+	}
+
+	public void moveAfter (ModelTask what, ModelTask target) {
+		if (!canMoveAfter(what, target)) return;
+		ModelTask parent = target.getParent();
+		int id = parent.getChildId(target);
+		commands.execute(MoveCommand.obtain(id + 1, what, parent));
 		dirty = true;
 		notifyChanged();
 	}
@@ -140,8 +172,7 @@ public class BTModel<E> {
 	 */
 	public void remove (ModelTask what) {
 		dirty = true;
-		Command command = RemoveCommand.obtain(what);
-		commands.execute(command);
+		commands.execute(RemoveCommand.obtain(what));
 		tree.reset();
 		notifyChanged();
 	}

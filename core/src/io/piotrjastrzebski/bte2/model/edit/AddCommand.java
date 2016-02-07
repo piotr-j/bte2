@@ -34,7 +34,7 @@ public class AddCommand extends Command {
 		this.at = at;
 		// we can make a copy of what, but cant of target duh
 		// do we even want to copy stuff?
-		this.what = what.copy();
+		this.what = what;//.copy();
 		this.target = target;
 		return this;
 	}

@@ -24,7 +24,7 @@ public class ViewPayload extends DragAndDrop.Payload {
 		pool.free(task);
 	}
 
-	protected enum Type {ADD, REMOVE, MOVE, COPY}
+	protected enum Type {ADD, COPY, MOVE}
 	protected VisLabel drag;
 	protected VisLabel valid;
 	protected VisLabel invalid;
@@ -51,11 +51,6 @@ public class ViewPayload extends DragAndDrop.Payload {
 
 	protected ViewPayload asAdd () {
 		type = Type.ADD;
-		return this;
-	}
-
-	protected ViewPayload asRemove() {
-		type = Type.REMOVE;
 		return this;
 	}
 

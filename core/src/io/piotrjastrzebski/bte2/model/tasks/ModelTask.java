@@ -140,6 +140,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	 * Check if given task is in this task
 	 */
 	public boolean hasChild (ModelTask task) {
+		if (this == task) return true;
 		for (ModelTask child : children) {
 			if (child == task || child.hasChild(task)) {
 				return true;

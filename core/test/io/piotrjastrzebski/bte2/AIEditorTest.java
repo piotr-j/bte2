@@ -24,6 +24,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.VisDialog;
+import com.kotcrab.vis.ui.widget.VisTextArea;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import io.piotrjastrzebski.bte2.dog.*;
 
@@ -77,6 +79,24 @@ public class AIEditorTest extends Game {
 		});
 		toggleEditorWindow();
 		root.add(toggle).expand().left().bottom().pad(10);
+
+		VisDialog tutorial = new VisDialog("Tutorial");
+		tutorial.addCloseButton();
+		tutorial.text(
+			"top - menu, undo/redo buttons\n"
+			+ "right - tasks that can be added to the tree\n"
+			+ "centre - behaviour tree you are editing\n"
+			+ "left - selected task properties - nyi\n"
+			+ "\n"
+			+ "drag and drop:\n"
+			+ " - drawer -> tree: add task to tree\n"
+			+ " - tree -> drawer: remove task from tree\n"
+			+ " - tree -> tree: change tasks position\n"
+			+ "\n"
+			+ "click task in tree to edit its parameters - nyi\n"
+			+ "TODO a lot of crap\n");
+		tutorial.pack();
+		tutorial.show(stage);
 	}
 
 	private void addTaskClasses () {
