@@ -78,9 +78,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		topMenu.add(undoBtn);
 		topMenu.add(redoBtn);
 		row();
-		// TODO entire task drawer as target for task removal
 		taskDrawer = new VisTree();
-		// TODO part of drawer is clipped in pane for whatever reason
 		taskDrawer.setYSpacing(-2);
 		taskDrawer.setFillParent(true);
 		VisTable treeView = new VisTable(true);
@@ -90,8 +88,11 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		treeView.add(tree).fill().expand();
 		treeScrollPane = new VisScrollPane(treeView);
 		taskEdit = new VisTable(true);
-		drawerScrollPane = new VisScrollPane(taskDrawer);
+		VisTable taskView = new VisTable(true);
+		taskView.add(taskDrawer).fill().expand();
+		drawerScrollPane = new VisScrollPane(taskView);
 		taskDrawer.debugAll();
+
 		// TODO understand how this bullshit works
 		add(drawerScrollPane).expand(1, 1).fill().pad(5);
 		add(treeScrollPane).expand(2, 1).fill().pad(5, 0, 5, 0);
@@ -128,8 +129,6 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 
 		fillTree(null, model.getRoot());
 		tree.expandAll();
-
-//		Gdx.app.log(TAG, "tree rebuilt");
 	}
 
 	private void fillTree (Tree.Node parent, ModelTask task) {
