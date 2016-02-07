@@ -12,10 +12,10 @@ public class AddCommand extends Command {
 			return new AddCommand();
 		}
 	};
-	public static Command obtain (ModelTask what, ModelTask where) {
+	public static AddCommand obtain (ModelTask what, ModelTask where) {
 		return pool.obtain().init(what, where);
 	}
-	public static Command obtain (int at, ModelTask what, ModelTask where) {
+	public static AddCommand obtain (int at, ModelTask what, ModelTask where) {
 		return pool.obtain().init(at, what, where);
 	}
 	private ModelTask what;
@@ -26,11 +26,11 @@ public class AddCommand extends Command {
 		super(Type.ADD);
 	}
 
-	public Command init (ModelTask what, ModelTask target) {
+	public AddCommand init (ModelTask what, ModelTask target) {
 		return init(-1, what, target);
 	}
 
-	public Command init (int at, ModelTask what, ModelTask target) {
+	public AddCommand init (int at, ModelTask what, ModelTask target) {
 		this.at = at;
 		// we can make a copy of what, but cant of target duh
 		// do we even want to copy stuff?

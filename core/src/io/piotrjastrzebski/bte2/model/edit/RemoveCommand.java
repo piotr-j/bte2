@@ -13,7 +13,7 @@ public class RemoveCommand extends Command implements Pool.Poolable {
 		}
 	};
 
-	public static Command obtain (ModelTask what) {
+	public static RemoveCommand obtain (ModelTask what) {
 		return pool.obtain().init(what);
 	}
 
@@ -26,7 +26,7 @@ public class RemoveCommand extends Command implements Pool.Poolable {
 
 	protected int idInParent;
 
-	public Command init (ModelTask what) {
+	public RemoveCommand init (ModelTask what) {
 		this.what = what;
 		parent = what.getParent();
 		idInParent = parent.getChildId(what);
