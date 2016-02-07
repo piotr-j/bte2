@@ -59,6 +59,27 @@ public class BTModel<E> {
 		return fakeRoot;
 	}
 
+
+	public boolean canAddBefore (ModelTask what, ModelTask target) {
+		// check if can insert what before target
+		return false;
+	}
+
+	public void addBefore (ModelTask what, ModelTask target) {
+		if (!canAddBefore(what, target)) return;
+
+	}
+
+	public boolean canAddAfter (ModelTask what, ModelTask target) {
+		// check if can insert what after target
+		return false;
+	}
+
+	public void addAfter (ModelTask what, ModelTask target) {
+		if (!canAddAfter(what, target)) return;
+
+	}
+
 	/**
 	 * Check if given task can be added to target task
 	 */

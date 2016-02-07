@@ -3,18 +3,17 @@ package io.piotrjastrzebski.bte2.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Tree;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
+import com.kotcrab.vis.ui.widget.color.internal.AlphaChannelBar;
 import io.piotrjastrzebski.bte2.model.BTModel;
 import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
 
@@ -31,6 +30,8 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 	public final static Color COLOR_FAILED = new Color(Color.RED);
 	public final static Color COLOR_CANCELLED = new Color(Color.ORANGE);
 	public final static Color COLOR_FRESH = new Color(Color.GRAY);
+	private final static Color COLOR_BACKGROUND = new Color(.2f, .2f, .2f, 1);
+	public static String DRAWABLE_WHITE = "dialogDim";
 	private static final String TAG = BTView.class.getSimpleName();
 	private Skin skin;
 	private BTModel model;
@@ -41,12 +42,17 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 	private VisTable taskEdit;
 	private DragAndDrop dad;
 	private ViewTarget removeTarget;
+	private Actor dim;
+	private SpriteDrawable dimImg;
 
 	public BTView (final BTModel model) {
 		this.model = model;
 		debugAll();
 		model.addChangeListener(this);
-
+		dimImg = new SpriteDrawable((SpriteDrawable)VisUI.getSkin().getDrawable(DRAWABLE_WHITE));
+		dimImg.getSprite().setColor(Color.WHITE);
+		dim = new Image(dimImg);
+		dim.setVisible(false);
 		// create label style with background used by ViewPayloads
 		VisTextButton.ButtonStyle btnStyle = VisUI.getSkin().get(VisTextButton.ButtonStyle.class);
 		VisLabel.LabelStyle labelStyle = new Label.LabelStyle(VisUI.getSkin().get(VisLabel.LabelStyle.class));
@@ -81,8 +87,10 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		taskDrawer.setFillParent(true);
 		VisTable treeView = new VisTable(true);
 		tree = new VisTree();
-		tree.setYSpacing(-2);
+		tree.setYSpacing(0);
+		// add dim to tree so its in same coordinates as nodes
 		treeView.add(tree).fill().expand();
+		treeView.addActor(dim);
 		taskEdit = new VisTable(true);
 		drawerScrollPane = new VisScrollPane(taskDrawer);
 		taskDrawer.debugAll();
@@ -251,25 +259,62 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		private BTModel model;
 		private ModelTask task;
 
+		protected VisTable container;
 		protected VisLabel label;
 		protected ViewTarget target;
 		protected ViewSource source;
+		protected Actor separator;
 
 		public ViewTask () {
-			super(new VisLabel());
-			label = (VisLabel)getActor();
+			super(new VisTable());
+			container = (VisTable)getActor();
+//			container.debugAll();
+
+			label = new VisLabel();
+			container.add(label);
+			container.setTouchable(Touchable.enabled);
+
 			setObject(this);
-			target = new ViewTarget(label) {
+			target = new ViewTarget(container) {
 				@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
-					if (payload.getType() == ViewPayload.Type.REMOVE) return false;
-					// TODO need to ask model if this is valid target
-					return !task.isReadOnly() && model.canAdd(payload.task, task);
+					Actor actor = getActor();
+					DropPoint dropPoint = getDropPoint(actor, y);
+					boolean isValid = (payload.getType() != ViewPayload.Type.REMOVE) && !task.isReadOnly();
+					if (isValid) {
+						switch (dropPoint) {
+						case ABOVE:
+							isValid = model.canAddBefore(payload.task, task);
+							break;
+						case MIDDLE:
+							isValid = model.canAdd(payload.task, task);
+							break;
+						case BELOW:
+							isValid = model.canAddAfter(payload.task, task);
+							break;
+						}
+					}
+					updateSeparator(dropPoint, isValid);
+					return isValid;
 				}
 
 				@Override public void onDrop (ViewSource source, ViewPayload payload, float x, float y) {
 //					Gdx.app.log("", "drop " + payload);
-					// TODO tell model to add task from payload to our task
-					model.add(payload.task, task);
+					DropPoint dropPoint = getDropPoint(getActor(), y);
+					switch (dropPoint) {
+					case ABOVE:
+						model.addBefore(payload.task, task);
+						break;
+					case MIDDLE:
+						model.add(payload.task, task);
+						break;
+					case BELOW:
+						model.addAfter(payload.task, task);
+						break;
+					}
+				}
+
+				@Override public void reset (DragAndDrop.Source source, DragAndDrop.Payload payload) {
+					resetSeparator();
 				}
 			};
 			source = new ViewSource(label) {
@@ -286,21 +331,70 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			reset();
 		}
 
-		private ViewTask init (ModelTask task, BTView view) {
-			this.task = task;
-			this.dad = view.dad;
-			this.model = view.model;
-			label.setText(task.getName());
-			if (task.getType() != ModelTask.Type.ROOT && !task.isReadOnly()) {
-				dad.addSource(source);
+		enum DropPoint {
+			ABOVE, MIDDLE, BELOW
+		}
+
+		public static final float DROP_MARGIN = 0.25f;
+		private DropPoint getDropPoint (Actor actor, float y) {
+			float a = y / actor.getHeight();
+			System.out.println(a);
+			if (a < DROP_MARGIN) {
+				return DropPoint.BELOW;
+			} else if (a > 1 - DROP_MARGIN) {
+				return DropPoint.ABOVE;
 			}
+			return DropPoint.MIDDLE;
+		}
+
+		private void resetSeparator () {
+			separator.setVisible(false);
+			updateNameColor();
+		}
+
+		private void updateNameColor () {
 			if (task.isReadOnly()){
 				label.setColor(Color.GRAY);
 			} else if (task.isValid()) {
 				label.setColor(Color.WHITE);
-			} else  {
+			} else {
 				label.setColor(COLOR_INVALID);
 			}
+		}
+
+		private void updateSeparator (DropPoint dropPoint, boolean isValid) {
+			resetSeparator();
+			Color color = isValid ? COLOR_VALID : COLOR_INVALID;
+			separator.setColor(color);
+			separator.setWidth(container.getWidth());
+			separator.setHeight(container.getHeight()/4f);
+			switch (dropPoint) {
+			case ABOVE:
+				separator.setVisible(true);
+				separator.setPosition(0, container.getHeight() - separator.getHeight()/2);
+				break;
+			case MIDDLE:
+				label.setColor(color);
+				break;
+			case BELOW:
+				separator.setVisible(true);
+				separator.setPosition(0, - separator.getHeight()/2);
+				break;
+			}
+		}
+
+		private ViewTask init (ModelTask task, BTView view) {
+			this.task = task;
+			this.dad = view.dad;
+			this.model = view.model;
+			this.separator = new VisImage(view.dimImg);
+			separator.setVisible(false);
+			container.addActor(separator);
+			label.setText(task.getName());
+			if (task.getType() != ModelTask.Type.ROOT && !task.isReadOnly()) {
+				dad.addSource(source);
+			}
+			updateNameColor();
 			dad.addTarget(target);
 			return this;
 		}
