@@ -140,7 +140,12 @@ public class AIEditor<E> implements Disposable {
 			window.setResizable(true);
 			window.add(getView()).fill().expand();
 			window.addCloseButton();
-			window.setSize(800, 600);
+			// TODO need better check
+			if (Gdx.graphics.getPpiX() > 100) {
+				window.setSize(1600, 1200);
+			} else {
+				window.setSize(800, 600);
+			}
 			window.fadeIn();
 			// TODO is this broken or what? you cant drag out the assets, but the hit boxes are outside
 			window.setKeepWithinStage(true);
