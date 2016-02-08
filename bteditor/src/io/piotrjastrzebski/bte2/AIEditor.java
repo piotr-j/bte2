@@ -190,6 +190,7 @@ public class AIEditor<E> implements Disposable {
 		addTaskClass("branch", Sequence.class);
 		addTaskClass("branch", Selector.class);
 		addTaskClass("branch", Parallel.class);
+		addTaskClass("branch", DynamicGuardSelector.class);
 		addTaskClass("branch", RandomSelector.class);
 		addTaskClass("branch", RandomSequence.class);
 
