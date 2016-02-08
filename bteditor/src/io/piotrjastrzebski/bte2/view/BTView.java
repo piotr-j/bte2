@@ -1,6 +1,7 @@
 package io.piotrjastrzebski.bte2.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -273,28 +274,30 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 
 			setObject(this);
 			target = new ViewTarget(container) {
+				boolean copy = false;
 				@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
+					copy = Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
 					Actor actor = getActor();
 					DropPoint dropPoint = getDropPoint(actor, y);
 					boolean isValid = !task.isReadOnly() && payload.task != task;
 					if (isValid) {
 						switch (dropPoint) {
 						case ABOVE:
-							if (payload.getType() == ViewPayload.Type.MOVE) {
+							if (!copy && payload.getType() == ViewPayload.Type.MOVE) {
 								isValid = model.canMoveBefore(payload.task, task);
 							} else {
 								isValid = model.canAddBefore(payload.task, task);
 							}
 							break;
 						case MIDDLE:
-							if (payload.getType() == ViewPayload.Type.MOVE) {
+							if (!copy && payload.getType() == ViewPayload.Type.MOVE) {
 								isValid = model.canMove(payload.task, task);
 							} else {
 								isValid = model.canAdd(payload.task, task);
 							}
 							break;
 						case BELOW:
-							if (payload.getType() == ViewPayload.Type.MOVE) {
+							if (!copy && payload.getType() == ViewPayload.Type.MOVE) {
 								isValid = model.canMoveAfter(payload.task, task);
 							} else {
 								isValid = model.canAddAfter(payload.task, task);
@@ -311,24 +314,24 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 					DropPoint dropPoint = getDropPoint(getActor(), y);
 					switch (dropPoint) {
 					case ABOVE:
-						if (payload.getType() == ViewPayload.Type.MOVE) {
+						if (!copy && payload.getType() == ViewPayload.Type.MOVE) {
 							model.moveBefore(payload.task, task);
 						} else {
-							model.addBefore(payload.task, task);
+							model.addBefore(copy?payload.task.copy():payload.task, task);
 						}
 						break;
 					case MIDDLE:
-						if (payload.getType() == ViewPayload.Type.MOVE) {
+						if (!copy && payload.getType() == ViewPayload.Type.MOVE) {
 							model.move(payload.task, task);
 						} else {
-							model.add(payload.task, task);
+							model.add(copy?payload.task.copy():payload.task, task);
 						}
 						break;
 					case BELOW:
-						if (payload.getType() == ViewPayload.Type.MOVE) {
+						if (!copy && payload.getType() == ViewPayload.Type.MOVE) {
 							model.moveAfter(payload.task, task);
 						} else {
-							model.addAfter(payload.task, task);
+							model.addAfter(copy?payload.task.copy():payload.task, task);
 						}
 						break;
 					}

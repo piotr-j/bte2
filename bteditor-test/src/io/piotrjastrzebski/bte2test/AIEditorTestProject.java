@@ -88,7 +88,7 @@ public class AIEditorTestProject extends Game {
 			+ "drag and drop:\n"
 			+ " - drawer -> tree: add task to tree\n"
 			+ " - tree -> drawer: remove task from tree\n"
-			+ " - tree -> tree: change tasks position\n"
+			+ " - tree -> tree: move tasks, hold ctrl to copy instead\n"
 			+ "\n"
 			+ "click task in tree to edit its parameters - nyi\n"
 			+ "TODO a lot of crap\n");
