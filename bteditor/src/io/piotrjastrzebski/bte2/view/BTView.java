@@ -3,9 +3,8 @@ package io.piotrjastrzebski.bte2.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
@@ -261,12 +260,12 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		protected ViewTarget target;
 		protected ViewSource source;
 		protected VisImage separator;
+		protected boolean isMoving;
 
 		public ViewTask () {
 			super(new VisTable());
 			container = (VisTable)getActor();
 			separator = new VisImage();
-//			container.debugAll();
 
 			label = new VisLabel();
 			container.add(label);
@@ -277,16 +276,12 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 				@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
 					Actor actor = getActor();
 					DropPoint dropPoint = getDropPoint(actor, y);
-					boolean isValid = !task.isReadOnly();
+					boolean isValid = !task.isReadOnly() && payload.task != task;
 					if (isValid) {
 						switch (dropPoint) {
 						case ABOVE:
 							if (payload.getType() == ViewPayload.Type.MOVE) {
-//								if (task.getName().equals("Parallel")) {
-//									Gdx.app.log("", "");
-//								}
 								isValid = model.canMoveBefore(payload.task, task);
-//								Gdx.app.log(TAG, "canMoveBefore " + payload.task.getName() + " to " + task.getName() + " = " + isValid);
 							} else {
 								isValid = model.canAddBefore(payload.task, task);
 							}
@@ -345,11 +340,15 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			};
 			source = new ViewSource(label) {
 				@Override public DragAndDrop.Payload dragStart (InputEvent event, float x, float y, int pointer) {
+					isMoving = true;
+					updateNameColor();
 					return ViewPayload.obtain(task.getName(), task).asMove();
 				}
 
 				@Override public void dragStop (InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload,
 					DragAndDrop.Target target) {
+					isMoving = false;
+					updateNameColor();
 					// TODO do some other stuff if needed
 					ViewPayload.free((ViewPayload)payload);
 				}
@@ -381,7 +380,8 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			if (task.isReadOnly()){
 				label.setColor(Color.GRAY);
 			} else if (task.isValid()) {
-				label.setColor(Color.WHITE);
+				// TODO some better color/indicator for isMoving?
+				label.setColor(isMoving? Color.CYAN:Color.WHITE);
 			} else {
 				label.setColor(COLOR_INVALID);
 			}
