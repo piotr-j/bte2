@@ -135,7 +135,7 @@ public class AIEditorTest extends Game {
 	private static Task<Dog> createDogBehavior () {
 		Selector<Dog> selector = new Selector<>();
 
-		selector.addChild(new Success<Dog>());
+		selector.addChild(new BarkTask());
 		Parallel<Dog> parallel = new Parallel<>();
 		selector.addChild(parallel);
 

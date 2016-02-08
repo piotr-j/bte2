@@ -68,8 +68,8 @@ public class AIEditor<E> implements Disposable {
 			private float timer;
 			@Override public boolean shouldStep (BehaviorTree tree, float delta) {
 				timer += delta;
-				if (timer > 2f) {
-					timer -= 2f;
+				if (timer > 1f) {
+					timer -= 1f;
 					return true;
 				}
 				return false;

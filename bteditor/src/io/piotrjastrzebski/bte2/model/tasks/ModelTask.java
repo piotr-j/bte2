@@ -201,6 +201,10 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 		return name;
 	}
 
+	public Task getWrapped () {
+		return wrapped;
+	}
+
 	@Override public String toString () {
 		return "ModelTask{" +
 			"type=" + type +

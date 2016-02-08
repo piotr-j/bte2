@@ -2,7 +2,10 @@ package io.piotrjastrzebski.bte2.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
+import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectIntMap;
 import io.piotrjastrzebski.bte2.model.edit.*;
 import io.piotrjastrzebski.bte2.model.tasks.ModelFakeRoot;
 import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
@@ -212,6 +215,8 @@ public class BTModel<E> {
 		listener.onListenerRemoved(this);
 	}
 
+	private ObjectIntMap<ModelTask> modelTasks = new ObjectIntMap<>();
+	private ObjectIntMap<Task> tasks = new ObjectIntMap<>();
 	public boolean isValid () {
 		if (isDirty()) {
 			boolean newValid = root != null && root.isValid();
@@ -221,8 +226,34 @@ public class BTModel<E> {
 				tree.reset();
 			}
 			valid = newValid;
+			if (valid) {
+				// TODO remove this probably
+				modelTasks.clear();
+				tasks.clear();
+				Gdx.app.log(TAG, "doubleCheck");
+				doubleCheck(modelTasks, tasks, root);
+				for (ObjectIntMap.Entry<ModelTask> entry : modelTasks.entries()) {
+					if (entry.value > 1) {
+						Gdx.app.error(TAG, "Duped model task " + entry.key);
+					}
+				}
+
+				for (ObjectIntMap.Entry<Task> entry : tasks) {
+					if (entry.value > 1) {
+						Gdx.app.error(TAG, "Duped task " + entry.key);
+					}
+				}
+			}
 		}
 		return valid;
+	}
+
+	private void doubleCheck (ObjectIntMap<ModelTask> modelTasks, ObjectIntMap<Task> tasks, ModelTask<E> task) {
+		modelTasks.put(task, modelTasks.get(task, 0) + 1);
+		tasks.put(task.getWrapped(), tasks.get(task.getWrapped(), 0) + 1);
+		for (int i = 0; i < task.getChildCount(); i++) {
+			doubleCheck(modelTasks, tasks, task.getChild(i));
+		}
 	}
 
 	public TaskLibrary getTaskLibrary () {
