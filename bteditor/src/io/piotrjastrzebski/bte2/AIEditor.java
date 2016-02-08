@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.PauseableThread;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 import com.badlogic.gdx.utils.async.ThreadUtils;
@@ -57,10 +58,15 @@ public class AIEditor<E> implements Disposable {
 	 * @param skin Skin to use
 	 */
 	public AIEditor (Skin skin) {
-		if (skin == null && VisUI.getSkin() == null) {
+		if (skin == null) {
 			ownsSkin = true;
 			skin = new Skin(VisUI.SkinScale.X1.getSkinFile());
-			VisUI.load(skin);
+			try {
+				VisUI.load(skin);
+			} catch (GdxRuntimeException e) {
+				Gdx.app.error(TAG, "VisUI already loaded?", e);
+				skin.dispose();
+			}
 		}
 		model = new BTModel<>();
 		view = new BTView<>(model);
