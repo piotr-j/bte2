@@ -35,15 +35,22 @@ allprojects {
 project(":bteditor") {
     apply plugin: "java"
 
-
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         compile "com.kotcrab.vis:vis-ui:0.9.5"
-        testCompile "junit:junit:$jUnitVersion"
-        testCompile "org.mockito:mockito-core:$mockitoVersion"
-        testCompile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+}
+
+project(":bteditor-test") {
+    apply plugin: "java"
+
+    dependencies {
+        compile project(":bteditor")
+        compile "junit:junit:$jUnitVersion"
+        compile "org.mockito:mockito-core:$mockitoVersion"
+        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }
 
