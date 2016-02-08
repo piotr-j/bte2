@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -13,7 +14,6 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
-import com.kotcrab.vis.ui.widget.color.internal.AlphaChannelBar;
 import io.piotrjastrzebski.bte2.model.BTModel;
 import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
 
@@ -21,16 +21,6 @@ import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
  * Created by EvilEntity on 04/02/2016.
  */
 public class BTView<E> extends Table implements BTModel.BTChangeListener {
-	// colors stolen from vis ui, hardcoded so we dont have to count on vis being used
-	public static final Color COLOR_VALID = new Color(0.105f, 0.631f, 0.886f, 1);
-	public static final Color COLOR_INVALID = new Color(0.862f, 0, 0.047f, 1);
-	// TODO proper colors
-	public final static Color COLOR_SUCCEEDED = new Color(Color.GREEN);
-	public final static Color COLOR_RUNNING = new Color(Color.YELLOW);
-	public final static Color COLOR_FAILED = new Color(Color.RED);
-	public final static Color COLOR_CANCELLED = new Color(Color.ORANGE);
-	public final static Color COLOR_FRESH = new Color(Color.GRAY);
-	private final static Color COLOR_BACKGROUND = new Color(.2f, .2f, .2f, 1);
 	public static String DRAWABLE_WHITE = "dialogDim";
 	private static final String TAG = BTView.class.getSimpleName();
 	private Skin skin;
@@ -233,7 +223,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		}
 	}
 
-	private static class ViewTask extends Tree.Node implements Pool.Poolable {
+	private static class ViewTask extends Tree.Node implements Pool.Poolable, ModelTask.ChangeListener {
 		private final static Pool<ViewTask> pool = new Pool<ViewTask>() {
 			@Override protected ViewTask newObject () {
 				return new ViewTask();
@@ -254,6 +244,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 
 		protected VisTable container;
 		protected VisLabel label;
+		protected VisLabel status;
 		protected ViewTarget target;
 		protected ViewSource source;
 		protected VisImage separator;
@@ -266,6 +257,9 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 
 			label = new VisLabel();
 			container.add(label);
+			status = new VisLabel("FRESH");
+			status.setColor(ViewColors.FRESH);
+			container.add(status).padLeft(5);
 			container.setTouchable(Touchable.enabled);
 
 			setObject(this);
@@ -354,6 +348,13 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			reset();
 		}
 
+		@Override public void statusChanged (Task.Status from, Task.Status to) {
+			status.setText(to.toString());
+			status.setColor(ViewColors.getColor(to));
+			status.clearActions();
+			status.addAction(Actions.color(Color.GRAY, 1.5f, Interpolation.pow3In));
+		}
+
 		enum DropPoint {
 			ABOVE, MIDDLE, BELOW
 		}
@@ -384,13 +385,13 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 				// TODO some better color/indicator for isMoving?
 				label.setColor(isMoving? Color.CYAN:Color.WHITE);
 			} else {
-				label.setColor(COLOR_INVALID);
+				label.setColor(ViewColors.INVALID);
 			}
 		}
 
 		private void updateSeparator (DropPoint dropPoint, boolean isValid) {
 			resetSeparator();
-			Color color = isValid ? COLOR_VALID : COLOR_INVALID;
+			Color color = isValid ? ViewColors.VALID : ViewColors.INVALID;
 			separator.setColor(color);
 			separator.setWidth(container.getWidth());
 			separator.setHeight(container.getHeight()/4f);
@@ -410,7 +411,9 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		}
 
 		private ViewTask init (ModelTask task, BTView view) {
+			// TODO add * after root/include when tree/subtree is not saved
 			this.task = task;
+			task.addListener(this);
 			this.dad = view.dad;
 			this.model = view.model;
 			separator.setDrawable(view.dimImg);
@@ -426,6 +429,8 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		}
 
 		@Override public void reset () {
+			if (task != null)
+				task.removeListener(this);
 			task = null;
 			label.setText("<INVALID>");
 			if (dad != null) {

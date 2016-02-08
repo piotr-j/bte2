@@ -13,7 +13,7 @@ import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
 /**
  * Created by EvilEntity on 04/02/2016.
  */
-public class BTModel<E> {
+public class BTModel<E> implements BehaviorTree.Listener<E> {
 	private static final String TAG = BTModel.class.getSimpleName();
 	private BehaviorTree<E> tree;
 	private TaskLibrary<E> taskLibrary;
@@ -34,6 +34,7 @@ public class BTModel<E> {
 		if (tree == null) throw new IllegalArgumentException("BehaviorTree cannot be null!");
 		dirty = true;
 		this.tree = tree;
+		tree.addListener(this);
 		// TODO fix the generic garbage sometime
 		root = ModelTask.wrap(tree.getChild(0), this);
 		fakeRoot.init(root, this);
@@ -47,6 +48,9 @@ public class BTModel<E> {
 
 	public void reset () {
 		commands.reset();
+		if (tree != null) {
+			tree.removeListener(this);
+		}
 		// notify first, so listeners have a chance to do stuff
 		for (BTChangeListener listener : listeners) {
 			listener.onReset(this);
@@ -270,6 +274,23 @@ public class BTModel<E> {
 
 	public BehaviorTree<E> getTree () {
 		return tree;
+	}
+
+	@Override public void statusUpdated (Task<E> task, Task.Status previousStatus) {
+		if (task instanceof BehaviorTree) {
+			root.wrappedUpdated(previousStatus, task.getStatus());
+			return;
+		}
+		ModelTask modelTask = root.getModelTask(task);
+		if (modelTask == null) {
+			Gdx.app.error(TAG, "Mddel task for " + task + " not found, wtf?");
+			return;
+		}
+		modelTask.wrappedUpdated(previousStatus, task.getStatus());
+	}
+
+	@Override public void childAdded (Task<E> task, int index) {
+
 	}
 
 	public interface BTChangeListener {

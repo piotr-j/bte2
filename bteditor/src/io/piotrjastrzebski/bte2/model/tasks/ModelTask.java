@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import io.piotrjastrzebski.bte2.model.BTModel;
+import io.piotrjastrzebski.bte2.view.BTView;
 
 /**
  * Created by EvilEntity on 04/02/2016.
@@ -24,7 +25,7 @@ import io.piotrjastrzebski.bte2.model.BTModel;
 public abstract class ModelTask<E> implements Pool.Poolable {
 	private static final String TAG = ModelTask.class.getSimpleName();
 
-	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL}
+	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL;}
 
 	public static ModelTask wrap (Task task, BTModel model) {
 		if (task instanceof Include) {
@@ -224,6 +225,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 		init = false;
 		name = null;
 		readOnly = false;
+		listeners.clear();
 	}
 
 	public boolean isReadOnly () {
@@ -233,6 +235,15 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	public abstract void free();
 
 	public abstract ModelTask copy();
+
+	public ModelTask getModelTask (Task<E> task) {
+		if (wrapped == task) return this;
+		for (ModelTask child : children) {
+			ModelTask found = child.getModelTask(task);
+			if (found != null) return found;
+		}
+		return null;
+	}
 
 	// TODO move this garbage to dedicated reflection cache class
 	private static ObjectIntMap<Class> minChildrenCache = new ObjectIntMap<>();
@@ -284,5 +295,26 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	public static void clearReflectionCache () {
 		minChildrenCache.clear();
 		maxChildrenCache.clear();
+	}
+
+	private Array<ChangeListener> listeners = new Array<>(2);
+	public void addListener (ChangeListener listener) {
+		if (!listeners.contains(listener, true)) {
+			listeners.add(listener);
+		}
+	}
+
+	public void removeListener (ChangeListener listener) {
+		listeners.removeValue(listener, true);
+	}
+
+	public void wrappedUpdated (Task.Status from, Task.Status to) {
+		for (ChangeListener listener : listeners) {
+			listener.statusChanged(from, to);
+		}
+	}
+
+	public interface ChangeListener {
+		void statusChanged(Task.Status from, Task.Status to);
 	}
 }

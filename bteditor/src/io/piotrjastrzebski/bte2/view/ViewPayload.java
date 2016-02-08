@@ -36,10 +36,10 @@ public class ViewPayload extends DragAndDrop.Payload {
 		drag = new VisLabel("", labelStyle);
 		setDragActor(drag);
 		valid = new VisLabel("", labelStyle);
-		valid.setColor(BTView.COLOR_VALID);
+		valid.setColor(ViewColors.VALID);
 		setValidDragActor(valid);
 		invalid = new VisLabel("", labelStyle);
-		invalid.setColor(BTView.COLOR_INVALID);
+		invalid.setColor(ViewColors.INVALID);
 		setInvalidDragActor(invalid);
 	}
 
