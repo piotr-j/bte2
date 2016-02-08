@@ -1,5 +1,8 @@
 package io.piotrjastrzebski.bte2.model.tasks;
 
+import com.badlogic.gdx.ai.btree.BranchTask;
+import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.branch.Selector;
 import io.piotrjastrzebski.bte2.model.BTModel;
 
 /**
@@ -18,10 +21,16 @@ public class ModelFakeRoot<E> extends ModelTask<E> {
 		// TODO make sure this is correct
 		children.clear();
 		children.add(root);
+		// need some wrapped task so remove command works
+		Selector selector = new Selector();
+		selector.addChild(root.wrapped);
+		wrapped = selector;
 		root.setParent(this);
 	}
 
-	@Override public void free () {}
+	@Override public void free () {
+		wrapped = null;
+	}
 
 	@Override public ModelTask copy () {
 		return new ModelFakeRoot();

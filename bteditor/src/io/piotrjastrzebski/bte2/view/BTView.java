@@ -101,14 +101,10 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 
 		removeTarget = new ViewTarget(drawerScrollPane) {
 			@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
-				// TODO this should be move
 				return payload.getType() == ViewPayload.Type.MOVE;
 			}
 
 			@Override public void onDrop (ViewSource source, ViewPayload payload, float x, float y) {
-				// TODO this should be move
-				// if target is this, remove, if its another task move/copy
-//				Gdx.app.log("", "drop " + payload);
 				model.remove(payload.task);
 			}
 		};
@@ -352,7 +348,6 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 					DragAndDrop.Target target) {
 					isMoving = false;
 					updateNameColor();
-					// TODO do some other stuff if needed
 					ViewPayload.free((ViewPayload)payload);
 				}
 			};
@@ -380,6 +375,9 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		}
 
 		private void updateNameColor () {
+			// NOTE it is possible that the task is freed before this is called from target callback
+			// this can happen when we drop stuff back to drawer, it gets removed, tree is updated but the callbad didnt yet fire
+			if (task == null) return;
 			if (task.isReadOnly()){
 				label.setColor(Color.GRAY);
 			} else if (task.isValid()) {
