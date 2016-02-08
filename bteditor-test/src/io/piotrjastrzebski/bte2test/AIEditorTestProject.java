@@ -81,9 +81,9 @@ public class AIEditorTestProject extends Game {
 		tutorial.addCloseButton();
 		tutorial.text(
 			"top - menu, undo/redo buttons\n"
-			+ "right - tasks that can be added to the tree\n"
+			+ "left - tasks that can be added to the tree\n"
 			+ "centre - behaviour tree you are editing\n"
-			+ "left - selected task properties - nyi\n"
+			+ "right - selected task properties - nyi\n"
 			+ "\n"
 			+ "drag and drop:\n"
 			+ " - drawer -> tree: add task to tree\n"
