@@ -46,7 +46,7 @@ public class TaskLibrary {
 	public void add (Task task) {
 		if (task == null)
 			throw new IllegalArgumentException("Task cannot be null!");
-		classToInstance.put((Class<? extends Task>)task.getClass(), task);
+		classToInstance.put(task.getClass(), task);
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class TaskLibrary {
 	}
 
 	private void addFromTask (Task task) {
-		add((Class<? extends Task>)task.getClass());
+		add(task.getClass());
 		for (int i = 0; i < task.getChildCount(); i++) {
 			addFromTask(task.getChild(i));
 		}
