@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Pool;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisLabel;
-import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
+import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
 /**
  * Created by EvilEntity on 05/02/2016.
@@ -16,7 +16,7 @@ public class ViewPayload extends DragAndDrop.Payload {
 			return new ViewPayload();
 		}
 	};
-	public static ViewPayload obtain (String text, ModelTask payload) {
+	public static ViewPayload obtain (String text, TaskModel payload) {
 		return pool.obtain().init(text, payload);
 	}
 
@@ -28,7 +28,7 @@ public class ViewPayload extends DragAndDrop.Payload {
 	protected VisLabel drag;
 	protected VisLabel valid;
 	protected VisLabel invalid;
-	protected ModelTask task;
+	protected TaskModel task;
 	protected Type type;
 
 	protected ViewPayload () {
@@ -43,7 +43,7 @@ public class ViewPayload extends DragAndDrop.Payload {
 		setInvalidDragActor(invalid);
 	}
 
-	private ViewPayload init (String text, ModelTask payload) {
+	private ViewPayload init (String text, TaskModel payload) {
 		this.task = payload;
 		setDragText(text);
 		return this;

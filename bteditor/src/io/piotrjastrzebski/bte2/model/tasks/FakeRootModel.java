@@ -1,18 +1,18 @@
 package io.piotrjastrzebski.bte2.model.tasks;
 
 import com.badlogic.gdx.ai.btree.branch.Selector;
-import io.piotrjastrzebski.bte2.model.BTModel;
+import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
-public class ModelFakeRoot extends ModelTask {
-	public ModelFakeRoot () {
+public class FakeRootModel extends TaskModel {
+	public FakeRootModel () {
 		super(Type.ROOT);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void init (ModelTask root, BTModel model) {
+	public void init (TaskModel root, BehaviorTreeModel model) {
 		this.model = model;
 		dirty = true;
 		minChildren = 1;
@@ -32,8 +32,8 @@ public class ModelFakeRoot extends ModelTask {
 		wrapped = null;
 	}
 
-	@Override public ModelTask copy () {
-		return new ModelFakeRoot();
+	@Override public TaskModel copy () {
+		return new FakeRootModel();
 	}
 
 	@Override public String toString () {

@@ -2,42 +2,42 @@ package io.piotrjastrzebski.bte2.model.tasks;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bte2.model.BTModel;
+import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public class ModelLeaf extends ModelTask implements Pool.Poolable {
-	private final static Pool<ModelLeaf> pool = new Pool<ModelLeaf>() {
-		@Override protected ModelLeaf newObject () {
-			return new ModelLeaf();
+public class LeafModel extends TaskModel implements Pool.Poolable {
+	private final static Pool<LeafModel> pool = new Pool<LeafModel>() {
+		@Override protected LeafModel newObject () {
+			return new LeafModel();
 		}
 	};
 
-	public static ModelLeaf obtain (LeafTask task, BTModel model) {
+	public static LeafModel obtain (LeafTask task, BehaviorTreeModel model) {
 		return pool.obtain().init(task, model);
 	}
 
-	public static void free (ModelLeaf leaf) {
+	public static void free (LeafModel leaf) {
 		pool.free(leaf);
 	}
 
-	private ModelLeaf () {
+	private LeafModel () {
 		super(Type.LEAF);
 	}
 
-	public ModelLeaf init (LeafTask task, BTModel model) {
+	public LeafModel init (LeafTask task, BehaviorTreeModel model) {
 		super.init(task, model);
 		return this;
 	}
 
-	protected ModelLeaf init (ModelLeaf other) {
+	protected LeafModel init (LeafModel other) {
 		super.init(other.wrapped.cloneTask(), other.model);
 		return this;
 	}
 
-	@Override public ModelLeaf copy () {
+	@Override public LeafModel copy () {
 		return pool.obtain().init(this);
 	}
 

@@ -6,27 +6,27 @@ import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import io.piotrjastrzebski.bte2.model.edit.*;
-import io.piotrjastrzebski.bte2.model.tasks.ModelFakeRoot;
-import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
+import io.piotrjastrzebski.bte2.model.tasks.FakeRootModel;
+import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public class BTModel implements BehaviorTree.Listener {
-	private static final String TAG = BTModel.class.getSimpleName();
+public class BehaviorTreeModel implements BehaviorTree.Listener {
+	private static final String TAG = BehaviorTreeModel.class.getSimpleName();
 	private BehaviorTree tree;
 	private TaskLibrary taskLibrary;
-	private ModelFakeRoot fakeRoot;
-	private ModelTask root;
+	private FakeRootModel fakeRoot;
+	private TaskModel root;
 	private CommandManager commands;
 	private boolean dirty;
 	private boolean valid;
 
-	public BTModel () {
+	public BehaviorTreeModel () {
 		taskLibrary = new TaskLibrary();
 		commands = new CommandManager();
-		fakeRoot = new ModelFakeRoot();
+		fakeRoot = new FakeRootModel();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -36,7 +36,7 @@ public class BTModel implements BehaviorTree.Listener {
 		dirty = true;
 		this.tree = tree;
 		tree.addListener(this);
-		root = ModelTask.wrap(tree.getChild(0), this);
+		root = TaskModel.wrap(tree.getChild(0), this);
 		fakeRoot.init(root, this);
 		fakeRoot.validate();
 		// notify last so we are setup
@@ -57,25 +57,25 @@ public class BTModel implements BehaviorTree.Listener {
 			listener.onReset(this);
 		}
 		// TODO Cleanup all the crap
-		ModelTask.free(root);
+		TaskModel.free(root);
 	}
 
-	public ModelTask getRoot () {
+	public TaskModel getRoot () {
 		return fakeRoot;
 	}
 
 
-	public boolean canAddBefore (ModelTask what, ModelTask target) {
+	public boolean canAddBefore (TaskModel what, TaskModel target) {
 		// check if can insert what before target
-		ModelTask parent = target.getParent();
+		TaskModel parent = target.getParent();
 		if (parent == null) return false;
 		if (!parent.canAdd(what)) return false;
 		return true;
 	}
 
-	public void addBefore (ModelTask what, ModelTask target) {
+	public void addBefore (TaskModel what, TaskModel target) {
 		if (!canAddBefore(what, target)) return;
-		ModelTask parent = target.getParent();
+		TaskModel parent = target.getParent();
 		int id = parent.getChildId(target);
 
 		commands.execute(AddCommand.obtain(id, what, parent));
@@ -83,17 +83,17 @@ public class BTModel implements BehaviorTree.Listener {
 		notifyChanged();
 	}
 
-	public boolean canAddAfter (ModelTask what, ModelTask target) {
+	public boolean canAddAfter (TaskModel what, TaskModel target) {
 		// check if can insert what after target
-		ModelTask parent = target.getParent();
+		TaskModel parent = target.getParent();
 		if (parent == null) return false;
 		if (!parent.canAdd(what)) return false;
 		return true;
 	}
 
-	public void addAfter (ModelTask what, ModelTask target) {
+	public void addAfter (TaskModel what, TaskModel target) {
 		if (!canAddAfter(what, target)) return;
-		ModelTask parent = target.getParent();
+		TaskModel parent = target.getParent();
 		int id = parent.getChildId(target);
 		commands.execute(AddCommand.obtain(id + 1, what, parent));
 		tree.reset();
@@ -103,7 +103,7 @@ public class BTModel implements BehaviorTree.Listener {
 	/**
 	 * Check if given task can be added to target task
 	 */
-	public boolean canAdd (ModelTask what, ModelTask target) {
+	public boolean canAdd (TaskModel what, TaskModel target) {
 		return target.canAdd(what);
 	}
 
@@ -111,7 +111,7 @@ public class BTModel implements BehaviorTree.Listener {
 	 * Add task that is not in the tree
 	 * It is not possible to add tasks to leaf tasks
 	 */
-	public void add (ModelTask what, ModelTask target) {
+	public void add (TaskModel what, TaskModel target) {
 		if (!canAdd(what, target)) return;
 		dirty = true;
 		commands.execute(AddCommand.obtain(what, target));
@@ -119,9 +119,9 @@ public class BTModel implements BehaviorTree.Listener {
 		notifyChanged();
 	}
 
-	public boolean canMoveBefore (ModelTask what, ModelTask target) {
+	public boolean canMoveBefore (TaskModel what, TaskModel target) {
 		if (!canAddBefore(what, target)) return false;
-		ModelTask parent = what.getParent();
+		TaskModel parent = what.getParent();
 		if (parent == null) return false;
 		// since we dont actually add to add, this is fine
 		return what == target || !what.hasChild(target);
@@ -131,24 +131,24 @@ public class BTModel implements BehaviorTree.Listener {
 	 * Check if given task can be moved to target
 	 * It is not possible to move task into its own children for example
 	 */
-	public boolean canMove (ModelTask what, ModelTask target) {
+	public boolean canMove (TaskModel what, TaskModel target) {
 		if (!canAdd(what, target)) return false;
 		return !what.hasChild(target);
 	}
 
-	public boolean canMoveAfter (ModelTask what, ModelTask target) {
+	public boolean canMoveAfter (TaskModel what, TaskModel target) {
 		if (!canAddAfter(what, target))
 			return false;
-		ModelTask parent = what.getParent();
+		TaskModel parent = what.getParent();
 		if (parent == null)
 			return false;
 		// since we dont actually add to add, this is fine
 		return what == target || !what.hasChild(target);
 	}
 
-	public void moveBefore (ModelTask what, ModelTask target) {
+	public void moveBefore (TaskModel what, TaskModel target) {
 		if (!canMoveBefore(what, target)) return;
-		ModelTask parent = target.getParent();
+		TaskModel parent = target.getParent();
 		int id = parent.getChildId(target);
 		commands.execute(MoveCommand.obtain(id, what, parent));
 		dirty = true;
@@ -158,7 +158,7 @@ public class BTModel implements BehaviorTree.Listener {
 	/**
 	 * Move task that is in the tree to another position
 	 */
-	public void move (ModelTask what, ModelTask target) {
+	public void move (TaskModel what, TaskModel target) {
 		if (!canMove(what, target)) return;
 		commands.execute(MoveCommand.obtain(what, target));
 		tree.reset();
@@ -166,9 +166,9 @@ public class BTModel implements BehaviorTree.Listener {
 		notifyChanged();
 	}
 
-	public void moveAfter (ModelTask what, ModelTask target) {
+	public void moveAfter (TaskModel what, TaskModel target) {
 		if (!canMoveAfter(what, target)) return;
-		ModelTask parent = target.getParent();
+		TaskModel parent = target.getParent();
 		int id = parent.getChildId(target);
 		commands.execute(MoveCommand.obtain(id + 1, what, parent));
 		dirty = true;
@@ -178,7 +178,7 @@ public class BTModel implements BehaviorTree.Listener {
 	/**
 	 * Remove task from the tree
 	 */
-	public void remove (ModelTask what) {
+	public void remove (TaskModel what) {
 		dirty = true;
 		commands.execute(RemoveCommand.obtain(what));
 		tree.reset();
@@ -220,7 +220,7 @@ public class BTModel implements BehaviorTree.Listener {
 		listener.onListenerRemoved(this);
 	}
 
-	private ObjectIntMap<ModelTask> modelTasks = new ObjectIntMap<>();
+	private ObjectIntMap<TaskModel> modelTasks = new ObjectIntMap<>();
 	private ObjectIntMap<Task> tasks = new ObjectIntMap<>();
 	public boolean isValid () {
 		if (isDirty()) {
@@ -237,7 +237,7 @@ public class BTModel implements BehaviorTree.Listener {
 				tasks.clear();
 				Gdx.app.log(TAG, "doubleCheck");
 				doubleCheck(modelTasks, tasks, root);
-				for (ObjectIntMap.Entry<ModelTask> entry : modelTasks.entries()) {
+				for (ObjectIntMap.Entry<TaskModel> entry : modelTasks.entries()) {
 					if (entry.value > 1) {
 						Gdx.app.error(TAG, "Duped model task " + entry.key);
 					}
@@ -253,7 +253,7 @@ public class BTModel implements BehaviorTree.Listener {
 		return valid;
 	}
 
-	private void doubleCheck (ObjectIntMap<ModelTask> modelTasks, ObjectIntMap<Task> tasks, ModelTask task) {
+	private void doubleCheck (ObjectIntMap<TaskModel> modelTasks, ObjectIntMap<Task> tasks, TaskModel task) {
 		modelTasks.put(task, modelTasks.get(task, 0) + 1);
 		tasks.put(task.getWrapped(), tasks.get(task.getWrapped(), 0) + 1);
 		for (int i = 0; i < task.getChildCount(); i++) {
@@ -282,12 +282,12 @@ public class BTModel implements BehaviorTree.Listener {
 			root.wrappedUpdated(previousStatus, task.getStatus());
 			return;
 		}
-		ModelTask modelTask = root.getModelTask(task);
-		if (modelTask == null) {
+		TaskModel taskModel = root.getModelTask(task);
+		if (taskModel == null) {
 			Gdx.app.error(TAG, "Mddel task for " + task + " not found, wtf?");
 			return;
 		}
-		modelTask.wrappedUpdated(previousStatus, task.getStatus());
+		taskModel.wrappedUpdated(previousStatus, task.getStatus());
 	}
 
 	@Override public void childAdded (Task task, int index) {
@@ -298,27 +298,27 @@ public class BTModel implements BehaviorTree.Listener {
 		/**
 		 * Called when model was reset
 		 */
-		void onReset (BTModel model);
+		void onReset (BehaviorTreeModel model);
 
 		/**
 		 * called when model was initialized with new behavior tree
 		 */
-		void onInit (BTModel model);
+		void onInit (BehaviorTreeModel model);
 
 		/**
 		 * Called when this listener was added to the moved
 		 */
-		void onListenerAdded (BTModel model);
+		void onListenerAdded (BehaviorTreeModel model);
 
 		/**
 		 * Called when this listener was removed from the moved
 		 */
-		void onListenerRemoved (BTModel model);
+		void onListenerRemoved (BehaviorTreeModel model);
 
 		/**
 		 * called when model was initialized with new behavior tree
 		 */
-		void onChange (BTModel model);
+		void onChange (BehaviorTreeModel model);
 
 	}
 }

@@ -16,33 +16,33 @@ import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
-import io.piotrjastrzebski.bte2.model.BTModel;
+import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public abstract class ModelTask implements Pool.Poolable {
-	private static final String TAG = ModelTask.class.getSimpleName();
+public abstract class TaskModel implements Pool.Poolable {
+	private static final String TAG = TaskModel.class.getSimpleName();
 
 	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL;}
 
-	public static ModelTask wrap (Task task, BTModel model) {
+	public static TaskModel wrap (Task task, BehaviorTreeModel model) {
 		if (task instanceof Include) {
-			return ModelInclude.obtain((Include)task, model);
+			return IncludeModel.obtain((Include)task, model);
 		} else if (task instanceof LeafTask) {
-			return ModelLeaf.obtain((LeafTask)task, model);
+			return LeafModel.obtain((LeafTask)task, model);
 		} else if (task instanceof BranchTask) {
-			return ModelBranch.obtain((BranchTask)task, model);
+			return BranchModel.obtain((BranchTask)task, model);
 		} else if (task instanceof Decorator) {
-			return ModelDecorator.obtain((Decorator)task, model);
+			return DecoratorModel.obtain((Decorator)task, model);
 		} else {
 			Gdx.app.error(TAG, "Invalid task class! " + task);
 		}
-		return ModelNull.INSTANCE;
+		return NullModel.INSTANCE;
 	}
 
-	public static ModelTask wrap (Class<? extends Task> cls, BTModel model) {
+	public static TaskModel wrap (Class<? extends Task> cls, BehaviorTreeModel model) {
 		// TODO how do we want to make an instance of this?
 		try {
 			Task task = ClassReflection.newInstance(cls);
@@ -54,26 +54,26 @@ public abstract class ModelTask implements Pool.Poolable {
 		} catch (ReflectionException e) {
 			e.printStackTrace();
 		}
-		return ModelNull.INSTANCE;
+		return NullModel.INSTANCE;
 	}
 
-	public static void free (ModelTask task) {
+	public static void free (TaskModel task) {
 		if (task != null) {
 			task.free();
 		}
 	}
 
 	protected final Type type;
-	protected ModelTask (Type type) {
+	protected TaskModel (Type type) {
 		this.type = type;
 	}
 
-	protected ModelTask parent;
-	protected ModelTask guard;
-	protected ModelTask guarded;
+	protected TaskModel parent;
+	protected TaskModel guard;
+	protected TaskModel guarded;
 	protected Task wrapped;
 	// NOTE there aren't that many children per task, 4 is a decent start
-	protected Array<ModelTask> children = new Array<>(4);
+	protected Array<TaskModel> children = new Array<>(4);
 	protected boolean init;
 	protected boolean valid;
 	protected boolean dirty;
@@ -81,10 +81,10 @@ public abstract class ModelTask implements Pool.Poolable {
 	protected boolean isGuard;
 	protected int minChildren;
 	protected int maxChildren;
-	protected BTModel model;
+	protected BehaviorTreeModel model;
 	protected Array<TaskCommand> pending = new Array<>();
 
-	public void init (Task task, BTModel model) {
+	public void init (Task task, BehaviorTreeModel model) {
 		this.model = model;
 		init = true;
 		wrapped = task;
@@ -92,7 +92,7 @@ public abstract class ModelTask implements Pool.Poolable {
 		maxChildren = getMaxChildren(task);
 		dirty = true;
 		for (int i = 0; i < task.getChildCount(); i++) {
-			ModelTask child = wrap(task.getChild(i), model);
+			TaskModel child = wrap(task.getChild(i), model);
 			child.setParent(this);
 			children.add(child);
 		}
@@ -104,15 +104,15 @@ public abstract class ModelTask implements Pool.Poolable {
 		pending.clear();
 	}
 
-	public void setIsGuard (boolean isGuard, ModelTask guarded) {
+	public void setIsGuard (boolean isGuard, TaskModel guarded) {
 		this.isGuard = isGuard;
 		this.guarded = guarded;
-		for (ModelTask child : children) {
+		for (TaskModel child : children) {
 			child.setIsGuard(isGuard, guarded);
 		}
 	}
 
-	public boolean canAdd (ModelTask task) {
+	public boolean canAdd (TaskModel task) {
 		// TODO special handling for some things maybe
 		return !readOnly && children.size < maxChildren;
 	}
@@ -129,7 +129,7 @@ public abstract class ModelTask implements Pool.Poolable {
 			guard.validate();
 			valid &= guard.isValid();
 		}
-		for (ModelTask child : children) {
+		for (TaskModel child : children) {
 			child.validate();
 			valid &= child.isValid();
 		}
@@ -153,16 +153,16 @@ public abstract class ModelTask implements Pool.Poolable {
 		}
 	}
 
-	public ModelTask getChild (int id) {
+	public TaskModel getChild (int id) {
 		return children.get(id);
 	}
 
 	/**
 	 * Check if given task is in this task
 	 */
-	public boolean hasChild (ModelTask task) {
+	public boolean hasChild (TaskModel task) {
 		if (this == task) return true;
-		for (ModelTask child : children) {
+		for (TaskModel child : children) {
 			if (child == task || child.hasChild(task)) {
 				return true;
 			}
@@ -170,12 +170,12 @@ public abstract class ModelTask implements Pool.Poolable {
 		return false;
 	}
 
-	public void addChild (ModelTask task) {
+	public void addChild (TaskModel task) {
 		// can we do this? or do we need some specific code in here
 		insertChild(children.size, task);
 	}
 
-	public void insertChild (int at, ModelTask task) {
+	public void insertChild (int at, TaskModel task) {
 		// if at is larger then size, we will insert as last
 		at = Math.min(at, children.size);
 		children.insert(at, task);
@@ -188,7 +188,7 @@ public abstract class ModelTask implements Pool.Poolable {
 		}
 	}
 
-	public void removeChild (ModelTask task) {
+	public void removeChild (TaskModel task) {
 		children.removeValue(task, true);
 		dirty = true;
 		if (model.isValid() && isValid()) {
@@ -198,7 +198,7 @@ public abstract class ModelTask implements Pool.Poolable {
 		}
 	}
 
-	public int getChildId (ModelTask what) {
+	public int getChildId (TaskModel what) {
 		return children.indexOf(what, true);
 	}
 
@@ -206,7 +206,7 @@ public abstract class ModelTask implements Pool.Poolable {
 		return type;
 	}
 
-	public void setGuard(ModelTask guard) {
+	public void setGuard(TaskModel guard) {
 		removeGuard();
 		this.guard = guard;
 		wrapped.setGuard(guard.wrapped);
@@ -218,7 +218,7 @@ public abstract class ModelTask implements Pool.Poolable {
 		wrapped.setGuard(null);
 	}
 
-	public ModelTask getGuarded () {
+	public TaskModel getGuarded () {
 		return guarded;
 	}
 
@@ -226,7 +226,7 @@ public abstract class ModelTask implements Pool.Poolable {
 		return isGuard;
 	}
 
-	public ModelTask getGuard () {
+	public TaskModel getGuard () {
 		return guard;
 	}
 
@@ -234,11 +234,11 @@ public abstract class ModelTask implements Pool.Poolable {
 		return guard != null;
 	}
 
-	public void setParent (ModelTask parent) {
+	public void setParent (TaskModel parent) {
 		this.parent = parent;
 	}
 
-	public ModelTask getParent () {
+	public TaskModel getParent () {
 		return parent;
 	}
 
@@ -267,7 +267,7 @@ public abstract class ModelTask implements Pool.Poolable {
 	}
 
 	@Override public void reset () {
-		for (ModelTask child : children) {
+		for (TaskModel child : children) {
 			free(child);
 		}
 		children.clear();
@@ -291,17 +291,17 @@ public abstract class ModelTask implements Pool.Poolable {
 
 	public abstract void free();
 
-	public abstract ModelTask copy();
+	public abstract TaskModel copy();
 
-	public ModelTask getModelTask (Task task) {
+	public TaskModel getModelTask (Task task) {
 		if (wrapped == task) return this;
 		// TODO use a map for this garbage?
 		if (guard != null) {
-			ModelTask found = guard.getModelTask(task);
+			TaskModel found = guard.getModelTask(task);
 			if (found != null) return found;
 		}
-		for (ModelTask child : children) {
-			ModelTask found = child.getModelTask(task);
+		for (TaskModel child : children) {
+			TaskModel found = child.getModelTask(task);
 			if (found != null) return found;
 		}
 		return null;

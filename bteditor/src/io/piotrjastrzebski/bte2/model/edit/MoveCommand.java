@@ -1,7 +1,7 @@
 package io.piotrjastrzebski.bte2.model.edit;
 
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
+import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
 /**
  * Created by EvilEntity on 05/02/2016.
@@ -12,11 +12,11 @@ public class MoveCommand extends Command {
 			return new MoveCommand();
 		}
 	};
-	public static MoveCommand obtain (ModelTask what, ModelTask where) {
+	public static MoveCommand obtain (TaskModel what, TaskModel where) {
 		return pool.obtain().init(what, where);
 	}
 
-	public static MoveCommand obtain (int at, ModelTask what, ModelTask where) {
+	public static MoveCommand obtain (int at, TaskModel what, TaskModel where) {
 		return pool.obtain().init(at, what, where);
 	}
 
@@ -27,11 +27,11 @@ public class MoveCommand extends Command {
 		super(Type.MOVE);
 	}
 
-	private MoveCommand init (ModelTask what, ModelTask where) {
+	private MoveCommand init (TaskModel what, TaskModel where) {
 		return init(-1, what, where);
 	}
 
-	private MoveCommand init (int at, ModelTask what, ModelTask where) {
+	private MoveCommand init (int at, TaskModel what, TaskModel where) {
 		remove = RemoveCommand.obtain(what);
 		add = AddCommand.obtain(at, what, where);
 		return this;

@@ -15,17 +15,17 @@ import com.badlogic.gdx.utils.Pool;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
 
-import io.piotrjastrzebski.bte2.model.BTModel;
-import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
+import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
+import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public class BTView extends Table implements BTModel.BTChangeListener {
+public class BTView extends Table implements BehaviorTreeModel.BTChangeListener {
 	public static String DRAWABLE_WHITE = "dialogDim";
 	private static final String TAG = BTView.class.getSimpleName();
-	private BTModel model;
+	private BehaviorTreeModel model;
 	private VisTable topMenu;
 	private VisScrollPane drawerScrollPane;
 	private VisScrollPane treeScrollPane;
@@ -36,7 +36,7 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 	private ViewTarget removeTarget;
 	private SpriteDrawable dimImg;
 
-	public BTView (final BTModel model) {
+	public BTView (final BehaviorTreeModel model) {
 		this.model = model;
 		debugAll();
 		model.addChangeListener(this);
@@ -121,7 +121,7 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 		}
 	}
 
-	@Override public void onInit (BTModel model) {
+	@Override public void onInit (BehaviorTreeModel model) {
 		this.model = model;
 
 		rebuildTree();
@@ -137,7 +137,7 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 		tree.expandAll();
 	}
 
-	private void fillTree (Tree.Node parent, ModelTask task) {
+	private void fillTree (Tree.Node parent, TaskModel task) {
 		Tree.Node node = ViewTask.obtain(task, this);
 		// since tree is not a node for whatever reason, we do this garbage
 		if (parent == null) {
@@ -195,7 +195,7 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 		protected String tag;
 		protected Class<? extends Task> cls;
 		private DragAndDrop dad;
-		private BTModel model;
+		private BehaviorTreeModel model;
 		private String simpleName;
 		private ViewSource source;
 		public TaggedTask () {
@@ -204,7 +204,7 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 			setObject(this);
 			source = new ViewSource(label){
 				@Override public DragAndDrop.Payload dragStart (InputEvent event, float x, float y, int pointer) {
-					return ViewPayload.obtain(simpleName, ModelTask.wrap(cls, model)).asAdd();
+					return ViewPayload.obtain(simpleName, TaskModel.wrap(cls, model)).asAdd();
 				}
 
 				@Override public void dragStop (InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload,
@@ -246,14 +246,14 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 		}
 	}
 
-	private static class ViewTask extends Tree.Node implements Pool.Poolable, ModelTask.ChangeListener {
+	private static class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListener {
 		private final static Pool<ViewTask> pool = new Pool<ViewTask>() {
 			@Override protected ViewTask newObject () {
 				return new ViewTask();
 			}
 		};
 
-		public static ViewTask obtain (ModelTask task, BTView view) {
+		public static ViewTask obtain (TaskModel task, BTView view) {
 			return pool.obtain().init(task, view);
 		}
 
@@ -262,8 +262,8 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 		}
 
 		private DragAndDrop dad;
-		private BTModel model;
-		private ModelTask task;
+		private BehaviorTreeModel model;
+		private TaskModel task;
 
 		protected VisTable container;
 		protected VisLabel label;
@@ -442,7 +442,7 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 			}
 		}
 
-		private ViewTask init (ModelTask task, BTView view) {
+		private ViewTask init (TaskModel task, BTView view) {
 			// TODO add * after root/include when tree/subtree is not saved
 			this.task = task;
 			task.addListener(this);
@@ -452,7 +452,7 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 			separator.setVisible(false);
 			container.addActor(separator);
 			label.setText(task.getName());
-			if (task.getType() != ModelTask.Type.ROOT && !task.isReadOnly()) {
+			if (task.getType() != TaskModel.Type.ROOT && !task.isReadOnly()) {
 				dad.addSource(source);
 			}
 			updateNameColor();
@@ -496,19 +496,19 @@ public class BTView extends Table implements BTModel.BTChangeListener {
 		}
 	}
 
-	@Override public void onChange (BTModel model) {
+	@Override public void onChange (BehaviorTreeModel model) {
 		rebuildTree();
 	}
 
-	@Override public void onListenerAdded (BTModel model) {
+	@Override public void onListenerAdded (BehaviorTreeModel model) {
 
 	}
 
-	@Override public void onListenerRemoved (BTModel model) {
+	@Override public void onListenerRemoved (BehaviorTreeModel model) {
 
 	}
 
-	@Override public void onReset (BTModel model) {
+	@Override public void onReset (BehaviorTreeModel model) {
 
 	}
 }

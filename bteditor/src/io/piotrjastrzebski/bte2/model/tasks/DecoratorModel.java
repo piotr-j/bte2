@@ -2,7 +2,7 @@ package io.piotrjastrzebski.bte2.model.tasks;
 
 import com.badlogic.gdx.ai.btree.Decorator;
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bte2.model.BTModel;
+import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 
 /**
  * TODO this would be nice, but is a bit of pain to implement
@@ -18,36 +18,36 @@ import io.piotrjastrzebski.bte2.model.BTModel;
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public class ModelDecorator extends ModelTask implements Pool.Poolable {
-	private final static Pool<ModelDecorator> pool = new Pool<ModelDecorator>() {
-		@Override protected ModelDecorator newObject () {
-			return new ModelDecorator();
+public class DecoratorModel extends TaskModel implements Pool.Poolable {
+	private final static Pool<DecoratorModel> pool = new Pool<DecoratorModel>() {
+		@Override protected DecoratorModel newObject () {
+			return new DecoratorModel();
 		}
 	};
 
-	public static ModelDecorator obtain (Decorator task, BTModel model) {
+	public static DecoratorModel obtain (Decorator task, BehaviorTreeModel model) {
 		return pool.obtain().init(task, model);
 	}
 
-	public static void free (ModelDecorator leaf) {
+	public static void free (DecoratorModel leaf) {
 		pool.free(leaf);
 	}
 
-	private ModelDecorator () {
+	private DecoratorModel () {
 		super(Type.DECORATOR);
 	}
 
-	public ModelDecorator init (Decorator task, BTModel model) {
+	public DecoratorModel init (Decorator task, BehaviorTreeModel model) {
 		super.init(task, model);
 		return this;
 	}
 
-	protected ModelDecorator init (ModelDecorator other) {
+	protected DecoratorModel init (DecoratorModel other) {
 		super.init(other.wrapped.cloneTask(), other.model);
 		return this;
 	}
 
-	@Override public ModelDecorator copy () {
+	@Override public DecoratorModel copy () {
 		return pool.obtain().init(this);
 	}
 

@@ -5,7 +5,7 @@ import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bte2.model.BTModel;
+import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 
 /**
  * Wraps Include task
@@ -15,33 +15,33 @@ import io.piotrjastrzebski.bte2.model.BTModel;
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public class ModelInclude extends ModelTask implements Pool.Poolable {
-	private final static Pool<ModelInclude> pool = new Pool<ModelInclude>() {
-		@Override protected ModelInclude newObject () {
-			return new ModelInclude();
+public class IncludeModel extends TaskModel implements Pool.Poolable {
+	private final static Pool<IncludeModel> pool = new Pool<IncludeModel>() {
+		@Override protected IncludeModel newObject () {
+			return new IncludeModel();
 		}
 	};
 
-	public static ModelInclude obtain (Include include, BTModel model) {
+	public static IncludeModel obtain (Include include, BehaviorTreeModel model) {
 		return pool.obtain().init(include, model);
 	}
 
-	public static void free (ModelInclude leaf) {
+	public static void free (IncludeModel leaf) {
 		pool.free(leaf);
 	}
 
-	private static final String TAG = ModelInclude.class.getSimpleName();
+	private static final String TAG = IncludeModel.class.getSimpleName();
 
-	private ModelInclude () {
+	private IncludeModel () {
 		super(Type.INCLUDE);
 	}
 
-	public ModelInclude init (Include include, BTModel model) {
+	public IncludeModel init (Include include, BehaviorTreeModel model) {
 		super.init(include, model);
 		return this;
 	}
 
-	protected ModelInclude init (ModelInclude other) {
+	protected IncludeModel init (IncludeModel other) {
 		// NOTE we can't clone this task as that will attempt to create subtree
 		super.init(other.wrapped, other.model);
 		return this;
@@ -79,7 +79,7 @@ public class ModelInclude extends ModelTask implements Pool.Poolable {
 			}
 			children.clear();
 			for (int i = 0; i < wrapped.getChildCount(); i++) {
-				ModelTask child = wrap(wrapped.getChild(i), model);
+				TaskModel child = wrap(wrapped.getChild(i), model);
 				child.setParent(this);
 				child.setReadOnly(true);
 				children.add(child);
@@ -87,7 +87,7 @@ public class ModelInclude extends ModelTask implements Pool.Poolable {
 		}
 	}
 
-	@Override public ModelInclude copy () {
+	@Override public IncludeModel copy () {
 		return pool.obtain().init(this);
 	}
 

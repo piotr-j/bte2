@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisWindow;
 
-import io.piotrjastrzebski.bte2.model.BTModel;
+import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte2.model.TaskLibrary;
 import io.piotrjastrzebski.bte2.view.BTView;
 
@@ -39,7 +39,7 @@ public class AIEditor implements Disposable {
 	private boolean ownsSkin;
 	/* Current tree we are editing */
 	private BehaviorTree tree;
-	private BTModel model;
+	private BehaviorTreeModel model;
 	private BTView view;
 	private BTUpdateStrategy strategy;
 	private BTUpdateStrategy simpleStrategy;
@@ -67,7 +67,7 @@ public class AIEditor implements Disposable {
 				skin.dispose();
 			}
 		}
-		model = new BTModel();
+		model = new BehaviorTreeModel();
 		view = new BTView(model);
 		simpleStrategy = new BTUpdateStrategy() {
 			private float timer;

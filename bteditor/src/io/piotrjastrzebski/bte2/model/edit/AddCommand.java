@@ -1,7 +1,7 @@
 package io.piotrjastrzebski.bte2.model.edit;
 
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
+import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
 /**
  * Created by EvilEntity on 05/02/2016.
@@ -12,25 +12,25 @@ public class AddCommand extends Command {
 			return new AddCommand();
 		}
 	};
-	public static AddCommand obtain (ModelTask what, ModelTask where) {
+	public static AddCommand obtain (TaskModel what, TaskModel where) {
 		return pool.obtain().init(what, where);
 	}
-	public static AddCommand obtain (int at, ModelTask what, ModelTask where) {
+	public static AddCommand obtain (int at, TaskModel what, TaskModel where) {
 		return pool.obtain().init(at, what, where);
 	}
-	private ModelTask what;
-	private ModelTask target;
+	private TaskModel what;
+	private TaskModel target;
 	private int at = -1;
 
 	protected AddCommand () {
 		super(Type.ADD);
 	}
 
-	public AddCommand init (ModelTask what, ModelTask target) {
+	public AddCommand init (TaskModel what, TaskModel target) {
 		return init(-1, what, target);
 	}
 
-	public AddCommand init (int at, ModelTask what, ModelTask target) {
+	public AddCommand init (int at, TaskModel what, TaskModel target) {
 		this.at = at;
 		// we can make a copy of what, but cant of target duh
 		// do we even want to copy stuff?

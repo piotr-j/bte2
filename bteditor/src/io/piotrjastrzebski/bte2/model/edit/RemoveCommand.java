@@ -1,7 +1,7 @@
 package io.piotrjastrzebski.bte2.model.edit;
 
 import com.badlogic.gdx.utils.Pool;
-import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
+import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
 /**
  * Created by EvilEntity on 05/02/2016.
@@ -13,7 +13,7 @@ public class RemoveCommand extends Command implements Pool.Poolable {
 		}
 	};
 
-	public static RemoveCommand obtain (ModelTask what) {
+	public static RemoveCommand obtain (TaskModel what) {
 		return pool.obtain().init(what);
 	}
 
@@ -21,13 +21,13 @@ public class RemoveCommand extends Command implements Pool.Poolable {
 		super(Type.REMOVE);
 	}
 
-	protected ModelTask what;
-	protected ModelTask parent;
+	protected TaskModel what;
+	protected TaskModel parent;
 
 	protected int idInParent;
 	protected boolean removeGaurd;
 
-	public RemoveCommand init (ModelTask what) {
+	public RemoveCommand init (TaskModel what) {
 		this.what = what;
 		parent = what.getParent();
 		// note top level guard doesn't have a parent, this could be set to guarded task
