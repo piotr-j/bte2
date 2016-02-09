@@ -106,14 +106,14 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 	}
 
 	private void onOverNodeChanged (Tree.Node oldNode, Tree.Node newNode) {
-		ViewTask oldTask = (ViewTask)oldNode;
-		if (oldTask != null && oldTask.isGuard()) {
-			oldTask.markAsGuarded(false);
-		}
-		ViewTask newTask = (ViewTask)newNode;
-		if (newTask != null && newTask.isGuard()) {
-			newTask.markAsGuarded(true);
-		}
+//		ViewTask oldTask = (ViewTask)oldNode;
+//		if (oldTask != null && oldTask.isGuard()) {
+//			oldTask.markAsGuarded(false);
+//		}
+//		ViewTask newTask = (ViewTask)newNode;
+//		if (newTask != null && newTask.isGuard()) {
+//			newTask.markAsGuarded(true);
+//		}
 	}
 
 	@Override public void onInit (BehaviorTreeModel model) {
@@ -133,18 +133,35 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 	}
 
 	private void fillTree (Tree.Node parent, TaskModel task) {
-		Tree.Node node = ViewTask.obtain(task, this);
 		// since tree is not a node for whatever reason, we do this garbage
-		if (parent == null) {
-			tree.add(node);
-		} else {
-			parent.add(node);
-		}
 		if (task.isGuarded()) {
-			fillTree(node, task.getGuard());
-		}
-		for (int i = 0; i < task.getChildCount(); i++) {
-			fillTree(node, task.getChild(i));
+			Tree.Node guardRoot = new Tree.Node(new VisLabel("Guard"));
+			if (parent == null) {
+				tree.add(guardRoot);
+			} else {
+				parent.add(guardRoot);
+			}
+			TaskModel guardModel = task.getGuard();
+			Tree.Node guard = ViewTask.obtain(guardModel, this);
+			guardRoot.add(guard);
+			for (int i = 0; i < guardModel.getChildCount(); i++) {
+				fillTree(guard, guardModel.getChild(i));
+			}
+			Tree.Node node = ViewTask.obtain(task, this);
+			guardRoot.add(node);
+			for (int i = 0; i < task.getChildCount(); i++) {
+				fillTree(node, task.getChild(i));
+			}
+		} else {
+			Tree.Node node = ViewTask.obtain(task, this);
+			if (parent == null) {
+				tree.add(node);
+			} else {
+				parent.add(node);
+			}
+			for (int i = 0; i < task.getChildCount(); i++) {
+				fillTree(node, task.getChild(i));
+			}
 		}
 	}
 

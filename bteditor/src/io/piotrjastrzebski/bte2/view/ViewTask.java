@@ -173,11 +173,11 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		if (task.getType() != TaskModel.Type.ROOT && !task.isReadOnly()) {
 			dad.addSource(source);
 		}
-		if (task.isGuard()) {
-			prefix.setText("(G) ");
-		} else {
-			prefix.setText("");
-		}
+//		if (task.isGuard()) {
+//			prefix.setText("(G) ");
+//		} else {
+//			prefix.setText("");
+//		}
 		updateNameColor();
 		dad.addTarget(target);
 		return this;
