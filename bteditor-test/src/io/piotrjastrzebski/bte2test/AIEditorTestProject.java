@@ -6,6 +6,8 @@ import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.*;
 import com.badlogic.gdx.ai.btree.decorator.*;
+import com.badlogic.gdx.ai.btree.leaf.Failure;
+import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser;
@@ -130,9 +132,23 @@ public class AIEditorTestProject extends Game {
 	}
 
 	private static Task<Dog> createDogBehavior () {
+		RandomSelector<Dog> guard = new RandomSelector<>();
+		guard.addChild(new Failure<Dog>());
+		guard.addChild(new Success<Dog>());
+
+
 		Selector<Dog> selector = new Selector<>();
 
-		selector.addChild(new BarkTask());
+		DynamicGuardSelector<Dog> guardSelector = new DynamicGuardSelector<>();
+		WalkTask guardedWalk = new WalkTask();
+		guardedWalk.setGuard(guard);
+		guardSelector.addChild(guardedWalk);
+		AlwaysFail<Dog> alwaysFail = new AlwaysFail<>();
+		alwaysFail.addChild(new CareTask());
+		guardSelector.addChild(alwaysFail);
+
+		selector.addChild(guardSelector);
+
 		Parallel<Dog> parallel = new Parallel<>();
 		selector.addChild(parallel);
 

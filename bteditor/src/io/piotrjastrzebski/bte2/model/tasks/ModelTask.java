@@ -9,7 +9,6 @@ import com.badlogic.gdx.ai.btree.annotation.TaskConstraint;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.decorator.Repeat;
 import com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool;
@@ -17,7 +16,6 @@ import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 import io.piotrjastrzebski.bte2.model.BTModel;
-import io.piotrjastrzebski.bte2.view.BTView;
 
 /**
  * Created by EvilEntity on 04/02/2016.
@@ -69,6 +67,8 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	}
 
 	protected ModelTask parent;
+	protected ModelTask guard;
+	protected ModelTask guarded;
 	protected Task wrapped;
 	// NOTE there aren't that many children per task, 4 is a decent start
 	protected Array<ModelTask> children = new Array<>(4);
@@ -76,6 +76,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	protected boolean valid;
 	protected boolean dirty;
 	protected boolean readOnly;
+	protected boolean isGuard;
 	protected int minChildren;
 	protected int maxChildren;
 	protected BTModel model;
@@ -93,7 +94,20 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 			child.setParent(this);
 			children.add(child);
 		}
+		Task guard = wrapped.getGuard();
+		if (guard != null) {
+			this.guard = wrap(guard, model);
+			this.guard.setIsGuard(true, this);
+		}
 		pending.clear();
+	}
+
+	public void setIsGuard (boolean isGuard, ModelTask<E> guarded) {
+		this.isGuard = isGuard;
+		this.guarded = guarded;
+		for (ModelTask child : children) {
+			child.setIsGuard(isGuard, guarded);
+		}
 	}
 
 	public boolean canAdd (ModelTask task) {
@@ -109,6 +123,10 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	public void validate () {
 		if (!dirty) return;
 		valid = !(children.size < minChildren || children.size > maxChildren);
+		if (guard != null) {
+			guard.validate();
+			valid &= guard.isValid();
+		}
 		for (ModelTask child : children) {
 			child.validate();
 			valid &= child.isValid();
@@ -186,6 +204,18 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 		return type;
 	}
 
+	public boolean isGuard () {
+		return isGuard;
+	}
+
+	public ModelTask getGuard () {
+		return guard;
+	}
+
+	public boolean isGuarded () {
+		return guard != null;
+	}
+
 	public void setParent (ModelTask parent) {
 		this.parent = parent;
 	}
@@ -198,6 +228,9 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 	public String getName () {
 		if (name == null) {
 			name = wrapped != null? wrapped.getClass().getSimpleName():"<!null!>";
+			if (isGuard) {
+				name = "(G) " + name;
+			}
 		}
 		return name;
 	}
@@ -220,6 +253,12 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 			free(child);
 		}
 		children.clear();
+		if (guard != null) {
+			free(guard);
+		}
+		guard = null;
+		guarded = null;
+		isGuard = false;
 		wrapped = null;
 		parent = null;
 		init = false;
@@ -238,6 +277,11 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 
 	public ModelTask getModelTask (Task<E> task) {
 		if (wrapped == task) return this;
+		// TODO use a map for this garbage?
+		if (guard != null) {
+			ModelTask found = guard.getModelTask(task);
+			if (found != null) return found;
+		}
 		for (ModelTask child : children) {
 			ModelTask found = child.getModelTask(task);
 			if (found != null) return found;

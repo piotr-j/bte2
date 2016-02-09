@@ -15,6 +15,8 @@ public class ViewColors {
 	public final static Color FAILED = new Color(Color.RED);
 	public final static Color CANCELLED = new Color(Color.YELLOW);
 	public final static Color FRESH = new Color(Color.GRAY);
+	public final static Color GUARD = new Color(0.85f, 0.85f, 1f, 1f);
+	public final static Color GUARDED = new Color(0.6f, 0.7f, 1f, 1f);
 
 	public static Color getColor (Task.Status status) {
 		if (status == null)

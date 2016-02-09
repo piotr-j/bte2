@@ -72,7 +72,15 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		taskDrawer.setYSpacing(-2);
 		taskDrawer.setFillParent(true);
 		VisTable treeView = new VisTable(true);
-		tree = new VisTree();
+		tree = new VisTree() {
+			@Override public void setOverNode (Node overNode) {
+				Node old = tree.getOverNode();
+				if (old != overNode) {
+					onOverNodeChanged(old, overNode);
+				}
+				super.setOverNode(overNode);
+			}
+		};
 		tree.setYSpacing(0);
 		// add dim to tree so its in same coordinates as nodes
 		treeView.add(tree).fill().expand();
@@ -101,6 +109,17 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		dad.addTarget(removeTarget);
 	}
 
+	private void onOverNodeChanged (Tree.Node oldNode, Tree.Node newNode) {
+		ViewTask oldTask = (ViewTask)oldNode;
+		if (oldTask != null && oldTask.task != null && oldTask.task.isGuard()) {
+			oldTask.markGuarded(false);
+		}
+		ViewTask newTask = (ViewTask)newNode;
+		if (newTask != null && newTask.task != null && newTask.task.isGuard()) {
+			newTask.markGuarded(true);
+		}
+	}
+
 	@Override public void onInit (BTModel model) {
 		this.model = model;
 
@@ -124,6 +143,9 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			tree.add(node);
 		} else {
 			parent.add(node);
+		}
+		if (task.isGuarded()) {
+			fillTree(node, task.getGuard());
 		}
 		for (int i = 0; i < task.getChildCount(); i++) {
 			fillTree(node, task.getChild(i));
@@ -249,6 +271,7 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 		protected ViewSource source;
 		protected VisImage separator;
 		protected boolean isMoving;
+		protected boolean isGuardMarked;
 
 		public ViewTask () {
 			super(new VisTable());
@@ -383,7 +406,15 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 				label.setColor(Color.GRAY);
 			} else if (task.isValid()) {
 				// TODO some better color/indicator for isMoving?
-				label.setColor(isMoving? Color.CYAN:Color.WHITE);
+				if (isMoving) {
+					label.setColor(Color.CYAN);
+				} else if (task.isGuard()) {
+					label.setColor(ViewColors.GUARD);
+				} else if (isGuardMarked) {
+					label.setColor(ViewColors.GUARDED);
+				} else {
+					label.setColor(Color.WHITE);
+				}
 			} else {
 				label.setColor(ViewColors.INVALID);
 			}
@@ -425,6 +456,24 @@ public class BTView<E> extends Table implements BTModel.BTChangeListener {
 			}
 			updateNameColor();
 			dad.addTarget(target);
+			return this;
+		}
+
+		public void markGuarded(boolean marked) {
+			ViewTask parent = this;
+			while ((parent = (ViewTask)parent.getParent()) != null) {
+				if (!parent.task.isGuard()) break;
+			}
+			if (parent == null) {
+				Gdx.app.error(TAG, "No guard parent, wtf?");
+				return;
+			}
+			parent.setGuardMarked(marked);
+			parent.updateNameColor();
+		}
+
+		public ViewTask setGuardMarked (boolean guardMarked) {
+			isGuardMarked = guardMarked;
 			return this;
 		}
 
