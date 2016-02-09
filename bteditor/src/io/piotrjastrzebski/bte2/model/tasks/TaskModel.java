@@ -246,9 +246,6 @@ public abstract class TaskModel implements Pool.Poolable {
 	public String getName () {
 		if (name == null) {
 			name = wrapped != null? wrapped.getClass().getSimpleName():"<!null!>";
-			if (isGuard) {
-				name = "(G) " + name;
-			}
 		}
 		return name;
 	}
