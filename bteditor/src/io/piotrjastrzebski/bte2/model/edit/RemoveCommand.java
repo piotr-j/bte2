@@ -25,20 +25,34 @@ public class RemoveCommand extends Command implements Pool.Poolable {
 	protected ModelTask parent;
 
 	protected int idInParent;
+	protected boolean removeGaurd;
 
 	public RemoveCommand init (ModelTask what) {
 		this.what = what;
 		parent = what.getParent();
+		// note top level guard doesn't have a parent, this could be set to guarded task
+		if (parent == null && what.isGuard()) {
+			removeGaurd = true;
+			parent = what.getGuarded();
+		}
 		idInParent = parent.getChildId(what);
 		return this;
 	}
 
 	@Override public void execute () {
-		parent.removeChild(what);
+		if (removeGaurd) {
+			parent.removeGuard();
+		} else {
+			parent.removeChild(what);
+		}
 	}
 
 	@Override public void undo () {
-		parent.insertChild(idInParent, what);
+		if (removeGaurd) {
+			parent.setGuard(what);
+		} else {
+			parent.insertChild(idInParent, what);
+		}
 	}
 
 	@Override public void free () {
@@ -50,5 +64,6 @@ public class RemoveCommand extends Command implements Pool.Poolable {
 		what = null;
 		parent = null;
 		idInParent = -1;
+		removeGaurd = false;
 	}
 }

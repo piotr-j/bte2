@@ -204,6 +204,22 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 		return type;
 	}
 
+	public void setGuard(ModelTask guard) {
+		removeGuard();
+		this.guard = guard;
+		wrapped.setGuard(guard.wrapped);
+		guard.setIsGuard(true, this);
+	}
+
+	public void removeGuard () {
+		this.guard = null;
+		wrapped.setGuard(null);
+	}
+
+	public ModelTask getGuarded () {
+		return guarded;
+	}
+
 	public boolean isGuard () {
 		return isGuard;
 	}
