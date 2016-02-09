@@ -3,11 +3,13 @@ package io.piotrjastrzebski.bte2.model.tasks;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BranchTask;
 import com.badlogic.gdx.ai.btree.Decorator;
+import com.badlogic.gdx.ai.btree.SingleRunningChildBranch;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
+import com.badlogic.gdx.utils.reflect.Method;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
 /**
@@ -73,6 +75,13 @@ abstract class TaskCommand implements Pool.Poolable {
 					}
 					if (!children.contains(task, true)) {
 						children.insert(at, task);
+						// note in this class there are some more children that we need to deal with
+						if (target instanceof SingleRunningChildBranch) {
+							// set the field to null so it is recreated with correct size
+							Field randomChildren = ClassReflection.getDeclaredField(SingleRunningChildBranch.class, "randomChildren");
+							randomChildren.setAccessible(true);
+							randomChildren.set(target, null);
+						}
 					} else {
 						Gdx.app.error("INSERT",
 							"cannot insert " + task + " to " + target + " at " + at + ", target already contains task");
@@ -122,7 +131,16 @@ abstract class TaskCommand implements Pool.Poolable {
 					field.setAccessible(true);
 					@SuppressWarnings("unchecked")
 					Array<Task> children = (Array<Task>)field.get(target);
-					return children.removeValue(task, true);
+					if (children.removeValue(task, true)) {
+						// note in this class there are some more children that we need to deal with
+						if (target instanceof SingleRunningChildBranch) {
+							// set the field to null so it is recreated with correct size
+							Field randomChildren = ClassReflection.getDeclaredField(SingleRunningChildBranch.class, "randomChildren");
+							randomChildren.setAccessible(true);
+							randomChildren.set(target, null);
+						}
+					}
+					return false;
 				} else if (target instanceof Decorator) {
 					Field field = ClassReflection.getDeclaredField(Decorator.class, "child");
 					field.setAccessible(true);

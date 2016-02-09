@@ -210,12 +210,14 @@ public abstract class TaskModel implements Pool.Poolable {
 		guard = newGuard;
 		wrapped.setGuard(newGuard.wrapped);
 		newGuard.setIsGuard(true, this);
+		dirty = true;
 	}
 
 	@SuppressWarnings("unchecked")
 	public void removeGuard () {
 		guard = null;
 		wrapped.setGuard(null);
+		dirty = true;
 	}
 
 	public TaskModel getGuarded () {
