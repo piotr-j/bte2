@@ -15,10 +15,10 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
  */
 @SuppressWarnings("rawtypes")
 abstract class TaskCommand implements Pool.Poolable {
-	protected Task task;
-	protected Task target;
+	protected TaskModel task;
+	protected TaskModel target;
 
-	public TaskCommand init (Task target, Task task) {
+	public TaskCommand init (TaskModel target, TaskModel task) {
 		if (target == null)
 			throw new IllegalArgumentException("Target cannot be null");
 		if (task == null)
@@ -35,12 +35,18 @@ abstract class TaskCommand implements Pool.Poolable {
 		target = null;
 	}
 
-	abstract boolean execute ();
+	public boolean execute () {
+		boolean result = executeInternal();
+		// TODO free this
+		return result;
+	}
+
+	abstract boolean executeInternal ();
 
 	public static class Insert extends TaskCommand {
 		protected int at;
 
-		public TaskCommand init (Task target, Task task, int at) {
+		public TaskCommand init (TaskModel target, TaskModel task, int at) {
 			super.init(target, task);
 			if (at < 0)
 				throw new IllegalArgumentException("at cannot be < 0, is " + at);
@@ -48,9 +54,12 @@ abstract class TaskCommand implements Pool.Poolable {
 			return this;
 		}
 
-		@Override boolean execute () {
+		@Override boolean executeInternal () {
+			Task target = this.target.wrapped;
+			Task task = this.task.wrapped;
 			try {
-				Gdx.app.log("INSERT", task + " to " + target + " at " + at);
+				this.target.children.insert(at, this.task);
+				this.task.setParent(this.target);
 				// we need to check it task is in target before we add, as that will happen on init
 				if (target instanceof BranchTask) {
 					Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
@@ -98,13 +107,15 @@ abstract class TaskCommand implements Pool.Poolable {
 	}
 
 	public static class Remove extends TaskCommand {
-		@Override boolean execute () {
+		@Override boolean executeInternal () {
+			Task target = this.target.wrapped;
+			Task task = this.task.wrapped;
 			if (task.getStatus() == Task.Status.RUNNING) {
 				task.cancel();
 			}
 			// remove from bt
 			try {
-				Gdx.app.log("REMOVE", task + " from " + target);
+				this.target.children.removeValue(this.task, true);
 				// we need to check it task is in target before we add, as that will happen on init
 				if (target instanceof BranchTask) {
 					Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
@@ -132,11 +143,11 @@ abstract class TaskCommand implements Pool.Poolable {
 		}
 	}
 
-	public static TaskCommand insert (Task task, Task target, int at) {
+	public static TaskCommand insert (TaskModel task, TaskModel target, int at) {
 		return new Insert().init(task, target, at);
 	}
 
-	public static TaskCommand remove (Task task, Task target) {
+	public static TaskCommand remove (TaskModel task, TaskModel target) {
 		return new Remove().init(task, target);
 	}
 }

@@ -70,7 +70,6 @@ public abstract class TaskModel implements Pool.Poolable {
 
 	protected TaskModel parent;
 	protected TaskModel guard;
-	protected TaskModel guarded;
 	protected Task wrapped;
 	// NOTE there aren't that many children per task, 4 is a decent start
 	protected Array<TaskModel> children = new Array<>(4);
@@ -79,6 +78,7 @@ public abstract class TaskModel implements Pool.Poolable {
 	protected boolean dirty;
 	protected boolean readOnly;
 	protected boolean isGuard;
+	protected TaskModel guardedTask;
 	protected int minChildren;
 	protected int maxChildren;
 	protected BehaviorTreeModel model;
@@ -106,7 +106,7 @@ public abstract class TaskModel implements Pool.Poolable {
 
 	public void setIsGuard (boolean isGuard, TaskModel guarded) {
 		this.isGuard = isGuard;
-		this.guarded = guarded;
+		this.guardedTask = guarded;
 		for (TaskModel child : children) {
 			child.setIsGuard(isGuard, guarded);
 		}
@@ -178,23 +178,21 @@ public abstract class TaskModel implements Pool.Poolable {
 	public void insertChild (int at, TaskModel task) {
 		// if at is larger then size, we will insert as last
 		at = Math.min(at, children.size);
-		children.insert(at, task);
-		task.setParent(this);
 		dirty = true;
 		if (model.isValid() && isValid()) {
-			TaskCommand.insert(wrapped, task.wrapped, at).execute();
+			TaskCommand.insert(this, task, at).execute();
 		} else {
-			pending.add(TaskCommand.insert(wrapped, task.wrapped, at));
+			pending.add(TaskCommand.insert(this, task, at));
 		}
 	}
 
 	public void removeChild (TaskModel task) {
-		children.removeValue(task, true);
 		dirty = true;
 		if (model.isValid() && isValid()) {
-			TaskCommand.remove(wrapped, task.wrapped).execute();
+			TaskCommand.remove(this, task).execute();
+			children.removeValue(task, true);
 		} else {
-			pending.add(TaskCommand.remove(wrapped, task.wrapped));
+			pending.add(TaskCommand.remove(this, task));
 		}
 	}
 
@@ -206,20 +204,22 @@ public abstract class TaskModel implements Pool.Poolable {
 		return type;
 	}
 
-	public void setGuard(TaskModel guard) {
+	@SuppressWarnings("unchecked")
+	public void setGuard(TaskModel newGuard) {
 		removeGuard();
-		this.guard = guard;
-		wrapped.setGuard(guard.wrapped);
-		guard.setIsGuard(true, this);
+		guard = newGuard;
+		wrapped.setGuard(newGuard.wrapped);
+		newGuard.setIsGuard(true, this);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void removeGuard () {
-		this.guard = null;
+		guard = null;
 		wrapped.setGuard(null);
 	}
 
 	public TaskModel getGuarded () {
-		return guarded;
+		return guardedTask;
 	}
 
 	public boolean isGuard () {
@@ -272,7 +272,7 @@ public abstract class TaskModel implements Pool.Poolable {
 			free(guard);
 		}
 		guard = null;
-		guarded = null;
+		guardedTask = null;
 		isGuard = false;
 		wrapped = null;
 		parent = null;
