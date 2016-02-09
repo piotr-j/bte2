@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
 /**
  * Created by PiotrJ on 15/10/15.
  */
+@SuppressWarnings("rawtypes")
 abstract class TaskCommand implements Pool.Poolable {
 	protected Task task;
 	protected Task target;
@@ -54,7 +55,8 @@ abstract class TaskCommand implements Pool.Poolable {
 				if (target instanceof BranchTask) {
 					Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
 					field.setAccessible(true);
-					Array children = (Array)field.get(target);
+					@SuppressWarnings("unchecked")
+					Array<Task> children = (Array<Task>)field.get(target);
 					// disallow if out of bounds,  allow to insert if empty
 					if (at > children.size && at > 0) {
 						Gdx.app.error("INSERT", "cannot insert " + task + " to " + target + " at " + at + " as its out of range");
@@ -107,7 +109,8 @@ abstract class TaskCommand implements Pool.Poolable {
 				if (target instanceof BranchTask) {
 					Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
 					field.setAccessible(true);
-					Array children = (Array)field.get(target);
+					@SuppressWarnings("unchecked")
+					Array<Task> children = (Array<Task>)field.get(target);
 					return children.removeValue(task, true);
 				} else if (target instanceof Decorator) {
 					Field field = ClassReflection.getDeclaredField(Decorator.class, "child");

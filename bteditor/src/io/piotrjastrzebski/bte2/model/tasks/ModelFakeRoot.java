@@ -1,19 +1,18 @@
 package io.piotrjastrzebski.bte2.model.tasks;
 
-import com.badlogic.gdx.ai.btree.BranchTask;
-import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.Selector;
 import io.piotrjastrzebski.bte2.model.BTModel;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
-public class ModelFakeRoot<E> extends ModelTask<E> {
+public class ModelFakeRoot extends ModelTask {
 	public ModelFakeRoot () {
 		super(Type.ROOT);
 	}
 
-	public void init (ModelTask<E> root, BTModel<E> model) {
+	@SuppressWarnings("unchecked")
+	public void init (ModelTask root, BTModel model) {
 		this.model = model;
 		dirty = true;
 		minChildren = 1;
@@ -22,6 +21,7 @@ public class ModelFakeRoot<E> extends ModelTask<E> {
 		children.clear();
 		children.add(root);
 		// need some wrapped task so remove command works
+		@SuppressWarnings("rawtypes")
 		Selector selector = new Selector();
 		selector.addChild(root.wrapped);
 		wrapped = selector;

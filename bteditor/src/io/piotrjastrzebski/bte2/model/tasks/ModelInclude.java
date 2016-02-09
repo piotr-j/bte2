@@ -1,12 +1,9 @@
 package io.piotrjastrzebski.bte2.model.tasks;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.btree.BehaviorTree;
-import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool;
 import io.piotrjastrzebski.bte2.model.BTModel;
 
@@ -17,7 +14,8 @@ import io.piotrjastrzebski.bte2.model.BTModel;
  *
  * Created by EvilEntity on 04/02/2016.
  */
-public class ModelInclude<E> extends ModelTask<E> implements Pool.Poolable {
+@SuppressWarnings("rawtypes")
+public class ModelInclude extends ModelTask implements Pool.Poolable {
 	private final static Pool<ModelInclude> pool = new Pool<ModelInclude>() {
 		@Override protected ModelInclude newObject () {
 			return new ModelInclude();
@@ -44,11 +42,12 @@ public class ModelInclude<E> extends ModelTask<E> implements Pool.Poolable {
 	}
 
 	protected ModelInclude init (ModelInclude other) {
-		// NOTE we cant clone this task as that will attempt to create subtree
+		// NOTE we can't clone this task as that will attempt to create subtree
 		super.init(other.wrapped, other.model);
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override public void validate () {
 		// TODO check that we have a proper tree at specified subtree
 		// TODO if it is valid, we want to add the sub tree as child of this task

@@ -1,7 +1,6 @@
 package io.piotrjastrzebski.bte2.view;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 
 /**

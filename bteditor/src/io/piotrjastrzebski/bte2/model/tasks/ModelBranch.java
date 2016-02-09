@@ -7,6 +7,7 @@ import io.piotrjastrzebski.bte2.model.BTModel;
 /**
  * Created by EvilEntity on 04/02/2016.
  */
+@SuppressWarnings("rawtypes")
 public class ModelBranch extends ModelTask implements Pool.Poolable {
 	private final static Pool<ModelBranch> pool = new Pool<ModelBranch>() {
 		@Override protected ModelBranch newObject () {
