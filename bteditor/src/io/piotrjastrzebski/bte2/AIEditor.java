@@ -18,7 +18,7 @@ import com.kotcrab.vis.ui.widget.VisWindow;
 
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte2.model.TaskLibrary;
-import io.piotrjastrzebski.bte2.view.BTView;
+import io.piotrjastrzebski.bte2.view.BehaviorTreeView;
 
 /**
  * Main editor class
@@ -40,7 +40,7 @@ public class AIEditor implements Disposable {
 	/* Current tree we are editing */
 	private BehaviorTree tree;
 	private BehaviorTreeModel model;
-	private BTView view;
+	private BehaviorTreeView view;
 	private BTUpdateStrategy strategy;
 	private BTUpdateStrategy simpleStrategy;
 	private VisWindow window;
@@ -68,7 +68,7 @@ public class AIEditor implements Disposable {
 			}
 		}
 		model = new BehaviorTreeModel();
-		view = new BTView(model);
+		view = new BehaviorTreeView(model);
 		simpleStrategy = new BTUpdateStrategy() {
 			private float timer;
 			@Override public boolean shouldStep (BehaviorTree tree, float delta) {
@@ -83,7 +83,7 @@ public class AIEditor implements Disposable {
 		setUpdateStrategy(null);
 	}
 
-	public BTView getView () {
+	public BehaviorTreeView getView () {
 		return view;
 	}
 

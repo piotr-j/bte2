@@ -22,9 +22,9 @@ import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public class BTView extends Table implements BehaviorTreeModel.BTChangeListener {
+public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChangeListener {
 	public static String DRAWABLE_WHITE = "dialogDim";
-	private static final String TAG = BTView.class.getSimpleName();
+	private static final String TAG = BehaviorTreeView.class.getSimpleName();
 	private BehaviorTreeModel model;
 	private VisTable topMenu;
 	private VisScrollPane drawerScrollPane;
@@ -36,7 +36,7 @@ public class BTView extends Table implements BehaviorTreeModel.BTChangeListener 
 	private ViewTarget removeTarget;
 	private SpriteDrawable dimImg;
 
-	public BTView (final BehaviorTreeModel model) {
+	public BehaviorTreeView (final BehaviorTreeModel model) {
 		this.model = model;
 		debugAll();
 		model.addChangeListener(this);
@@ -183,7 +183,7 @@ public class BTView extends Table implements BehaviorTreeModel.BTChangeListener 
 			}
 		};
 
-		public static TaggedTask obtain (String tag, Class<? extends Task> cls, BTView view) {
+		public static TaggedTask obtain (String tag, Class<? extends Task> cls, BehaviorTreeView view) {
 			return pool.obtain().init(tag, cls, view);
 		}
 
@@ -216,7 +216,7 @@ public class BTView extends Table implements BehaviorTreeModel.BTChangeListener 
 			reset();
 		}
 
-		private TaggedTask init (String tag, Class<? extends Task> cls, BTView view) {
+		private TaggedTask init (String tag, Class<? extends Task> cls, BehaviorTreeView view) {
 			this.tag = tag;
 			this.cls = cls;
 			dad = view.dad;
@@ -253,7 +253,7 @@ public class BTView extends Table implements BehaviorTreeModel.BTChangeListener 
 			}
 		};
 
-		public static ViewTask obtain (TaskModel task, BTView view) {
+		public static ViewTask obtain (TaskModel task, BehaviorTreeView view) {
 			return pool.obtain().init(task, view);
 		}
 
@@ -442,7 +442,7 @@ public class BTView extends Table implements BehaviorTreeModel.BTChangeListener 
 			}
 		}
 
-		private ViewTask init (TaskModel task, BTView view) {
+		private ViewTask init (TaskModel task, BehaviorTreeView view) {
 			// TODO add * after root/include when tree/subtree is not saved
 			this.task = task;
 			task.addListener(this);
