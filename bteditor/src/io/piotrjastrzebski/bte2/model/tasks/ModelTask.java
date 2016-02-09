@@ -15,12 +15,14 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+
 import io.piotrjastrzebski.bte2.model.BTModel;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
-public abstract class ModelTask<E> implements Pool.Poolable {
+@SuppressWarnings("rawtypes")
+public abstract class ModelTask implements Pool.Poolable {
 	private static final String TAG = ModelTask.class.getSimpleName();
 
 	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL;}
@@ -45,7 +47,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 		try {
 			Task task = ClassReflection.newInstance(cls);
 			if (cls == Repeat.class) {
-				Repeat repeat = (Repeat)task;
+				Repeat<?> repeat = (Repeat<?>)task;
 				repeat.times = ConstantIntegerDistribution.ONE;
 			}
 			return wrap(task, model);
@@ -102,7 +104,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 		pending.clear();
 	}
 
-	public void setIsGuard (boolean isGuard, ModelTask<E> guarded) {
+	public void setIsGuard (boolean isGuard, ModelTask guarded) {
 		this.isGuard = isGuard;
 		this.guarded = guarded;
 		for (ModelTask child : children) {
@@ -291,7 +293,7 @@ public abstract class ModelTask<E> implements Pool.Poolable {
 
 	public abstract ModelTask copy();
 
-	public ModelTask getModelTask (Task<E> task) {
+	public ModelTask getModelTask (Task task) {
 		if (wrapped == task) return this;
 		// TODO use a map for this garbage?
 		if (guard != null) {

@@ -14,16 +14,17 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.Pool;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
+
 import io.piotrjastrzebski.bte2.model.BTModel;
 import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
 
 /**
  * Created by EvilEntity on 04/02/2016.
  */
-public class BTView<E> extends Table implements BTModel.BTChangeListener {
+@SuppressWarnings("rawtypes")
+public class BTView extends Table implements BTModel.BTChangeListener {
 	public static String DRAWABLE_WHITE = "dialogDim";
 	private static final String TAG = BTView.class.getSimpleName();
-	private Skin skin;
 	private BTModel model;
 	private VisTable topMenu;
 	private VisScrollPane drawerScrollPane;

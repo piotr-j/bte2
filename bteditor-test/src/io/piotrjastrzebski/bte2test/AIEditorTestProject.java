@@ -38,7 +38,7 @@ public class AIEditorTestProject extends Game {
 	private Stage stage;
 	private Table root;
 	private Skin skin;
-	private AIEditor<Dog> editor;
+	private AIEditor editor;
 	private BehaviorTree<Dog> tree;
 	private VisTextButton toggle;
 
@@ -63,8 +63,8 @@ public class AIEditorTestProject extends Game {
 		}
 		skin = VisUI.getSkin();
 
-		editor = new AIEditor<>(skin);
-		// we probably dont care about the blackboard, do we?
+		editor = new AIEditor(skin);
+		// we probably don't care about the blackboard, do we?
 		editor.initialize(tree);
 		// add default task classes to task drawer with default tags
 		editor.addDefaultTaskClasses();

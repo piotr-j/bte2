@@ -3,7 +3,6 @@ package io.piotrjastrzebski.bte2.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
 import io.piotrjastrzebski.bte2.model.edit.*;
@@ -13,29 +12,30 @@ import io.piotrjastrzebski.bte2.model.tasks.ModelTask;
 /**
  * Created by EvilEntity on 04/02/2016.
  */
-public class BTModel<E> implements BehaviorTree.Listener<E> {
+@SuppressWarnings("rawtypes")
+public class BTModel implements BehaviorTree.Listener {
 	private static final String TAG = BTModel.class.getSimpleName();
-	private BehaviorTree<E> tree;
-	private TaskLibrary<E> taskLibrary;
-	private ModelFakeRoot<E> fakeRoot;
-	private ModelTask<E> root;
+	private BehaviorTree tree;
+	private TaskLibrary taskLibrary;
+	private ModelFakeRoot fakeRoot;
+	private ModelTask root;
 	private CommandManager commands;
 	private boolean dirty;
 	private boolean valid;
 
 	public BTModel () {
-		taskLibrary = new TaskLibrary<>();
+		taskLibrary = new TaskLibrary();
 		commands = new CommandManager();
-		fakeRoot = new ModelFakeRoot<>();
+		fakeRoot = new ModelFakeRoot();
 	}
 
-	public void init (BehaviorTree<E> tree) {
+	@SuppressWarnings("unchecked")
+	public void init (BehaviorTree tree) {
 		reset();
 		if (tree == null) throw new IllegalArgumentException("BehaviorTree cannot be null!");
 		dirty = true;
 		this.tree = tree;
 		tree.addListener(this);
-		// TODO fix the generic garbage sometime
 		root = ModelTask.wrap(tree.getChild(0), this);
 		fakeRoot.init(root, this);
 		fakeRoot.validate();
@@ -46,6 +46,7 @@ public class BTModel<E> implements BehaviorTree.Listener<E> {
 		taskLibrary.load(tree);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void reset () {
 		commands.reset();
 		if (tree != null) {
@@ -252,7 +253,7 @@ public class BTModel<E> implements BehaviorTree.Listener<E> {
 		return valid;
 	}
 
-	private void doubleCheck (ObjectIntMap<ModelTask> modelTasks, ObjectIntMap<Task> tasks, ModelTask<E> task) {
+	private void doubleCheck (ObjectIntMap<ModelTask> modelTasks, ObjectIntMap<Task> tasks, ModelTask task) {
 		modelTasks.put(task, modelTasks.get(task, 0) + 1);
 		tasks.put(task.getWrapped(), tasks.get(task.getWrapped(), 0) + 1);
 		for (int i = 0; i < task.getChildCount(); i++) {
@@ -272,11 +273,11 @@ public class BTModel<E> implements BehaviorTree.Listener<E> {
 		valid = root != null && root.isValid();
 	}
 
-	public BehaviorTree<E> getTree () {
+	public BehaviorTree getTree () {
 		return tree;
 	}
 
-	@Override public void statusUpdated (Task<E> task, Task.Status previousStatus) {
+	@Override public void statusUpdated (Task task, Task.Status previousStatus) {
 		if (task instanceof BehaviorTree) {
 			root.wrappedUpdated(previousStatus, task.getStatus());
 			return;
@@ -289,7 +290,7 @@ public class BTModel<E> implements BehaviorTree.Listener<E> {
 		modelTask.wrappedUpdated(previousStatus, task.getStatus());
 	}
 
-	@Override public void childAdded (Task<E> task, int index) {
+	@Override public void childAdded (Task task, int index) {
 
 	}
 

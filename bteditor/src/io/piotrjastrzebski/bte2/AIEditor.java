@@ -13,11 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.PauseableThread;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
-import com.badlogic.gdx.utils.async.ThreadUtils;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisWindow;
+
 import io.piotrjastrzebski.bte2.model.BTModel;
 import io.piotrjastrzebski.bte2.model.TaskLibrary;
 import io.piotrjastrzebski.bte2.view.BTView;
@@ -34,14 +32,15 @@ import io.piotrjastrzebski.bte2.view.BTView;
  *
  * Created by EvilEntity on 04/02/2016.
  */
-public class AIEditor<E> implements Disposable {
+@SuppressWarnings("rawtypes")
+public class AIEditor implements Disposable {
 	private static final String TAG = AIEditor.class.getSimpleName();
 
 	private boolean ownsSkin;
 	/* Current tree we are editing */
 	private BehaviorTree tree;
-	private BTModel<E> model;
-	private BTView<E> view;
+	private BTModel model;
+	private BTView view;
 	private BTUpdateStrategy strategy;
 	private BTUpdateStrategy simpleStrategy;
 	private VisWindow window;
@@ -68,8 +67,8 @@ public class AIEditor<E> implements Disposable {
 				skin.dispose();
 			}
 		}
-		model = new BTModel<>();
-		view = new BTView<>(model);
+		model = new BTModel();
+		view = new BTView(model);
 		simpleStrategy = new BTUpdateStrategy() {
 			private float timer;
 			@Override public boolean shouldStep (BehaviorTree tree, float delta) {
@@ -115,7 +114,7 @@ public class AIEditor<E> implements Disposable {
 		tree = null;
 		model.reset();
 	}
-	private volatile boolean shouldStep;
+
 	/**
 	 * Update the editor, call this each frame
 	 */
@@ -153,7 +152,7 @@ public class AIEditor<E> implements Disposable {
 				window.setSize(800, 600);
 			}
 			window.fadeIn();
-			// TODO is this broken or what? you cant drag out the assets, but the hit boxes are outside
+			// TODO is this broken or what? you can't drag out the assets, but the hit boxes are outside
 			window.setKeepWithinStage(true);
 		}
 		fadingOut = false;

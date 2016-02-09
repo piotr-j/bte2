@@ -17,7 +17,8 @@ import io.piotrjastrzebski.bte2.model.BTModel;
  *
  * Created by EvilEntity on 04/02/2016.
  */
-public class ModelDecorator<E> extends ModelTask<E> implements Pool.Poolable {
+@SuppressWarnings("rawtypes")
+public class ModelDecorator extends ModelTask implements Pool.Poolable {
 	private final static Pool<ModelDecorator> pool = new Pool<ModelDecorator>() {
 		@Override protected ModelDecorator newObject () {
 			return new ModelDecorator();
@@ -31,8 +32,6 @@ public class ModelDecorator<E> extends ModelTask<E> implements Pool.Poolable {
 	public static void free (ModelDecorator leaf) {
 		pool.free(leaf);
 	}
-
-	private static final String TAG = ModelDecorator.class.getSimpleName();
 
 	private ModelDecorator () {
 		super(Type.DECORATOR);

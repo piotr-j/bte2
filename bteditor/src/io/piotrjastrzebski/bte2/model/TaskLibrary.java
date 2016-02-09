@@ -13,11 +13,12 @@ import com.badlogic.gdx.utils.reflect.ReflectionException;
  *
  * @param <E> type of the blackboard object in the task, same as in the model
  */
-public class TaskLibrary<E> {
+@SuppressWarnings("rawtypes")
+public class TaskLibrary {
 	private final static String TAG = TaskLibrary.class.getSimpleName();
 
-	private ObjectMap<Class<? extends Task>, Task<E>> classToInstance;
-	private Injector<E> injector;
+	private ObjectMap<Class<? extends Task>, Task> classToInstance;
+	private Injector injector;
 
 	protected TaskLibrary () {
 		classToInstance = new ObjectMap<>();
@@ -31,8 +32,7 @@ public class TaskLibrary<E> {
 			throw new IllegalArgumentException("Task class  cannot be null!");
 		if (classToInstance.containsKey(aClass)) return;
 		try {
-			@SuppressWarnings("unchecked")
-			Task<E> task = ClassReflection.newInstance(aClass);
+			Task task = ClassReflection.newInstance(aClass);
 			if (injector != null) injector.inject(task);
 			classToInstance.put(aClass, task);
 		} catch (ReflectionException e) {
@@ -43,7 +43,7 @@ public class TaskLibrary<E> {
 	/**
 	 * @param task instance of {@link Task} to add
 	 */
-	public void add (Task<E> task) {
+	public void add (Task task) {
 		if (task == null)
 			throw new IllegalArgumentException("Task cannot be null!");
 		classToInstance.put(task.getClass(), task);
@@ -53,13 +53,13 @@ public class TaskLibrary<E> {
 	 * @param aClass type of {@link Task}
 	 * @return cloned task, via {@link Task#cloneTask()} or null
 	 */
-	public Task<E> get (Class<? extends Task> aClass) {
+	public Task get (Class<? extends Task> aClass) {
 		if (aClass == null)
 			throw new IllegalArgumentException("Task class cannot be null!");
-		Task<E> arch = classToInstance.get(aClass, null);
+		Task arch = classToInstance.get(aClass, null);
 		if (aClass == Include.class) {
-			// lazy by default, so bt doesnt explode
-			Include<E> include = new Include<>("", true);
+			// lazy by default, so bt doesn't explode
+			Include include = new Include<>("", true);
 			if (injector != null) injector.inject(include);
 			return include;
 		}
@@ -72,7 +72,7 @@ public class TaskLibrary<E> {
 	 * @param aClass type of {@link Task}
 	 * @return actual instance of the {@link Task}
 	 */
-	public Task<E> getArchetype (Class<? extends Task> aClass) {
+	public Task getArchetype (Class<? extends Task> aClass) {
 		if (aClass == null)
 			throw new IllegalArgumentException("Task class cannot be null!");
 		return classToInstance.get(aClass, null);
@@ -92,7 +92,7 @@ public class TaskLibrary<E> {
 	 * @param aClass type of {@link Task} to remove
 	 * @return removed {@link Task} or null
 	 */
-	public Task<E> remove (Class<? extends Task> aClass) {
+	public Task remove (Class<? extends Task> aClass) {
 		if (aClass == null)
 			throw new IllegalArgumentException("Task class cannot be null!");
 		return classToInstance.remove(aClass);
@@ -105,22 +105,22 @@ public class TaskLibrary<E> {
 		classToInstance.clear();
 	}
 
-	public void load (BehaviorTree<E> bt) {
+	public void load (BehaviorTree bt) {
 		addFromTask(bt.getChild(0));
 	}
 
-	private void addFromTask (Task<E> task) {
+	private void addFromTask (Task task) {
 		add(task.getClass());
 		for (int i = 0; i < task.getChildCount(); i++) {
 			addFromTask(task.getChild(i));
 		}
 	}
 
-	public void setInjector(Injector<E> injector) {
+	public void setInjector(Injector injector) {
 		this.injector = injector;
 	}
 
-	public interface Injector<E> {
-		public void inject(Task<E> task);
+	public interface Injector {
+		public void inject(Task task);
 	}
 }
