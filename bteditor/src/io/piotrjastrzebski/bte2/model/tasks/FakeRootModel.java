@@ -37,7 +37,7 @@ public class FakeRootModel extends TaskModel {
 	}
 
 	@Override public String toString () {
-		return "ModelFakeRoot{}";
+		return "FakeRootModel{}";
 	}
 
 	@Override public String getName () {

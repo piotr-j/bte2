@@ -17,6 +17,6 @@ public class NullModel extends TaskModel {
 	}
 
 	@Override public String toString () {
-		return "ModelNull{}";
+		return "NullModel{}";
 	}
 }

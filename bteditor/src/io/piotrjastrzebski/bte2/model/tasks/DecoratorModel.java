@@ -56,6 +56,6 @@ public class DecoratorModel extends TaskModel implements Pool.Poolable {
 	}
 
 	@Override public String toString () {
-		return "ModelDecorator{"+wrapped+"}";
+		return "DecoratorModel{"+wrapped+"}";
 	}
 }

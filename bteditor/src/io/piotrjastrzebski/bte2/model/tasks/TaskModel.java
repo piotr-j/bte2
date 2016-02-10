@@ -257,7 +257,7 @@ public abstract class TaskModel implements Pool.Poolable {
 	}
 
 	@Override public String toString () {
-		return "ModelTask{" +
+		return "TaskModel{" +
 			"type=" + type +
 			", parent=" + parent +
 			", valid=" + valid +
