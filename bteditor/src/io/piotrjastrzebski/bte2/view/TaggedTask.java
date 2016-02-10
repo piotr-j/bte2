@@ -3,9 +3,13 @@ package io.piotrjastrzebski.bte2.view;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Pool;
+import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
@@ -29,6 +33,7 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 
 	private static final String TAG = TaggedTask.class.getSimpleName();
 
+	protected VisTable container;
 	protected VisLabel label;
 	protected String tag;
 	protected Class<? extends Task> cls;
@@ -36,10 +41,24 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 	protected BehaviorTreeModel model;
 	protected String simpleName;
 	protected ViewSource source;
+	protected TaggedRoot parentTag;
 
 	public TaggedTask () {
-		super(new VisLabel());
-		label = (VisLabel)getActor();
+		super(new VisTable());
+		container = (VisTable)getActor();
+		label = new VisLabel();
+		container.add(label);
+		final VisCheckBox hide = new VisCheckBox("", "radio");
+		hide.setChecked(true);
+		container.add(hide).padLeft(5);
+		hide.addListener(new ClickListener() {
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (parentTag != null) {
+					parentTag.toggle(TaggedTask.this, hide.isChecked());
+				}
+			}
+		});
+
 		setObject(this);
 		source = new ViewSource(label) {
 			@Override public DragAndDrop.Payload dragStart (InputEvent event, float x, float y, int pointer) {
@@ -67,6 +86,10 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 		return this;
 	}
 
+	public void setParentTag (TaggedRoot parentTag) {
+		this.parentTag = parentTag;
+	}
+
 	@Override public void reset () {
 		tag = "<INVALID>";
 		simpleName = "<INVALID>";
@@ -76,6 +99,7 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 		if (dad != null)
 			dad.removeSource(source);
 		dad = null;
+		parentTag = null;
 	}
 
 	@Override public int compareTo (TaggedTask o) {

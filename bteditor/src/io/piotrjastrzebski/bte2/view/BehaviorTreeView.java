@@ -166,7 +166,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 	}
 
 	private Array<TaggedTask> taggedTasks = new Array<>();
-	private ObjectMap<String, Tree.Node> tagToNode = new ObjectMap<>();
+	private ObjectMap<String, TaggedRoot> tagToNode = new ObjectMap<>();
 	public void addSrcTask (String tag, Class<? extends Task> cls) {
 		TaggedTask taggedTask = TaggedTask.obtain(tag, cls, this);
 		taggedTasks.add(taggedTask);
@@ -174,10 +174,10 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 
 		// TODO ability to toggle visibility of each node, so it is easier to reduce clutter by hiding rarely used tasks
 		for (TaggedTask task : taggedTasks) {
-			Tree.Node categoryNode = tagToNode.get(task.tag, null);
+			TaggedRoot categoryNode = tagToNode.get(task.tag, null);
 			if (categoryNode == null) {
 				// TODO do we want a custom class for those?
-				categoryNode = new Tree.Node(new VisLabel(task.tag));
+				categoryNode = TaggedRoot.obtain(task.tag, this);
 				tagToNode.put(tag, categoryNode);
 				taskDrawer.add(categoryNode);
 			}
