@@ -50,7 +50,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	public void reset () {
 		commands.reset();
 		if (tree != null) {
-			tree.removeListener(this);
+			tree.listeners.removeValue(this, true);
 		}
 		// notify first, so listeners have a chance to do stuff
 		for (BTChangeListener listener : listeners) {
@@ -292,6 +292,10 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 
 	@Override public void childAdded (Task task, int index) {
 
+	}
+
+	public void setValid (boolean invalid) {
+		this.valid = invalid;
 	}
 
 	public interface BTChangeListener {
