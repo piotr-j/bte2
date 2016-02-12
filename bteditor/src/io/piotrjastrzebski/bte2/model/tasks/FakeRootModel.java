@@ -44,4 +44,8 @@ public class FakeRootModel extends TaskModel {
 		// TODO could use tree file name or something
 		return "ROOT";
 	}
+
+	@Override public boolean isValid () {
+		return model.isValid();
+	}
 }
