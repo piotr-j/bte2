@@ -46,6 +46,6 @@ public class LeafModel extends TaskModel implements Pool.Poolable {
 	}
 
 	@Override public String toString () {
-		return "ModelLeaf{"+wrapped+"}";
+		return "LeafModel{"+wrapped+"}";
 	}
 }

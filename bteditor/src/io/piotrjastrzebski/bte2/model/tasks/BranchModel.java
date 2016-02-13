@@ -46,6 +46,6 @@ public class BranchModel extends TaskModel implements Pool.Poolable {
 	}
 
 	@Override public String toString () {
-		return "ModelBranch{"+wrapped+"}";
+		return "BranchModel{"+wrapped+"}";
 	}
 }

@@ -95,7 +95,7 @@ public class AIEditorTestProject extends Game {
 			+ "click task in tree to edit its parameters - nyi\n"
 			+ "TODO a lot of crap\n");
 		tutorial.pack();
-		tutorial.show(stage);
+//		tutorial.show(stage);
 	}
 
 	private void addTaskClasses () {
@@ -140,9 +140,11 @@ public class AIEditorTestProject extends Game {
 		Selector<Dog> selector = new Selector<>();
 
 		DynamicGuardSelector<Dog> guardSelector = new DynamicGuardSelector<>();
+		AlwaysFail<Dog> walkFail = new AlwaysFail<>();
+		walkFail.setGuard(guard);
 		WalkTask guardedWalk = new WalkTask();
-		guardedWalk.setGuard(guard);
-		guardSelector.addChild(guardedWalk);
+		walkFail.addChild(guardedWalk);
+		guardSelector.addChild(walkFail);
 		AlwaysFail<Dog> alwaysFail = new AlwaysFail<>();
 		alwaysFail.addChild(new CareTask());
 		guardSelector.addChild(alwaysFail);
@@ -197,8 +199,8 @@ public class AIEditorTestProject extends Game {
 
 	public static void main (String[] args) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 1280;
-		config.height = 720;
+		config.width = 800;
+		config.height = 600;
 		config.useHDPI = true;
 		new LwjglApplication(new AIEditorTestProject(), config);
 	}

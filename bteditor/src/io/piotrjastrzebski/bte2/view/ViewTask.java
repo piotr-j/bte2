@@ -67,7 +67,7 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		container.add(prefix);
 		label = new VisLabel();
 		container.add(label);
-		status = new VisLabel("FRESH");
+		status = new VisLabel("");
 		status.setColor(ViewColors.FRESH);
 		container.add(status).padLeft(5);
 		container.setTouchable(Touchable.enabled);
@@ -163,7 +163,6 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 	private ViewTask init (TaskModel task, BehaviorTreeView view) {
 		// TODO add * after root/include when tree/subtree is not saved
 		this.task = task;
-		task.addListener(this);
 		this.dad = view.dad;
 		this.model = view.model;
 		separator.setDrawable(view.dimImg);
@@ -173,11 +172,10 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		if (task.getType() != TaskModel.Type.ROOT && !task.isReadOnly()) {
 			dad.addSource(source);
 		}
-//		if (task.isGuard()) {
-//			prefix.setText("(G) ");
-//		} else {
-//			prefix.setText("");
-//		}
+		if (task.getType() != TaskModel.Type.GUARD) {
+			task.addListener(this);
+			status.setText("FRESH");
+		}
 		updateNameColor();
 		dad.addTarget(target);
 		return this;
@@ -267,6 +265,7 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 			task.removeListener(this);
 		task = null;
 		label.setText("<INVALID>");
+		status.setText("");
 		if (dad != null) {
 			dad.removeSource(source);
 			dad.removeTarget(target);
