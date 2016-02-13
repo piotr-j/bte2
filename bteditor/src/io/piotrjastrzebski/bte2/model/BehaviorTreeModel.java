@@ -120,10 +120,13 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	}
 
 	public boolean canMoveBefore (TaskModel what, TaskModel target) {
-		if (!canAddBefore(what, target)) return false;
-		TaskModel parent = what.getParent();
-		if (parent == null) return false;
-		// since we dont actually add to add, this is fine
+		// we can move stuff within same parent
+		if (what.getParent() == target.getParent())
+			return true;
+		// if we cant add to target, we cant move
+		if (!canAddBefore(what, target))
+			return false;
+		// cant add into itself or into own children
 		return what == target || !what.hasChild(target);
 	}
 
@@ -137,12 +140,13 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	}
 
 	public boolean canMoveAfter (TaskModel what, TaskModel target) {
+		// we can move stuff within same parent
+		if (what.getParent() == target.getParent())
+			return true;
+		// if we cant add to target, we cant move
 		if (!canAddAfter(what, target))
 			return false;
-		TaskModel parent = what.getParent();
-		if (parent == null)
-			return false;
-		// since we dont actually add to add, this is fine
+		// cant add into itself or into own children
 		return what == target || !what.hasChild(target);
 	}
 
