@@ -230,29 +230,6 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		updateNameColor();
 	}
 
-	public boolean isGuard () {
-		return task != null && task.isGuard();
-	}
-
-	public void markAsGuarded (boolean marked) {
-		ViewTask parent = this;
-		while ((parent = (ViewTask)parent.getParent()) != null) {
-			if (!parent.task.isGuard())
-				break;
-		}
-		if (parent == null) {
-			Gdx.app.error(TAG, "No guard parent, wtf?");
-			return;
-		}
-		parent.isMarkedAsGuarded = marked;
-		if (marked) {
-			parent.prefix.setText("(GT) ");
-		} else {
-			parent.prefix.setText("");
-		}
-		parent.updateNameColor();
-	}
-
 	@Override public void statusChanged (Task.Status from, Task.Status to) {
 		status.setText(to.toString());
 		status.setColor(ViewColors.getColor(to));
