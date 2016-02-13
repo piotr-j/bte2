@@ -18,6 +18,7 @@ import com.kotcrab.vis.ui.widget.VisWindow;
 
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte2.model.TaskLibrary;
+import io.piotrjastrzebski.bte2.model.tasks.Guard;
 import io.piotrjastrzebski.bte2.view.BehaviorTreeView;
 
 /**
@@ -139,6 +140,7 @@ public class AIEditor implements Disposable {
 		}
 	}
 
+	// TODO add api for fullscreen window in new os window, no close btn
 	public Window getWindow () {
 		if (window == null) {
 			window = new VisWindow("AIEditor");
@@ -198,6 +200,7 @@ public class AIEditor implements Disposable {
 		addTaskClass("branch", DynamicGuardSelector.class);
 		addTaskClass("branch", RandomSelector.class);
 		addTaskClass("branch", RandomSequence.class);
+		addTaskClass("branch", Guard.class);
 
 		addTaskClass("decorator", AlwaysFail.class);
 		addTaskClass("decorator", AlwaysSucceed.class);

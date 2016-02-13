@@ -14,7 +14,6 @@ public class FakeRootModel extends TaskModel {
 	@SuppressWarnings("unchecked")
 	public void init (TaskModel root, BehaviorTreeModel model) {
 		this.model = model;
-		dirty = true;
 		minChildren = 1;
 		maxChildren = 1;
 		// TODO make sure this is correct

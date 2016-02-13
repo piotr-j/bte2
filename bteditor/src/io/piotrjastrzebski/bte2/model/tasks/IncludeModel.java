@@ -53,10 +53,6 @@ public class IncludeModel extends TaskModel implements Pool.Poolable {
 		// TODO if it is valid, we want to add the sub tree as child of this task
 		// TODO that will probably require custom include task that accepts children or something
 		// TODO perhaps delegate path check to external thing, so it is possible to change it
-		if (!dirty) return;
-		// TODO set dirty when data is changed
-		dirty = false;
-//		valid = true;
 		Include include = (Include)wrapped;
 		// TODO test with dog.other
 		include.subtree = "dog.other";

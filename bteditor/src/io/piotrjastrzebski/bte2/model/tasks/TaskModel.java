@@ -5,14 +5,11 @@ import com.badlogic.gdx.ai.btree.BranchTask;
 import com.badlogic.gdx.ai.btree.Decorator;
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.ai.btree.annotation.TaskConstraint;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.decorator.Repeat;
 import com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectIntMap;
 import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
@@ -25,24 +22,35 @@ import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 public abstract class TaskModel implements Pool.Poolable {
 	private static final String TAG = TaskModel.class.getSimpleName();
 
-	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL;}
+	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL, GUARD;}
 
 	public static TaskModel wrap (Task task, BehaviorTreeModel model) {
+		TaskModel taskModel = NullModel.INSTANCE;
 		if (task instanceof Include) {
-			return IncludeModel.obtain((Include)task, model);
+			taskModel = IncludeModel.obtain((Include)task, model);
 		} else if (task instanceof LeafTask) {
-			return LeafModel.obtain((LeafTask)task, model);
+			taskModel = LeafModel.obtain((LeafTask)task, model);
+		} else if (task instanceof Guard) {
+			taskModel = GuardModel.obtain(null, null, model);
 		} else if (task instanceof BranchTask) {
-			return BranchModel.obtain((BranchTask)task, model);
+			taskModel = BranchModel.obtain((BranchTask)task, model);
 		} else if (task instanceof Decorator) {
-			return DecoratorModel.obtain((Decorator)task, model);
+			taskModel = DecoratorModel.obtain((Decorator)task, model);
 		} else {
 			Gdx.app.error(TAG, "Invalid task class! " + task);
 		}
-		return NullModel.INSTANCE;
+		if (task.getGuard() != null) {
+			TaskModel guard = wrap(task.getGuard(), model);
+			return GuardModel.obtain(guard, taskModel, model);
+		}
+		return taskModel;
 	}
 
 	public static TaskModel wrap (Class<? extends Task> cls, BehaviorTreeModel model) {
+		// note we dont actual instance of this
+		if (cls == Guard.class) {
+			return GuardModel.obtain(null, null, model);
+		}
 		// TODO how do we want to make an instance of this?
 		try {
 			Task task = ClassReflection.newInstance(cls);
@@ -75,14 +83,12 @@ public abstract class TaskModel implements Pool.Poolable {
 	protected Array<TaskModel> children = new Array<>(4);
 	protected boolean init;
 	protected boolean valid;
-	protected boolean dirty;
 	protected boolean readOnly;
 	protected boolean isGuard;
 	protected TaskModel guardedTask;
 	protected int minChildren;
 	protected int maxChildren;
 	protected BehaviorTreeModel model;
-	protected Array<TaskCommand> pending = new Array<>();
 
 	public void init (Task task, BehaviorTreeModel model) {
 		this.model = model;
@@ -90,7 +96,6 @@ public abstract class TaskModel implements Pool.Poolable {
 		wrapped = task;
 		minChildren = ReflectionUtils.getMinChildren(task);
 		maxChildren = ReflectionUtils.getMaxChildren(task);
-		dirty = true;
 		for (int i = 0; i < task.getChildCount(); i++) {
 			TaskModel child = wrap(task.getChild(i), model);
 			child.setParent(this);
@@ -99,16 +104,23 @@ public abstract class TaskModel implements Pool.Poolable {
 		Task guard = wrapped.getGuard();
 		if (guard != null) {
 			this.guard = wrap(guard, model);
-			this.guard.setIsGuard(true, this);
+			this.guard.setIsGuard(this);
 		}
-		pending.clear();
 	}
 
-	public void setIsGuard (boolean isGuard, TaskModel guarded) {
-		this.isGuard = isGuard;
+	public void setIsGuard (TaskModel guarded) {
+		this.isGuard = true;
 		this.guardedTask = guarded;
 		for (TaskModel child : children) {
-			child.setIsGuard(isGuard, guarded);
+			child.setIsGuard(guarded);
+		}
+	}
+
+	public void setIsNotGuard () {
+		this.isGuard = false;
+		this.guardedTask = null;
+		for (TaskModel child : children) {
+			child.setIsNotGuard();
 		}
 	}
 
@@ -118,12 +130,11 @@ public abstract class TaskModel implements Pool.Poolable {
 	}
 
 	public boolean isValid () {
-		if (dirty) validate();
+		validate();
 		return valid;
 	}
 
 	public void validate () {
-		if (!dirty) return;
 		valid = !(children.size < minChildren || children.size > maxChildren);
 		if (guard != null) {
 			guard.validate();
@@ -132,13 +143,6 @@ public abstract class TaskModel implements Pool.Poolable {
 		for (TaskModel child : children) {
 			child.validate();
 			valid &= child.isValid();
-		}
-		if (valid) {
-			for (TaskCommand command : pending) {
-				command.execute();
-			}
-			// TODO pool etc
-			pending.clear();
 		}
 	}
 
@@ -178,22 +182,23 @@ public abstract class TaskModel implements Pool.Poolable {
 	public void insertChild (int at, TaskModel task) {
 		// if at is larger then size, we will insert as last
 		at = Math.min(at, children.size);
-		dirty = true;
-		if (model.isValid() && isValid()) {
-			TaskCommand.insert(this, task, at).execute();
-		} else {
-			pending.add(TaskCommand.insert(this, task, at));
-		}
+		children.insert(at, task);
+		task.setParent(this);
+		task.insertInto(this, at);
+	}
+
+	protected void insertInto (TaskModel parent, int at) {
+		ReflectionUtils.insert(wrapped, at, parent.wrapped);
 	}
 
 	public void removeChild (TaskModel task) {
-		dirty = true;
-		if (model.isValid() && isValid()) {
-			TaskCommand.remove(this, task).execute();
-			children.removeValue(task, true);
-		} else {
-			pending.add(TaskCommand.remove(this, task));
-		}
+		children.removeValue(task, true);
+		task.removeFrom(this);
+		task.setParent(null);
+	}
+
+	protected void removeFrom (TaskModel parent) {
+		ReflectionUtils.remove(wrapped, parent.wrapped);
 	}
 
 	public int getChildId (TaskModel what) {
@@ -209,15 +214,13 @@ public abstract class TaskModel implements Pool.Poolable {
 		removeGuard();
 		guard = newGuard;
 		wrapped.setGuard(newGuard.wrapped);
-		newGuard.setIsGuard(true, this);
-		dirty = true;
+		newGuard.setIsGuard(this);
 	}
 
 	@SuppressWarnings("unchecked")
 	public void removeGuard () {
 		guard = null;
 		wrapped.setGuard(null);
-		dirty = true;
 	}
 
 	public TaskModel getGuarded () {

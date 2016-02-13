@@ -255,7 +255,12 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 
 	private void doubleCheck (ObjectIntMap<TaskModel> modelTasks, ObjectIntMap<Task> tasks, TaskModel task) {
 		modelTasks.put(task, modelTasks.get(task, 0) + 1);
-		tasks.put(task.getWrapped(), tasks.get(task.getWrapped(), 0) + 1);
+		Task wrapped = task.getWrapped();
+		if (wrapped != null) {
+			tasks.put(wrapped, tasks.get(wrapped, 0) + 1);
+		} else {
+			Gdx.app.error(TAG, "Wrapped task of " + task + " is null!");
+		}
 		for (int i = 0; i < task.getChildCount(); i++) {
 			doubleCheck(modelTasks, tasks, task.getChild(i));
 		}
