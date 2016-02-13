@@ -81,10 +81,28 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		// add dim to tree so its in same coordinates as nodes
 		treeView.add(tree).fill().expand();
 		treeScrollPane = new VisScrollPane(treeView);
+		treeScrollPane.addListener(new InputListener(){
+			@Override public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) {
+				getStage().setScrollFocus(null);
+			}
+
+			@Override public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				getStage().setScrollFocus(treeScrollPane);
+			}
+		});
 		taskEdit = new VisTable(true);
 		VisTable taskView = new VisTable(true);
 		taskView.add(taskDrawer).fill().expand();
 		drawerScrollPane = new VisScrollPane(taskView);
+		drawerScrollPane.addListener(new InputListener(){
+			@Override public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) {
+				getStage().setScrollFocus(null);
+			}
+
+			@Override public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				getStage().setScrollFocus(drawerScrollPane);
+			}
+		});
 		taskDrawer.debugAll();
 
 		// TODO understand how this bullshit works
