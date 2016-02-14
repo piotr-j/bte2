@@ -1,6 +1,7 @@
 package io.piotrjastrzebski.bte2.model.tasks;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
@@ -58,18 +59,24 @@ public class IncludeModel extends TaskModel implements Pool.Poolable {
 		include.subtree = "dog.other";
 		include.lazy = true;
 		BehaviorTreeLibrary library = BehaviorTreeLibraryManager.getInstance().getLibrary();
+		boolean includeChanged = false;
 		if (include.subtree != null) {
 			// TODO use this from snapshot eventually
 //			if (library.hasBehaviorTree(include.subtree))
 			try {
-				include.addChild(library.createRootTask(include.subtree));
+				Task<Object> rootTask = library.createRootTask(include.subtree);
+				if (include.getChildCount() > 0) {
+					ReflectionUtils.remove(include.getChild(0), include);
+				}
+				include.addChild(rootTask);
+				includeChanged = true;
 				valid = true;
 			} catch (RuntimeException e) {
 				// TODO proper handling, with type of error reported
-				Gdx.app.error(TAG, "Subtree not found " + include.subtree);
+				Gdx.app.error(TAG, "Subtree not found " + include.subtree, e);
 			}
 		}
-		if (children.size != wrapped.getChildCount()) {
+		if (includeChanged) {
 			for (int i = 0; i < children.size; i++) {
 				free(children.get(i));
 			}
