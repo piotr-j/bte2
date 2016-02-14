@@ -49,6 +49,7 @@ public class AIEditor implements Disposable {
 	private BehaviorTreeStepStrategy simpleStepStrategy;
 	private VisWindow window;
 	private EditorWindowClosedListener closedListener;
+	private boolean autoStep = true;
 
 	/**
 	 * Create AIEditor with internal VisUI skin
@@ -74,7 +75,7 @@ public class AIEditor implements Disposable {
 			}
 		}
 		model = new BehaviorTreeModel();
-		view = new BehaviorTreeView(model);
+		view = new BehaviorTreeView(this);
 		setUpdateStrategy(null);
 	}
 
@@ -114,9 +115,18 @@ public class AIEditor implements Disposable {
 	 * Update the editor, call this each frame
 	 */
 	public void update (float delta) {
-		if (model.isValid() && stepStrategy.shouldStep(tree, delta)) {
+		if (model.isValid() && stepStrategy.shouldStep(tree, delta) && autoStep) {
 			// TODO figure out a way to break stepping if there is an infinite loop in the tree
 			// TODO or more practically, if we run some excessive amount of tasks
+			tree.step();
+		}
+	}
+
+	/**
+	 * Step the behavior tree immediately if model is valid
+	 */
+	public void forceStep() {
+		if (model.isValid()) {
 			tree.step();
 		}
 	}
@@ -240,6 +250,14 @@ public class AIEditor implements Disposable {
 
 		addTaskClass("leaf", Success.class);
 		addTaskClass("leaf", Failure.class);
+	}
+
+	public BehaviorTreeModel getModel () {
+		return model;
+	}
+
+	public void setAutoStep (boolean autoStep) {
+		this.autoStep = autoStep;
 	}
 
 	public interface BehaviorTreeStepStrategy {

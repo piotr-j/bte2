@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
 
+import io.piotrjastrzebski.bte2.AIEditor;
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
@@ -30,9 +31,11 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 	protected DragAndDrop dad;
 	protected ViewTarget removeTarget;
 	protected SpriteDrawable dimImg;
+	protected final VisTextButton btToggle;
+	protected final VisTextButton btStep;
 
-	public BehaviorTreeView (final BehaviorTreeModel model) {
-		this.model = model;
+	public BehaviorTreeView (final AIEditor editor) {
+		this.model = editor.getModel();
 		model.addChangeListener(this);
 		dimImg = new SpriteDrawable((SpriteDrawable)VisUI.getSkin().getDrawable(DRAWABLE_WHITE));
 		dimImg.getSprite().setColor(Color.WHITE);
@@ -45,9 +48,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		dad = new DragAndDrop();
 		topMenu = new VisTable(true);
 		add(topMenu).colspan(3);
-		// TODO add undo/redo buttons
-		// TODO add update control, step, pause/resume, reset
-		topMenu.add(new VisLabel("Top Menu - TODO add stuff in here!")).expandX().fillX();
+
 		VisTextButton undoBtn = new VisTextButton("Undo");
 		undoBtn.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
@@ -61,7 +62,26 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 			}
 		});
 		topMenu.add(undoBtn);
-		topMenu.add(redoBtn);
+		topMenu.add(redoBtn).padRight(20);
+
+		VisTable btControls = new VisTable(true);
+		topMenu.add(btControls);
+		btToggle = new VisTextButton("AutoStep", "toggle");
+		btToggle.setChecked(true);
+		btControls.add(btToggle);
+		btToggle.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				editor.setAutoStep(btToggle.isChecked());
+			}
+		});
+		btStep = new VisTextButton("Step");
+		btStep.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				editor.forceStep();
+			}
+		});
+		btControls.add(btStep);
+
 		row();
 		taskDrawer = new VisTree();
 		taskDrawer.setYSpacing(-2);
@@ -178,6 +198,13 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 
 	@Override public void onChange (BehaviorTreeModel model) {
 		rebuildTree();
+		if (model.isValid()) {
+			btToggle.setDisabled(false);
+			btStep.setDisabled(false);
+		} else {
+			btToggle.setDisabled(true);
+			btStep.setDisabled(true);
+		}
 	}
 
 	@Override public void onListenerAdded (BehaviorTreeModel model) {
