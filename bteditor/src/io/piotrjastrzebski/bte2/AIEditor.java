@@ -8,7 +8,10 @@ import com.badlogic.gdx.ai.btree.decorator.*;
 import com.badlogic.gdx.ai.btree.leaf.Failure;
 import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.leaf.Wait;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Disposable;
@@ -45,6 +48,8 @@ public class AIEditor implements Disposable {
 	private BehaviorTreeStepStrategy stepStrategy;
 	private BehaviorTreeStepStrategy simpleStepStrategy;
 	private VisWindow window;
+	private EditorWindowClosedListener closedListener;
+
 	/**
 	 * Create AIEditor with internal VisUI skin
 	 * AIEditor must be disposed in this case
@@ -136,13 +141,37 @@ public class AIEditor implements Disposable {
 		}
 	}
 
-	// TODO add api for fullscreen window in new os window, no close btn
+	private Action onCloseAction = new Action() {
+		@Override public boolean act (float delta) {
+			if (closedListener != null) closedListener.onClose();
+			return true;
+		}
+	};
+
 	public Window getWindow () {
-		if (window == null) {
-			window = new VisWindow("AIEditor");
+		return getWindow(true);
+	}
+
+	private boolean isWindowCloseable;
+	public Window getWindow (boolean closeable) {
+		if (window == null || isWindowCloseable != closeable) {
+			if (window != null) {
+				window.clear();
+				window.remove();
+			}
+			window = new VisWindow("AIEditor") {
+				// we override fade out so we know when the window was closed
+				public void fadeOut (float time) {
+					addAction(Actions.sequence(Actions.fadeOut(time, Interpolation.fade), onCloseAction, Actions.removeActor()));
+				}
+			};
 			window.setResizable(true);
 			window.add(getView()).fill().expand();
-			window.addCloseButton();
+			isWindowCloseable = closeable;
+			if (closeable) {
+				window.addCloseButton();
+				window.closeOnEscape();
+			}
 			// TODO need better check
 			if (Gdx.graphics.getPpiX() > 100) {
 				window.setSize(1600, 1200);
@@ -215,6 +244,14 @@ public class AIEditor implements Disposable {
 
 	public interface BehaviorTreeStepStrategy {
 		boolean shouldStep(BehaviorTree tree, float delta);
+	}
+
+	public interface EditorWindowClosedListener {
+		boolean onClose();
+	}
+
+	public void setClosedListener (EditorWindowClosedListener closedListener) {
+		this.closedListener = closedListener;
 	}
 
 	@Override public void dispose () {
