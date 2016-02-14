@@ -92,9 +92,12 @@ public class IncludeModel extends TaskModel implements Pool.Poolable {
 	}
 
 	@Override public String toString () {
-		return "IncludeModel{"+wrapped+"}";
+		return "IncludeModel{" +
+			"name='" + name + '\'' +
+			", subtree='" + (wrapped!=null?((Include)wrapped).subtree:"null") + '\'' +
+			(valid?", valid":", invalid") +
+			'}';
 	}
-
 	public static class FanycInclude {
 
 	}

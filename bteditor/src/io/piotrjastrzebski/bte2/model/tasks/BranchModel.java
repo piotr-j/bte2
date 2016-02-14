@@ -46,6 +46,10 @@ public class BranchModel extends TaskModel implements Pool.Poolable {
 	}
 
 	@Override public String toString () {
-		return "BranchModel{"+wrapped+"}";
+		return "BranchModel{" +
+			"name='" + name + '\'' +
+			(valid?", valid":", invalid") +
+			", childrenCount=" + getChildCount() +
+			'}';
 	}
 }

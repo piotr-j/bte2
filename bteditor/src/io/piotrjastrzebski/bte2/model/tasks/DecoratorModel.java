@@ -55,7 +55,11 @@ public class DecoratorModel extends TaskModel implements Pool.Poolable {
 		pool.free(this);
 	}
 
+
 	@Override public String toString () {
-		return "DecoratorModel{"+wrapped+"}";
+		return "DecoratorModel{" +
+			"name='" + name + '\'' +
+			(valid?", valid":", invalid") +
+			'}';
 	}
 }

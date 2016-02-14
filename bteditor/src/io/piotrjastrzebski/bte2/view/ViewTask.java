@@ -264,4 +264,12 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		}
 		return DropPoint.MIDDLE;
 	}
+
+	@Override public String toString () {
+		if (task == null) {
+			return "ViewNode{'null'}";
+		} else {
+			return "ViewNode{'"+task+"'}";
+		}
+	}
 }

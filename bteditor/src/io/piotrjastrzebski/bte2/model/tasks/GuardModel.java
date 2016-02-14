@@ -168,7 +168,11 @@ public class GuardModel extends TaskModel implements Pool.Poolable {
 	}
 
 	@Override public String toString () {
-		return "GuardModel{"+wrapped+"}";
+		return "GuardModel{" +
+			"guard=" + guard +
+			", guarded=" + guarded +
+			(valid?", valid":", invalid") +
+			'}';
 	}
 
 }

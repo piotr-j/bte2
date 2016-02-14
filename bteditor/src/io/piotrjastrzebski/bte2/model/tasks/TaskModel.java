@@ -261,10 +261,10 @@ public abstract class TaskModel implements Pool.Poolable {
 
 	@Override public String toString () {
 		return "TaskModel{" +
-			"type=" + type +
+			"name='" + name + '\'' +
+			(valid?", valid":", invalid") +
+			", type=" + type +
 			", parent=" + parent +
-			", valid=" + valid +
-			", name='" + name + '\'' +
 			'}';
 	}
 
