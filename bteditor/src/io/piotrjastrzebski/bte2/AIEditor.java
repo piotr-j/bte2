@@ -125,7 +125,7 @@ public class AIEditor implements Disposable {
 	/**
 	 * Step the behavior tree immediately if model is valid
 	 */
-	public void forceStep() {
+	public void forceStepBehaviorTree () {
 		if (model.isValid()) {
 			tree.step();
 		}
@@ -256,8 +256,12 @@ public class AIEditor implements Disposable {
 		return model;
 	}
 
-	public void setAutoStep (boolean autoStep) {
+	public void setAutoStepBehaviorTree (boolean autoStep) {
 		this.autoStep = autoStep;
+	}
+
+	public void restartBehaviorTree () {
+		tree.reset();
 	}
 
 	public interface BehaviorTreeStepStrategy {

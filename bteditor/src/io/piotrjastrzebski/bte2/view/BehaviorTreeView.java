@@ -35,6 +35,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 	protected SpriteDrawable dimImg;
 	protected final VisTextButton btToggle;
 	protected final VisTextButton btStep;
+	protected final VisTextButton btReset;
 	private Tree.Node selectedNode;
 	private final ViewTaskAttributeEdit vtEdit;
 
@@ -75,16 +76,23 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		btControls.add(btToggle);
 		btToggle.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
-				editor.setAutoStep(btToggle.isChecked());
+				editor.setAutoStepBehaviorTree(btToggle.isChecked());
 			}
 		});
 		btStep = new VisTextButton("Step");
 		btStep.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
-				editor.forceStep();
+				editor.forceStepBehaviorTree();
 			}
 		});
 		btControls.add(btStep);
+		btReset = new VisTextButton("Restart");
+		btReset.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				editor.restartBehaviorTree();
+			}
+		});
+		btControls.add(btReset);
 
 		row();
 		taskDrawer = new VisTree();
@@ -228,9 +236,11 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		if (model.isValid()) {
 			btToggle.setDisabled(false);
 			btStep.setDisabled(false);
+			btReset.setDisabled(false);
 		} else {
 			btToggle.setDisabled(true);
 			btStep.setDisabled(true);
+			btReset.setDisabled(true);
 		}
 	}
 
