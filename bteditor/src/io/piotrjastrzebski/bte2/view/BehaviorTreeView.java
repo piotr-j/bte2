@@ -1,5 +1,6 @@
 package io.piotrjastrzebski.bte2.view;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -13,6 +14,7 @@ import com.kotcrab.vis.ui.widget.*;
 import io.piotrjastrzebski.bte2.AIEditor;
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
+import io.piotrjastrzebski.bte2.view.edit.ViewTaskAttributeEdit;
 
 /**
  * Created by EvilEntity on 04/02/2016.
@@ -33,6 +35,8 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 	protected SpriteDrawable dimImg;
 	protected final VisTextButton btToggle;
 	protected final VisTextButton btStep;
+	private Tree.Node selectedNode;
+	private final ViewTaskAttributeEdit vtEdit;
 
 	public BehaviorTreeView (final AIEditor editor) {
 		this.model = editor.getModel();
@@ -96,6 +100,14 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 				super.setOverNode(overNode);
 			}
 		};
+		tree.getSelection().setMultiple(false);
+		tree.addListener(new ChangeListener() {
+			@Override public void changed (ChangeEvent event, Actor actor) {
+				Tree.Node newNode = tree.getSelection().getLastSelected();
+				onSelectionChanged(selectedNode, newNode);
+				selectedNode = newNode;
+			}
+		});
 		tree.setYSpacing(0);
 		// add dim to tree so its in same coordinates as nodes
 		treeView.add(tree).fill().expand();
@@ -109,8 +121,8 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 				getStage().setScrollFocus(treeScrollPane);
 			}
 		});
-		taskEdit = new VisTable(true);
-		VisTable taskView = new VisTable(true);
+
+		VisTable taskView =  new VisTable(true);
 		taskView.add(taskDrawer).fill().expand();
 		drawerScrollPane = new VisScrollPane(taskView);
 		drawerScrollPane.addListener(new InputListener(){
@@ -123,6 +135,8 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 			}
 		});
 
+		taskEdit = new VisTable(true);
+		taskEdit.add(vtEdit = new ViewTaskAttributeEdit()).expand().top();
 		VisSplitPane drawerTreeSP = new VisSplitPane(drawerScrollPane, treeScrollPane, false);
 		drawerTreeSP.setSplitAmount(.33f);
 		VisSplitPane dtEditSP = new VisSplitPane(drawerTreeSP, taskEdit, false);
@@ -139,6 +153,19 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 			}
 		};
 		dad.addTarget(removeTarget);
+	}
+
+	private void onSelectionChanged (Tree.Node oldNode, Tree.Node newNode) {
+//		Gdx.app.log(TAG, "selection changed from " + oldNode + " to " + newNode);
+		// add stuff to taskEdit
+		if (newNode instanceof ViewTask) {
+			TaskModel task = ((ViewTask)newNode).task;
+			if (task != null && task.getWrapped() != null) {
+				vtEdit.startEdit(task);
+			} else {
+				Gdx.app.error(TAG, "Error for " + task);
+			}
+		}
 	}
 
 	private void onOverNodeChanged (Tree.Node oldNode, Tree.Node newNode) {
