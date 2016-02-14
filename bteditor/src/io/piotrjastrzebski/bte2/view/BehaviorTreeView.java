@@ -105,11 +105,11 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		});
 		taskDrawer.debugAll();
 
-		// TODO understand how this bullshit works
-		add(drawerScrollPane).expand(1, 1).fill().pad(5);
-		add(treeScrollPane).expand(2, 1).fill().pad(5, 0, 5, 0);
-		add(taskEdit).expand(1, 1).fill().pad(5);
-
+		VisSplitPane drawerTreeSP = new VisSplitPane(drawerScrollPane, treeScrollPane, false);
+		drawerTreeSP.setSplitAmount(.33f);
+		VisSplitPane dtEditSP = new VisSplitPane(drawerTreeSP, taskEdit, false);
+		dtEditSP.setSplitAmount(.75f);
+		add(dtEditSP).grow().pad(5);
 
 		removeTarget = new ViewTarget(drawerScrollPane) {
 			@Override public boolean onDrag (ViewSource source, ViewPayload payload, float x, float y) {
