@@ -33,7 +33,6 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 
 	public BehaviorTreeView (final BehaviorTreeModel model) {
 		this.model = model;
-		debugAll();
 		model.addChangeListener(this);
 		dimImg = new SpriteDrawable((SpriteDrawable)VisUI.getSkin().getDrawable(DRAWABLE_WHITE));
 		dimImg.getSprite().setColor(Color.WHITE);
@@ -103,7 +102,6 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 				getStage().setScrollFocus(drawerScrollPane);
 			}
 		});
-		taskDrawer.debugAll();
 
 		VisSplitPane drawerTreeSP = new VisSplitPane(drawerScrollPane, treeScrollPane, false);
 		drawerTreeSP.setSplitAmount(.33f);
