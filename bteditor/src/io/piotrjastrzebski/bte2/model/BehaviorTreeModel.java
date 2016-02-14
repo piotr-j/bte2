@@ -80,6 +80,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 
 		commands.execute(AddCommand.obtain(id, what, parent));
 		tree.reset();
+		dirty = true;
 		notifyChanged();
 	}
 
@@ -97,6 +98,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		int id = parent.getChildId(target);
 		commands.execute(AddCommand.obtain(id + 1, what, parent));
 		tree.reset();
+		dirty = true;
 		notifyChanged();
 	}
 
