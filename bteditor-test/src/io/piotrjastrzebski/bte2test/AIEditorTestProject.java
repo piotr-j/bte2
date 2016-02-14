@@ -68,6 +68,17 @@ public class AIEditorTestProject extends Game {
 		editor.initialize(tree);
 		// add default task classes to task drawer with default tags
 		editor.addDefaultTaskClasses();
+		editor.setUpdateStrategy(new AIEditor.BehaviorTreeStepStrategy() {
+			float timer;
+			@Override public boolean shouldStep (BehaviorTree tree, float delta) {
+				timer += delta;
+				if (timer >= 1) {
+					timer -= 1;
+					return true;
+				}
+				return false;
+			}
+		});
 		addTaskClasses();
 
 		toggle = new VisTextButton("Show editor");
