@@ -42,8 +42,8 @@ public class AIEditor implements Disposable {
 	private BehaviorTree tree;
 	private BehaviorTreeModel model;
 	private BehaviorTreeView view;
-	private BTUpdateStrategy strategy;
-	private BTUpdateStrategy simpleStrategy;
+	private BehaviorTreeStepStrategy stepStrategy;
+	private BehaviorTreeStepStrategy simpleStepStrategy;
 	private VisWindow window;
 	/**
 	 * Create AIEditor with internal VisUI skin
@@ -70,17 +70,6 @@ public class AIEditor implements Disposable {
 		}
 		model = new BehaviorTreeModel();
 		view = new BehaviorTreeView(model);
-		simpleStrategy = new BTUpdateStrategy() {
-			private float timer;
-			@Override public boolean shouldStep (BehaviorTree tree, float delta) {
-				timer += delta;
-				if (timer > 1f) {
-					timer -= 1f;
-					return true;
-				}
-				return false;
-			}
-		};
 		setUpdateStrategy(null);
 	}
 
@@ -120,7 +109,7 @@ public class AIEditor implements Disposable {
 	 * Update the editor, call this each frame
 	 */
 	public void update (float delta) {
-		if (model.isValid() && strategy.shouldStep(tree, delta)) {
+		if (model.isValid() && stepStrategy.shouldStep(tree, delta)) {
 			// TODO figure out a way to break stepping if there is an infinite loop in the tree
 			// TODO or more practically, if we run some excessive amount of tasks
 			tree.step();
@@ -129,14 +118,21 @@ public class AIEditor implements Disposable {
 
 	/**
 	 * BTUpdateStrategy for the BehaviorTree that will be called if it is in valid state
-	 * Pass in null to use default strategy, step() each update
-	 * @param strategy strategy to use for BehaviorTree updates
+	 * Pass in null to use default stepStrategy, step() each update
+	 * @param strategy stepStrategy to use for BehaviorTree updates
 	 */
-	public void setUpdateStrategy (BTUpdateStrategy strategy) {
+	public void setUpdateStrategy (BehaviorTreeStepStrategy strategy) {
 		if (strategy == null) {
-			this.strategy = simpleStrategy;
+			if (simpleStepStrategy == null) {
+				simpleStepStrategy = new BehaviorTreeStepStrategy() {
+					@Override public boolean shouldStep (BehaviorTree tree, float delta) {
+						return true;
+					}
+				};
+			}
+			this.stepStrategy = simpleStepStrategy;
 		} else {
-			this.strategy = strategy;
+			this.stepStrategy = strategy;
 		}
 	}
 
@@ -217,7 +213,7 @@ public class AIEditor implements Disposable {
 		addTaskClass("leaf", Failure.class);
 	}
 
-	public interface BTUpdateStrategy {
+	public interface BehaviorTreeStepStrategy {
 		boolean shouldStep(BehaviorTree tree, float delta);
 	}
 
