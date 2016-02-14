@@ -89,6 +89,7 @@ public abstract class TaskModel implements Pool.Poolable {
 	protected int minChildren;
 	protected int maxChildren;
 	protected BehaviorTreeModel model;
+	protected String comment;
 
 	public void init (Task task, BehaviorTreeModel model) {
 		this.model = model;
@@ -284,7 +285,17 @@ public abstract class TaskModel implements Pool.Poolable {
 		init = false;
 		name = null;
 		readOnly = false;
+		comment = null;
 		listeners.clear();
+	}
+
+	public String getComment () {
+		return comment;
+	}
+
+	public TaskModel setComment (String comment) {
+		this.comment = comment;
+		return this;
 	}
 
 	public boolean isReadOnly () {
