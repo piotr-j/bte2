@@ -18,6 +18,8 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTextArea;
 import com.kotcrab.vis.ui.widget.VisTextField;
+import io.piotrjastrzebski.bte2.model.tasks.fields.EditableFields;
+import io.piotrjastrzebski.bte2.model.tasks.fields.EditableFields.EditableField;
 
 /**
  * Created by PiotrJ on 06/10/15.
@@ -51,139 +53,93 @@ class AttrFieldEdit {
 		return ta;
 	}
 
-	protected static Actor createEditField (final Object object, final Field field, boolean required) throws
-		ReflectionException {
+	protected static Actor createEditField (EditableField field) {
 		Class fType = field.getType();
 		if (fType == float.class) {
-			return AttrFieldEdit.floatEditField(object, field, required);
+			return AttrFieldEdit.floatEditField(field);
 		} else if (fType == double.class) {
-			return AttrFieldEdit.doubleEditField(object, field, required);
+			return AttrFieldEdit.doubleEditField(field);
 		} else if (fType == int.class) {
-			return AttrFieldEdit.integerEditField(object, field, required);
+			return AttrFieldEdit.integerEditField(field);
 		} else if (fType == long.class) {
-			return AttrFieldEdit.longEditField(object, field, required);
+			return AttrFieldEdit.longEditField(field);
 		} else if (fType == String.class) {
-			return AttrFieldEdit.stringEditField(object, field, required);
+			return AttrFieldEdit.stringEditField(field);
 		} else if (fType == boolean.class) {
-			return AttrFieldEdit.booleanEditField(object, field, required);
+			return AttrFieldEdit.booleanEditField(field);
 		} else if (fType.isEnum()) {
-			return AttrFieldEdit.enumEditField(object, field, required);
+			return AttrFieldEdit.enumEditField(field);
 		} if (Distribution.class.isAssignableFrom(fType)) {
-			return AttrFieldEdit.distEditField(object, field, required);
+			return AttrFieldEdit.distEditField(field);
 		} else {
-			Gdx.app.error(TAG, "Not supported field type " + fType + " in " + object);
+			Gdx.app.error(TAG, "Not supported field type " + fType + " in " + field);
 			return null;
 		}
 	}
 
-	protected static Actor integerEditField (final Object object, final Field field, final boolean required) throws
-		ReflectionException {
+	protected static Actor integerEditField (final EditableField field) {
 		return valueEditField(new IntField() {
 			@Override public int getInt () {
-				try {
-					return (int)field.get(object);
-				} catch (ReflectionException e) {
-					e.printStackTrace();
-				}
-				return 0;
+				return (int)field.get();
 			}
 
 			@Override public void setInt (int val) {
-				try {
-					field.set(object, val);
-				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
-				}
+				field.set(val);
 			}
 		});
 	}
 
-	protected static Actor longEditField (final Object object, final Field field, final boolean required) throws
-		ReflectionException {
+	protected static Actor longEditField (final EditableField field) {
 		return valueEditField(new LongField() {
 			@Override public long getLong () {
-				try {
-					return (long)field.get(object);
-				} catch (ReflectionException e) {
-					e.printStackTrace();
-				}
-				return 0;
+				return (long)field.get();
 			}
 
 			@Override public void setLong (long val) {
-				try {
-					field.set(object, val);
-				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
-				}
+				field.set(val);
 			}
 		});
 	}
 
-	protected static Actor floatEditField (final Object object, final Field field, final boolean required) throws
-		ReflectionException {
+	protected static Actor floatEditField (final EditableField field) {
 		return valueEditField(new FloatField() {
 			@Override public float getFloat () {
-				try {
-					return (float)field.get(object);
-				} catch (ReflectionException e) {
-					e.printStackTrace();
-				}
-				return 0;
+				return (float)field.get();
 			}
 
 			@Override public void setFloat (float val) {
-				try {
-					field.set(object, val);
-				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
-				}
+				field.set(val);
 			}
 		});
 	}
 
-	protected static Actor doubleEditField (final Object object, final Field field, final boolean required) throws
-		ReflectionException {
+	protected static Actor doubleEditField (final EditableField field) {
 		return valueEditField(new DoubleField() {
 			@Override public double getDouble () {
-				try {
-					return (double)field.get(object);
-				} catch (ReflectionException e) {
-					e.printStackTrace();
-				}
-				return 0;
+				return (double)field.get();
 			}
 
 			@Override public void setDouble (double val) {
-				try {
-					field.set(object, val);
-				} catch (ReflectionException e) {
-					Gdx.app.error("Float validator", "Failed to set field " + field + " to " + val, e);
-				}
+				field.set(val);
 			}
 		});
 	}
 
-	protected static Actor stringEditField (final Object object, final Field field, final boolean required) throws
-		ReflectionException {
-		String value = (String)field.get(object);
+	protected static Actor stringEditField (final EditableField field) {
+		String value = (String)field.get();
 		final VisTextField tf = new VisTextField(value);
-		if (required) {
+		if (field.isRequired()) {
 			if (value == null || value.length() == 0)
 				tf.setColor(Color.RED);
 		}
 		tf.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
 				String text = tf.getText();
-				if (text.length() == 0 && required) {
+				if (text.length() == 0 && field.isRequired()) {
 					tf.setColor(Color.RED);
 				} else {
 					tf.setColor(Color.WHITE);
-					try {
-						field.set(object, text);
-					} catch (ReflectionException e) {
-						Gdx.app.error("String validator", "Failed to set field " + field + " to " + text, e);
-					}
+					field.set(text);
 				}
 			}
 		});
@@ -191,38 +147,28 @@ class AttrFieldEdit {
 		return tf;
 	}
 
-	protected static Actor enumEditField (final Object object, final Field field, final boolean required) throws
-		ReflectionException {
+	protected static Actor enumEditField (final EditableField field) {
 		Object[] values = field.getType().getEnumConstants();
 		final VisSelectBox<Object> sb = new VisSelectBox<>();
 		sb.setItems(values);
-		sb.setSelected(field.get(object));
+		sb.setSelected(field.get());
 		sb.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
 				Object selected = sb.getSelection().getLastSelected();
-				try {
-					field.set(object, selected);
-				} catch (ReflectionException e) {
-					Gdx.app.error("Enum validator", "Failed to set field " + field + " to " + selected, e);
-				}
+				field.set(selected);
 			}
 		});
 		return sb;
 	}
 
-	protected static Actor booleanEditField (final Object object, final Field field, final boolean required) throws
-		ReflectionException {
+	protected static Actor booleanEditField (final EditableField field) {
 		final VisSelectBox<Object> sb = new VisSelectBox<>();
 		sb.setItems(true, false);
-		sb.setSelected(field.get(object));
+		sb.setSelected(field.get());
 		sb.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
 				Object selected = sb.getSelection().getLastSelected();
-				try {
-					field.set(object, selected);
-				} catch (ReflectionException e) {
-					Gdx.app.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
-				}
+				field.set(selected);
 			}
 		});
 		return sb;
@@ -264,7 +210,7 @@ class AttrFieldEdit {
 		return true;
 	}
 
-	private static void createDistEditField (String text, final Object object, final Field field, Distribution dist, Table cont,
+	private static void createDistEditField (String text, final EditableField field, Distribution dist, Table cont,
 		final  Class<? extends DWrapper>[] classes) {
 		final Table fields = new Table();
 		final VisSelectBox<DWrapper> sb = new VisSelectBox<>();
@@ -280,7 +226,7 @@ class AttrFieldEdit {
 				Constructor constructor = ClassReflection.getDeclaredConstructor(aClass);
 				constructor.setAccessible(true);
 				DWrapper wrapper = (DWrapper)constructor.newInstance();
-				wrapper.init(object, field);
+				wrapper.init(field);
 				wrappers[i] = wrapper;
 				if (wrapper.isWrapperFor(dist)) {
 					actual = wrapper;
@@ -302,18 +248,14 @@ class AttrFieldEdit {
 		sb.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
 				DWrapper selected = sb.getSelection().getLastSelected();
-				try {
-					field.set(object, selected.create());
-				} catch (ReflectionException e) {
-					Gdx.app.error("Boolean validator", "Failed to set field " + field + " to " + selected, e);
-				}
+				field.set(selected.create());
 				fields.clear();
 				selected.createEditFields(fields);
 			}
 		});
 	}
 
-	private static void createSimpleDistEditField (String text, final Object object, final Field field, Distribution dist, Table cont,
+	private static void createSimpleDistEditField (String text, final EditableField field, Distribution dist, Table cont,
 		 Class<? extends DWrapper> aClass) {
 		final Table fields = new Table();
 		cont.add(new VisLabel(text)).row();
@@ -324,7 +266,7 @@ class AttrFieldEdit {
 			Constructor constructor = ClassReflection.getDeclaredConstructor(aClass);
 			constructor.setAccessible(true);
 			wrapper = (DWrapper)constructor.newInstance();
-			wrapper.init(object, field);
+			wrapper.init(field);
 		} catch (ReflectionException e) {
 			e.printStackTrace();
 		}
@@ -337,32 +279,31 @@ class AttrFieldEdit {
 		wrapper.createEditFields(fields);
 	}
 
-	protected static Actor distEditField (final Object object, final Field field, boolean required) throws
-		ReflectionException {
+	protected static Actor distEditField (final EditableField field) {
 		// how do implement this crap? multiple inputs probably for each value in the thing
-		Distribution dist = (Distribution)field.get(object);
+		Distribution dist = (Distribution)field.get();
 		final Table cont = new Table();
 		Class type = field.getType();
 
 		// add new edit fields, per type of distribution
 		// if field type is one of the abstract classes, we want to be able to pick dist we want
 		if (type == IntegerDistribution.class) {
-			createDistEditField("Integer distribution", object, field, dist, cont,
+			createDistEditField("Integer distribution", field, dist, cont,
 				new Class[] {CIDWrapper.class, TIDWrapper.class, UIDWrapper.class});
 			return cont;
 		}
 		if (type == LongDistribution.class) {
-			createDistEditField("Long distribution", object, field, dist, cont,
+			createDistEditField("Long distribution", field, dist, cont,
 				new Class[] {CLDWrapper.class, TLDWrapper.class, ULDWrapper.class});
 			return cont;
 		}
 		if (type == FloatDistribution.class) {
-			createDistEditField("Float distribution", object, field, dist, cont,
+			createDistEditField("Float distribution", field, dist, cont,
 				new Class[] {CFDWrapper.class, TFDWrapper.class, UFDWrapper.class, GFDWrapper.class});
 			return cont;
 		}
 		if (type == DoubleDistribution.class) {
-			createDistEditField("Double distribution", object, field, dist, cont,
+			createDistEditField("Double distribution", field, dist, cont,
 				new Class[] {CDDWrapper.class, TDDWrapper.class, UDDWrapper.class, GDDWrapper.class});
 			return cont;
 		}
@@ -372,7 +313,7 @@ class AttrFieldEdit {
 			Gdx.app.error(TAG, "Wrapper for " + type + " not found!");
 			return cont;
 		}
-		createSimpleDistEditField(type.getSimpleName(), object, field, dist, cont, wrapper);
+		createSimpleDistEditField(type.getSimpleName(), field, dist, cont, wrapper);
 		return cont;
 	}
 
@@ -441,9 +382,8 @@ class AttrFieldEdit {
 		return vtf;
 	}
 
-	public static Actor createPathEditField (final Object object, final Field field, boolean required) throws
-		ReflectionException {
-		String value = (String)field.get(object);
+	public static Actor createPathEditField (final EditableField field) {
+		String value = (String)field.get();
 		final VisTextField tf = new VisTextField(value);
 		tf.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
@@ -458,11 +398,7 @@ class AttrFieldEdit {
 					tf.setColor(Color.RED);
 				} else {
 					tf.setColor(Color.WHITE);
-					try {
-						field.set(object, text);
-					} catch (ReflectionException e) {
-						Gdx.app.error("Path validator", "Failed to set field " + field + " to " + text, e);
-					}
+					field.set(text);
 				}
 			}
 		});
@@ -562,17 +498,12 @@ class AttrFieldEdit {
 	}
 
 	protected static abstract class DWrapper {
-		protected Object owner;
-		protected Field field;
+		protected EditableField field;
 
 		protected DWrapper () {}
 
 		protected final void updateOwner() {
-			try {
-				field.set(owner, create());
-			} catch (ReflectionException e) {
-				e.printStackTrace();
-			}
+			field.set(create());
 		}
 
 		public abstract Distribution create();
@@ -583,8 +514,7 @@ class AttrFieldEdit {
 
 		public abstract boolean isWrapperFor (Distribution distribution);
 
-		public DWrapper init (Object owner, Field field) {
-			this.owner = owner;
+		public DWrapper init (EditableField field) {
 			this.field = field;
 			return this;
 		}

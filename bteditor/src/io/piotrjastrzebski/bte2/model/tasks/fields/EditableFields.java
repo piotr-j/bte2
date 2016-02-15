@@ -107,8 +107,9 @@ public class EditableFields {
 		@Override public void set (Object value) {
 			if (required && value == null)
 				throw new AssertionError("Field " + name + " in " + task.getClass().getSimpleName() + " is required!");
-			if (value != null && !field.getType().isAssignableFrom(value.getClass()))
-				throw new AssertionError("Invalid value type for field " + name + ", got " + value.getClass() + ", expected " + field.getType());
+			// TOOD proper check, this fails for float.class Float.class etc
+//			if (value != null && !field.getType().isAssignableFrom(value.getClass()))
+//				throw new AssertionError("Invalid value type for field " + name + ", got " + value.getClass() + ", expected " + field.getType());
 			try {
 				field.set(task, value);
 			} catch (ReflectionException e) {

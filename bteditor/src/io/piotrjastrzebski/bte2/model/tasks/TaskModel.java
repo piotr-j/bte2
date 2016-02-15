@@ -303,6 +303,10 @@ public abstract class TaskModel implements Pool.Poolable {
 		return this;
 	}
 
+	public Array<EditableField> getEditableFields () {
+		return fields;
+	}
+
 	public boolean isReadOnly () {
 		return readOnly;
 	}
