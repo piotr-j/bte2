@@ -18,7 +18,7 @@ import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 public class EditableFields {
 
 	public interface EditableField {
-		// TODO do we stick undo/redo in here?
+
 		Object get ();
 
 		void set (Object object);
@@ -28,6 +28,8 @@ public class EditableFields {
 		String getName ();
 
 		Class getType ();
+
+		boolean isRequired ();
 
 		void free ();
 	}
@@ -66,7 +68,7 @@ public class EditableFields {
 		if (name == null || name.length() == 0) {
 			name = field.getName();
 		}
-		out.add(BaseEditableField.obtain(name, task, field));
+		out.add(BaseEditableField.obtain(name, task, field, ann.required()));
 	}
 
 	private static class BaseEditableField implements EditableField, Pool.Poolable {
@@ -76,18 +78,20 @@ public class EditableFields {
 			}
 		};
 
-		public static EditableField obtain (String name, Task task, Field field) {
-			return pool.obtain().init(name, task, field);
+		public static EditableField obtain (String name, Task task, Field field, boolean required) {
+			return pool.obtain().init(name, task, field, required);
 		}
 
 		private String name;
 		private Task task;
 		private Field field;
+		private boolean required;
 
-		private EditableField init (String name, Task task, Field field) {
+		private EditableField init (String name, Task task, Field field, boolean required) {
 			this.name = name;
 			this.task = task;
 			this.field = field;
+			this.required = required;
 			return this;
 		}
 
@@ -101,6 +105,10 @@ public class EditableFields {
 		}
 
 		@Override public void set (Object value) {
+			if (required && value == null)
+				throw new AssertionError("Field " + name + " in " + task.getClass().getSimpleName() + " is required!");
+			if (value != null && !field.getType().isAssignableFrom(value.getClass()))
+				throw new AssertionError("Invalid value type for field " + name + ", got " + value.getClass() + ", expected " + field.getType());
 			try {
 				field.set(task, value);
 			} catch (ReflectionException e) {
@@ -118,6 +126,10 @@ public class EditableFields {
 
 		@Override public Class getType () {
 			return field.getType();
+		}
+
+		@Override public boolean isRequired () {
+			return required;
 		}
 
 		@Override public void free () {
@@ -154,6 +166,8 @@ public class EditableFields {
 		}
 
 		@Override public void set (Object value) {
+			if (value.getClass() != String.class)
+				throw new AssertionError("Invalid value type for field "+getName()+", got " + value.getClass() + ", expected String.class");
 			owner.setComment((String)value);
 		}
 
@@ -167,6 +181,10 @@ public class EditableFields {
 
 		@Override public Class getType () {
 			return String.class;
+		}
+
+		@Override public boolean isRequired () {
+			return false;
 		}
 
 		@Override public void free () {
