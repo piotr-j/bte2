@@ -14,6 +14,8 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
 
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
+import io.piotrjastrzebski.bte2.model.tasks.fields.EditableFields;
+import io.piotrjastrzebski.bte2.model.tasks.fields.EditableFields.EditableField;
 
 /**
  * Created by EvilEntity on 04/02/2016.
@@ -90,6 +92,7 @@ public abstract class TaskModel implements Pool.Poolable {
 	protected int maxChildren;
 	protected BehaviorTreeModel model;
 	protected String comment;
+	protected Array<EditableField> fields = new Array<>();
 
 	public void init (Task task, BehaviorTreeModel model) {
 		this.model = model;
@@ -107,6 +110,7 @@ public abstract class TaskModel implements Pool.Poolable {
 			this.guard = wrap(guard, model);
 			this.guard.setIsGuard(this);
 		}
+		EditableFields.get(this, fields);
 	}
 
 	public void setIsGuard (TaskModel guarded) {
@@ -287,6 +291,7 @@ public abstract class TaskModel implements Pool.Poolable {
 		readOnly = false;
 		comment = null;
 		listeners.clear();
+		EditableFields.release(fields);
 	}
 
 	public String getComment () {
