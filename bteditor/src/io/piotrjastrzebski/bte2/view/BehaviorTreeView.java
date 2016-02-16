@@ -1,7 +1,11 @@
 package io.piotrjastrzebski.bte2.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -11,8 +15,12 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
 
+import com.kotcrab.vis.ui.widget.file.FileChooser;
+import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import io.piotrjastrzebski.bte2.AIEditor;
+import io.piotrjastrzebski.bte2.BehaviorTreeWriter;
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
+import io.piotrjastrzebski.bte2.model.tasks.ReflectionUtils;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 import io.piotrjastrzebski.bte2.view.edit.ViewTaskAttributeEdit;
 
@@ -69,8 +77,10 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		topMenu.add(undoBtn);
 		topMenu.add(redoBtn).padRight(20);
 
+		addSaveLoad(topMenu);
+
 		VisTable btControls = new VisTable(true);
-		topMenu.add(btControls);
+		topMenu.add(btControls).padLeft(20);
 		btToggle = new VisTextButton("AutoStep", "toggle");
 		btToggle.setChecked(true);
 		btControls.add(btToggle);
@@ -161,6 +171,77 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 			}
 		};
 		dad.addTarget(removeTarget);
+	}
+
+	private FileHandle lastSave = null;
+	private void addSaveLoad (VisTable menu) {
+		// TODO figure out proper save/load overwrite strategy
+		// TODO some error handling maybe
+		FileChooser.setFavoritesPrefsName("io.piotrjastrzebski.bte2");
+		VisTextButton save = new VisTextButton("Save");
+		VisTextButton saveAs = new VisTextButton("Save As");
+		VisTextButton load = new VisTextButton("Load");
+		menu.add(save);
+		menu.add(saveAs);
+		menu.add(load);
+		final FileChooser saveChooser = new FileChooser(FileChooser.Mode.SAVE);
+		saveChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
+		saveChooser.setMultiSelectionEnabled(false);
+		// TODO filter maybe
+		saveChooser.setListener(new FileChooserAdapter() {
+			@Override
+			public void selected (Array<FileHandle> file) {
+				// we dont allow multiple files
+				lastSave = file.first();
+				lastSave.writeString(BehaviorTreeWriter.serialize(model.getTree()), false);
+				Gdx.app.log(TAG, "Saved tree to " + lastSave.path());
+			}
+		});
+
+		save.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				if (lastSave == null) {
+					getStage().addActor(saveChooser.fadeIn());
+				} else {
+					lastSave.writeString(BehaviorTreeWriter.serialize(model.getTree()), false);
+					Gdx.app.log(TAG, "Saved tree to " + lastSave.path());
+				}
+			}
+		});
+		saveAs.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				getStage().addActor(saveChooser.fadeIn());
+			}
+		});
+
+		final FileChooser loadChooser = new FileChooser(FileChooser.Mode.OPEN);
+		loadChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
+		loadChooser.setMultiSelectionEnabled(false);
+		// TODO filter maybe
+		loadChooser.setListener(new FileChooserAdapter() {
+			@Override
+			public void selected (Array<FileHandle> file) {
+				// null? new one?
+				lastSave = null;
+				// we dont allow multiple files
+				FileHandle fh = file.first();
+
+				BehaviorTreeLibrary library = BehaviorTreeLibraryManager.getInstance().getLibrary();
+				BehaviorTree loadedTree = library.createBehaviorTree(fh.path());
+				BehaviorTree old = model.getTree();
+				model.reset();
+				// we do this so whatever is holding original tree is updated
+				// TODO maybe a callback instead of this garbage
+				ReflectionUtils.replaceRoot(old, loadedTree);
+				model.init(old);
+				Gdx.app.log(TAG, "Loaded tree from " + fh.path());
+			}
+		});
+		load.addListener(new ClickListener(){
+			@Override public void clicked (InputEvent event, float x, float y) {
+				getStage().addActor(loadChooser.fadeIn());
+			}
+		});
 	}
 
 	private void onSelectionChanged (Tree.Node oldNode, Tree.Node newNode) {

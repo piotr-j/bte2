@@ -294,12 +294,16 @@ public abstract class TaskModel implements Pool.Poolable {
 		EditableFields.release(fields);
 	}
 
+	public boolean hasComment () {
+		return comment != null && comment.length() > 0;
+	}
+
 	public String getComment () {
 		return comment;
 	}
 
 	public TaskModel setComment (String comment) {
-		this.comment = comment;
+		this.comment = comment.trim();
 		return this;
 	}
 

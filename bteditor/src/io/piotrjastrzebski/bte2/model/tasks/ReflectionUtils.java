@@ -1,10 +1,7 @@
 package io.piotrjastrzebski.bte2.model.tasks;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.btree.BranchTask;
-import com.badlogic.gdx.ai.btree.Decorator;
-import com.badlogic.gdx.ai.btree.SingleRunningChildBranch;
-import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.*;
 import com.badlogic.gdx.ai.btree.annotation.TaskConstraint;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
@@ -158,6 +155,26 @@ public class ReflectionUtils {
 			}
 		} catch (ReflectionException e) {
 			Gdx.app.error("REMOVE", "ReflectionException error", e);
+		}
+		return false;
+	}
+
+	/**
+	 * Replace root of tree with root of with
+	 * @param tree to replace root of
+	 * @param with donor tree
+	 * @return if replacement was successful
+	 */
+	public static boolean replaceRoot (BehaviorTree tree, BehaviorTree with) {
+		tree.reset();
+		with.reset();
+		try {
+			Field field = ClassReflection.getDeclaredField(BehaviorTree.class, "rootTask");
+			field.setAccessible(true);
+			field.set(tree, field.get(with));
+			return true;
+		} catch (ReflectionException e) {
+			e.printStackTrace();
 		}
 		return false;
 	}
