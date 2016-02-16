@@ -22,7 +22,7 @@ import java.util.Comparator;
 /**
  * Utility class for serialization of {@link BehaviorTree}s in a format readable by {@link com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser}
  *
- * TODO implement guards
+ * TODO implement guards, inline single task guards, stick complex guards into subtrees, add name to GuardModel?
  *
  * Created by PiotrJ on 21/10/15.
  */
