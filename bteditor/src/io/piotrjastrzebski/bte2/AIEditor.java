@@ -20,7 +20,6 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisWindow;
 
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
-import io.piotrjastrzebski.bte2.model.TaskLibrary;
 import io.piotrjastrzebski.bte2.model.tasks.Guard;
 import io.piotrjastrzebski.bte2.view.BehaviorTreeView;
 
@@ -223,8 +222,6 @@ public class AIEditor implements Disposable {
 	}
 
 	public void addTaskClass (String tag, Class<? extends Task> cls) {
-		TaskLibrary library = model.getTaskLibrary();
-		library.add(cls);
 		view.addSrcTask(tag, cls);
 	}
 

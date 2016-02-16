@@ -16,7 +16,6 @@ import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 public class BehaviorTreeModel implements BehaviorTree.Listener {
 	private static final String TAG = BehaviorTreeModel.class.getSimpleName();
 	private BehaviorTree tree;
-	private TaskLibrary taskLibrary;
 	private FakeRootModel fakeRoot;
 	private TaskModel root;
 	private CommandManager commands;
@@ -24,7 +23,6 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	private boolean valid;
 
 	public BehaviorTreeModel () {
-		taskLibrary = new TaskLibrary();
 		commands = new CommandManager();
 		fakeRoot = new FakeRootModel();
 	}
@@ -43,7 +41,6 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		for (BTChangeListener listener : listeners) {
 			listener.onInit(this);
 		}
-		taskLibrary.load(tree);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -270,10 +267,6 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		for (int i = 0; i < task.getChildCount(); i++) {
 			doubleCheck(modelTasks, tasks, task.getChild(i));
 		}
-	}
-
-	public TaskLibrary getTaskLibrary () {
-		return taskLibrary;
 	}
 
 	public boolean isDirty () {
