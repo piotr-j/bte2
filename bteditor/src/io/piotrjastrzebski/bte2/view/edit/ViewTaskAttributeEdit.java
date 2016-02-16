@@ -1,20 +1,8 @@
 package io.piotrjastrzebski.bte2.view.edit;
 
-import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
-import com.badlogic.gdx.ai.btree.decorator.Include;
-import com.badlogic.gdx.graphics.g2d.BitmapFontCache;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.reflect.Annotation;
-import com.badlogic.gdx.utils.reflect.ClassReflection;
-import com.badlogic.gdx.utils.reflect.Field;
-import com.badlogic.gdx.utils.reflect.ReflectionException;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
-import io.piotrjastrzebski.bte2.TaskComment;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
-import io.piotrjastrzebski.bte2.model.tasks.fields.EditableFields;
 import io.piotrjastrzebski.bte2.model.tasks.fields.EditableFields.EditableField;
 
 /**
