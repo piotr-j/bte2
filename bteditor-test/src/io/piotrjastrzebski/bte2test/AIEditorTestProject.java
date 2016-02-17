@@ -26,6 +26,7 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import io.piotrjastrzebski.bte2.AIEditor;
+import io.piotrjastrzebski.bte2.EditorBehaviourTreeLibrary;
 import io.piotrjastrzebski.bte2test.dog.*;
 
 /**
@@ -44,7 +45,8 @@ public class AIEditorTestProject extends Game {
 
 	@Override public void create () {
 		BehaviorTreeLibraryManager libraryManager = BehaviorTreeLibraryManager.getInstance();
-		BehaviorTreeLibrary library = new BehaviorTreeLibrary(BehaviorTreeParser.DEBUG_HIGH);
+		// EditorBehaviourTreeLibrary should be used for some extra things
+		BehaviorTreeLibrary library = new EditorBehaviourTreeLibrary(BehaviorTreeParser.DEBUG_NONE);
 		registerDogBehavior(library);
 		libraryManager.setLibrary(library);
 		tree = libraryManager.createBehaviorTree("dog", new Dog("Buddy"));

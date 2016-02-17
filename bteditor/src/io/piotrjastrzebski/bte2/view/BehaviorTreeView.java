@@ -19,6 +19,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import io.piotrjastrzebski.bte2.AIEditor;
 import io.piotrjastrzebski.bte2.BehaviorTreeWriter;
+import io.piotrjastrzebski.bte2.EditorBehaviourTreeLibrary;
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte2.model.tasks.ReflectionUtils;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
@@ -234,6 +235,10 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 				// TODO maybe a callback instead of this garbage
 				ReflectionUtils.replaceRoot(old, loadedTree);
 				model.init(old);
+				if (library instanceof EditorBehaviourTreeLibrary) {
+					// TODO this is super garbage
+					((EditorBehaviourTreeLibrary)library).updateComments(model);
+				}
 				Gdx.app.log(TAG, "Loaded tree from " + fh.path());
 			}
 		});

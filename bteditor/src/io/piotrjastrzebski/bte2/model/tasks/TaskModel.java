@@ -303,7 +303,8 @@ public abstract class TaskModel implements Pool.Poolable {
 	}
 
 	public TaskModel setComment (String comment) {
-		this.comment = comment.trim();
+		if (comment != null) comment = comment.trim();
+		this.comment = comment;
 		return this;
 	}
 
