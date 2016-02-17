@@ -36,7 +36,6 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		tree.addListener(this);
 		root = TaskModel.wrap(tree.getChild(0), this);
 		fakeRoot.init(root, this);
-		fakeRoot.validate();
 		// notify last so we are setup
 		for (BTChangeListener listener : listeners) {
 			listener.onInit(this);
@@ -53,8 +52,11 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		for (BTChangeListener listener : listeners) {
 			listener.onReset(this);
 		}
-		// TODO Cleanup all the crap
-		TaskModel.free(root);
+		TaskModel.free(fakeRoot);
+		tree = null;
+		root = null;
+		dirty = false;
+		valid = false;
 	}
 
 	public TaskModel getRoot () {

@@ -135,21 +135,29 @@ public abstract class TaskModel implements Pool.Poolable {
 	}
 
 	public boolean isValid () {
-		validate();
-		return valid;
-	}
-
-	public void validate () {
 		valid = !(children.size < minChildren || children.size > maxChildren);
 		if (guard != null) {
-			guard.validate();
+//			guard.validate();
 			valid &= guard.isValid();
 		}
 		for (TaskModel child : children) {
-			child.validate();
+//			child.validate();
 			valid &= child.isValid();
 		}
+		return valid;
 	}
+
+//	public void validate () {
+//		valid = !(children.size < minChildren || children.size > maxChildren);
+//		if (guard != null) {
+//			guard.validate();
+//			valid &= guard.isValid();
+//		}
+//		for (TaskModel child : children) {
+//			child.validate();
+//			valid &= child.isValid();
+//		}
+//	}
 
 	public int getChildCount () {
 		return children.size;

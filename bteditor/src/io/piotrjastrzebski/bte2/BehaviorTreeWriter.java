@@ -27,6 +27,8 @@ import java.util.Comparator;
  * Created by PiotrJ on 21/10/15.
  */
 public class BehaviorTreeWriter {
+	private final static String TAG = BehaviorTreeWriter.class.getSimpleName();
+
 	/**
 	 * Save the tree in parsable format
 	 * @param tree behavior tree to save
@@ -58,6 +60,10 @@ public class BehaviorTreeWriter {
 	public static String serialize(Task task) {
 		Array<Class<? extends Task>> classes = new Array<>();
 		findClasses(task, classes);
+		ObjectMap<Task, GuardHolder> taskToGuard = new ObjectMap<>();
+ 		findGuards(task, taskToGuard, 0);
+		Gdx.app.log(TAG, "Found guards: " + taskToGuard.toString());
+
 		classes.sort(new Comparator<Class<? extends Task>>() {
 			@Override public int compare (Class<? extends Task> o1, Class<? extends Task> o2) {
 				return o1.getSimpleName().compareTo(o2.getSimpleName());
@@ -70,14 +76,54 @@ public class BehaviorTreeWriter {
 			sb.append("import ").append(getAlias(aClass)).append(":\"").append(aClass.getCanonicalName()).append("\"\n");
 		}
 
+		writeGuards(sb, taskToGuard);
+
 		sb.append("\nroot\n");
-		writeTask(sb, task, 1);
+		writeTask(sb, task, 1, taskToGuard);
 		return sb.toString();
 	}
 
-	private static void writeTask (StringBuilder sb, Task task, int depth) {
+
+	private static void writeGuards (StringBuilder sb, ObjectMap<Task, GuardHolder> taskToGuard) {
+		Array<GuardHolder> sorted = new Array<>();
+		ObjectMap.Values<GuardHolder> values = taskToGuard.values();
+		for (GuardHolder value : values) {
+			sorted.add(value);
+		}
+		// TODO does the order matter id guard has a guard?
+		sorted.sort();
+
+		for (GuardHolder guard : sorted) {
+			sb.append("\nsubtree name:\"");
+			sb.append(guard.name);
+			sb.append("\"\n");
+			writeTask(sb, guard.guard, 1, taskToGuard);
+		}
+	}
+
+	private static int findGuards (Task task, ObjectMap<Task, GuardHolder> guards, int count) {
+		Task guard = task.getGuard();
+		int initialCount = count;
+		if (guard != null) {
+			guards.put(task, new GuardHolder("guard"+count, guard, task));
+			count += 1;
+			count += findGuards(guard, guards, count);
+		}
+		for (int i = 0; i < task.getChildCount(); i++) {
+			count += findGuards(task.getChild(i), guards, count);
+		}
+		return count - initialCount;
+	}
+
+	private static void writeTask (StringBuilder sb, Task task, int depth, ObjectMap<Task, GuardHolder> taskToGuard) {
 		for (int i = 0; i < depth; i++) {
 			sb.append("  ");
+		}
+		GuardHolder guard = taskToGuard.get(task);
+		if (guard != null){
+			sb.append("($");
+			sb.append(guard.name);
+			sb.append(") ");
 		}
 		sb.append(getAlias(task.getClass()));
 		getTaskAttributes(sb, task);
@@ -85,7 +131,7 @@ public class BehaviorTreeWriter {
 		// include may have a whole tree as child, ignore it
 		if (task instanceof Include) return;
 		for (int i = 0; i < task.getChildCount(); i++) {
-			writeTask(sb, task.getChild(i), depth + 1);
+			writeTask(sb, task.getChild(i), depth + 1, taskToGuard);
 		}
 	}
 
@@ -227,5 +273,29 @@ public class BehaviorTreeWriter {
 	public static void setAlias (Class<? extends Task> aClass, String alias) {
 		if (aClass == null) throw new IllegalArgumentException("Class cannot be null");
 		taskToAlias.put(aClass, alias);
+	}
+
+	private static class GuardHolder implements Comparable<GuardHolder> {
+		public final String name;
+		public final Task guard;
+		public final Task guarded;
+
+		public GuardHolder (String name, Task guard, Task guarded) {
+			this.name = name;
+			this.guard = guard;
+			this.guarded = guarded;
+		}
+
+		@Override public String toString () {
+			return "GuardHolder{" +
+				"name='" + name + '\'' +
+				", guard=" + guard.getClass().getSimpleName() +
+				", guarded=" + guarded.getClass().getSimpleName() +
+				'}';
+		}
+
+		@Override public int compareTo (GuardHolder o) {
+			return name.compareTo(o.name);
+		}
 	}
 }

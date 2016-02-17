@@ -55,8 +55,11 @@ public class EditorBehaviourTreeLibrary extends BehaviorTreeLibrary {
 	}
 
 	protected void updateComments(TaskModel task) {
-		String comment = getComment(task.getWrapped());
-		task.setComment(comment);
+		Task wrapped = task.getWrapped();
+		// wrapped can be if TaskModel is a Guard
+		if (wrapped != null) {
+			task.setComment(getComment(wrapped));
+		}
 		for (int i = 0; i < task.getChildCount(); i++) {
 			updateComments(task.getChild(i));
 		}

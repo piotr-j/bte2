@@ -233,8 +233,12 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 				model.reset();
 				// we do this so whatever is holding original tree is updated
 				// TODO maybe a callback instead of this garbage
-				ReflectionUtils.replaceRoot(old, loadedTree);
-				model.init(old);
+//				if (old != null) {
+					ReflectionUtils.replaceRoot(old, loadedTree);
+					model.init(old);
+//				} else {
+//					model.init(loadedTree);
+//				}
 				if (library instanceof EditorBehaviourTreeLibrary) {
 					// TODO this is super garbage
 					((EditorBehaviourTreeLibrary)library).updateComments(model);
@@ -272,12 +276,15 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		rebuildTree();
 	}
 
-	private void rebuildTree () {
+	private void clearTree () {
 		for (Tree.Node node : tree.getNodes()) {
 			ViewTask.free((ViewTask)node);
 		}
 		tree.clearChildren();
+	}
 
+	private void rebuildTree () {
+		clearTree();
 		fillTree(null, model.getRoot());
 		tree.expandAll();
 	}
@@ -339,6 +346,6 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 	}
 
 	@Override public void onReset (BehaviorTreeModel model) {
-
+		clearTree();
 	}
 }

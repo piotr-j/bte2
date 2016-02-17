@@ -9,14 +9,13 @@ import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
 public class FakeRootModel extends TaskModel {
 	public FakeRootModel () {
 		super(Type.ROOT);
+		minChildren = 1;
+		maxChildren = 1;
 	}
 
 	@SuppressWarnings("unchecked")
 	public void init (TaskModel root, BehaviorTreeModel model) {
 		this.model = model;
-		minChildren = 1;
-		maxChildren = 1;
-		// TODO make sure this is correct
 		children.clear();
 		children.add(root);
 		// need some wrapped task so remove command works
@@ -28,7 +27,7 @@ public class FakeRootModel extends TaskModel {
 	}
 
 	@Override public void free () {
-		wrapped = null;
+		super.reset();
 	}
 
 	@Override public TaskModel copy () {

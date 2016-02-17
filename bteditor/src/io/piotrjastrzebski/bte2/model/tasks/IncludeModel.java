@@ -49,7 +49,7 @@ public class IncludeModel extends TaskModel implements Pool.Poolable {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override public void validate () {
+	@Override public boolean isValid () {
 		// TODO check that we have a proper tree at specified subtree
 		// TODO if it is valid, we want to add the sub tree as child of this task
 		// TODO that will probably require custom include task that accepts children or something
@@ -88,6 +88,7 @@ public class IncludeModel extends TaskModel implements Pool.Poolable {
 				children.add(child);
 			}
 		}
+		return valid;
 	}
 
 	@Override public IncludeModel copy () {

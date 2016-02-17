@@ -105,9 +105,8 @@ public class AIEditor implements Disposable {
 	public void reset() {
 		if (tree == null) return;
 		// TODO prompt for save or whatever
-		Gdx.app.log(TAG, "Resetting " + tree);
-		tree = null;
 		model.reset();
+		tree = null;
 	}
 
 	/**
