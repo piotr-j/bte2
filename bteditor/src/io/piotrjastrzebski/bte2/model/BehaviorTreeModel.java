@@ -3,10 +3,16 @@ package io.piotrjastrzebski.bte2.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
+import io.piotrjastrzebski.bte2.BehaviorTreeWriter;
+import io.piotrjastrzebski.bte2.EditorBehaviourTreeLibrary;
 import io.piotrjastrzebski.bte2.model.edit.*;
 import io.piotrjastrzebski.bte2.model.tasks.FakeRootModel;
+import io.piotrjastrzebski.bte2.model.tasks.ReflectionUtils;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 
 /**
@@ -302,6 +308,31 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 
 	public void setValid (boolean invalid) {
 		this.valid = invalid;
+	}
+
+	public void saveTree (FileHandle fh) {
+		String serialize = BehaviorTreeWriter.serialize(tree);
+		fh.writeString(serialize, false);
+	}
+
+	public void loadTree (FileHandle fh) {
+		BehaviorTreeLibrary library = BehaviorTreeLibraryManager.getInstance().getLibrary();
+		BehaviorTree loadedTree = library.createBehaviorTree(fh.path());
+//				model.btLoaded(loadedTree);
+		BehaviorTree old = tree;
+		reset();
+		// we do this so whatever is holding original tree is updated
+		// TODO maybe a callback instead of this garbage
+//				if (old != null) {
+		ReflectionUtils.replaceRoot(old, loadedTree);
+		init(old);
+//				} else {
+//					model.init(loadedTree);
+//				}
+		if (library instanceof EditorBehaviourTreeLibrary) {
+			// TODO this is super garbage
+			((EditorBehaviourTreeLibrary)library).updateComments(this);
+		}
 	}
 
 	public interface BTChangeListener {

@@ -181,7 +181,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		FileChooser.setFavoritesPrefsName("io.piotrjastrzebski.bte2");
 		VisTextButton save = new VisTextButton("Save");
 		VisTextButton saveAs = new VisTextButton("Save As");
-		VisTextButton load = new VisTextButton("Load");
+		final VisTextButton load = new VisTextButton("Load");
 		menu.add(save);
 		menu.add(saveAs);
 		menu.add(load);
@@ -194,7 +194,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 			public void selected (Array<FileHandle> file) {
 				// we dont allow multiple files
 				lastSave = file.first();
-				lastSave.writeString(BehaviorTreeWriter.serialize(model.getTree()), false);
+				model.saveTree(lastSave);
 				Gdx.app.log(TAG, "Saved tree to " + lastSave.path());
 			}
 		});
@@ -204,7 +204,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 				if (lastSave == null) {
 					getStage().addActor(saveChooser.fadeIn());
 				} else {
-					lastSave.writeString(BehaviorTreeWriter.serialize(model.getTree()), false);
+					model.saveTree(lastSave);
 					Gdx.app.log(TAG, "Saved tree to " + lastSave.path());
 				}
 			}
@@ -226,23 +226,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 				lastSave = null;
 				// we dont allow multiple files
 				FileHandle fh = file.first();
-
-				BehaviorTreeLibrary library = BehaviorTreeLibraryManager.getInstance().getLibrary();
-				BehaviorTree loadedTree = library.createBehaviorTree(fh.path());
-				BehaviorTree old = model.getTree();
-				model.reset();
-				// we do this so whatever is holding original tree is updated
-				// TODO maybe a callback instead of this garbage
-//				if (old != null) {
-					ReflectionUtils.replaceRoot(old, loadedTree);
-					model.init(old);
-//				} else {
-//					model.init(loadedTree);
-//				}
-				if (library instanceof EditorBehaviourTreeLibrary) {
-					// TODO this is super garbage
-					((EditorBehaviourTreeLibrary)library).updateComments(model);
-				}
+				model.loadTree(fh);
 				Gdx.app.log(TAG, "Loaded tree from " + fh.path());
 			}
 		});
