@@ -351,6 +351,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 				for (ModelChangeListener listener : listeners) {
 					listener.onStepError(ex, this);
 				}
+				notifyChanged();
 			}
 		}
 	}

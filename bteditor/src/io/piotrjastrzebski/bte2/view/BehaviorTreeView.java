@@ -322,6 +322,17 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	@Override public void onLoadError (Exception ex, FileHandle file, BehaviorTreeModel model) {
 		Gdx.app.error(TAG, "Tree load failed", ex);
+		Stage stage = getStage();
+		if (stage != null) {
+			VisDialog dialog = new VisDialog("Load failed!");
+			dialog.text("Loading " + file.path()+" failed with exception:");
+			dialog.getContentTable().row();
+			VisTextArea area = new VisTextArea(ex.getMessage());
+			area.setPrefRows(5);
+			dialog.getContentTable().add(area).expand().fill();
+			dialog.button("Ok");
+			dialog.show(stage);
+		}
 	}
 
 	@Override public void onSave (BehaviorTree tree, FileHandle file, BehaviorTreeModel model) {
@@ -330,6 +341,18 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	@Override public void onStepError (Exception ex, BehaviorTreeModel model) {
 		Gdx.app.error(TAG, "Tree step failed", ex);
+		btToggle.setChecked(false);
+		Stage stage = getStage();
+		if (stage != null) {
+			VisDialog dialog = new VisDialog("Tree step failed!");
+			dialog.text("Tree step failed with exception:");
+			dialog.getContentTable().row();
+			VisTextArea area = new VisTextArea(ex.getMessage());;
+			area.setPrefRows(5);
+			dialog.getContentTable().add(area).expand().fill();
+			dialog.button("Ok");
+			dialog.show(stage);
+		}
 	}
 
 	@Override public void onReset (BehaviorTreeModel model) {
