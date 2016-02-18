@@ -116,7 +116,7 @@ public class AIEditor implements Disposable {
 		if (model.isValid() && stepStrategy.shouldStep(tree, delta) && autoStep) {
 			// TODO figure out a way to break stepping if there is an infinite loop in the tree
 			// TODO or more practically, if we run some excessive amount of tasks
-			tree.step();
+			model.step();
 		}
 	}
 

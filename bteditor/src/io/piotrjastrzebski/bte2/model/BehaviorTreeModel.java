@@ -43,7 +43,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		root = TaskModel.wrap(tree.getChild(0), this);
 		fakeRoot.init(root, this);
 		// notify last so we are setup
-		for (BTChangeListener listener : listeners) {
+		for (ModelChangeListener listener : listeners) {
 			listener.onInit(this);
 		}
 	}
@@ -55,7 +55,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 			tree.listeners.removeValue(this, true);
 		}
 		// notify first, so listeners have a chance to do stuff
-		for (BTChangeListener listener : listeners) {
+		for (ModelChangeListener listener : listeners) {
 			listener.onReset(this);
 		}
 		TaskModel.free(fakeRoot);
@@ -218,17 +218,15 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		}
 	}
 
-	private Array<BTChangeListener> listeners = new Array<>();
-	public void addChangeListener (BTChangeListener listener) {
+	private Array<ModelChangeListener> listeners = new Array<>();
+	public void addChangeListener (ModelChangeListener listener) {
 		if (!listeners.contains(listener, true)) {
 			listeners.add(listener);
-			listener.onListenerAdded(this);
 		}
 	}
 
-	public void removeChangeListener (BTChangeListener listener) {
+	public void removeChangeListener (ModelChangeListener listener) {
 		listeners.removeValue(listener, true);
-		listener.onListenerRemoved(this);
 	}
 
 	private ObjectIntMap<TaskModel> modelTasks = new ObjectIntMap<>();
@@ -316,26 +314,48 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	}
 
 	public void loadTree (FileHandle fh) {
-		BehaviorTreeLibrary library = BehaviorTreeLibraryManager.getInstance().getLibrary();
-		BehaviorTree loadedTree = library.createBehaviorTree(fh.path());
-//				model.btLoaded(loadedTree);
-		BehaviorTree old = tree;
-		reset();
-		// we do this so whatever is holding original tree is updated
-		// TODO maybe a callback instead of this garbage
-//				if (old != null) {
-		ReflectionUtils.replaceRoot(old, loadedTree);
-		init(old);
-//				} else {
-//					model.init(loadedTree);
-//				}
-		if (library instanceof EditorBehaviourTreeLibrary) {
-			// TODO this is super garbage
-			((EditorBehaviourTreeLibrary)library).updateComments(this);
+		try {
+			BehaviorTreeLibrary library = BehaviorTreeLibraryManager.getInstance().getLibrary();
+			BehaviorTree loadedTree = library.createBehaviorTree(fh.path());
+	//				model.btLoaded(loadedTree);
+			BehaviorTree old = tree;
+			reset();
+			// we do this so whatever is holding original tree is updated
+			// TODO maybe a callback instead of this garbage
+	//				if (old != null) {
+			ReflectionUtils.replaceRoot(old, loadedTree);
+			init(old);
+	//				} else {
+	//					model.init(loadedTree);
+	//				}
+			if (library instanceof EditorBehaviourTreeLibrary) {
+				// TODO this is super garbage
+				((EditorBehaviourTreeLibrary)library).updateComments(this);
+			}
+			for (ModelChangeListener listener : listeners) {
+				listener.onLoad(loadedTree, fh, this);
+			}
+		} catch (Exception ex) {
+			for (ModelChangeListener listener : listeners) {
+				listener.onLoadError(ex, fh, this);
+			}
 		}
 	}
 
-	public interface BTChangeListener {
+	public void step () {
+		if (isValid()) {
+			try {
+				tree.step();
+			} catch (IllegalStateException ex) {
+				valid = false;
+				for (ModelChangeListener listener : listeners) {
+					listener.onStepError(ex, this);
+				}
+			}
+		}
+	}
+
+	public interface ModelChangeListener {
 		/**
 		 * Called when model was reset
 		 */
@@ -345,21 +365,27 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		 * called when model was initialized with new behavior tree
 		 */
 		void onInit (BehaviorTreeModel model);
-
-		/**
-		 * Called when this listener was added to the moved
-		 */
-		void onListenerAdded (BehaviorTreeModel model);
-
-		/**
-		 * Called when this listener was removed from the moved
-		 */
-		void onListenerRemoved (BehaviorTreeModel model);
-
 		/**
 		 * called when model was initialized with new behavior tree
 		 */
 		void onChange (BehaviorTreeModel model);
+
+		/**
+		 * called when model loaded a tree from file
+		 */
+		void onLoad (BehaviorTree tree, FileHandle file, BehaviorTreeModel model);
+
+		/**
+		 * called when model loaded a tree from file
+		 */
+		void onLoadError (Exception ex, FileHandle file, BehaviorTreeModel model);
+
+		/**
+		 * called when model saved a tree from file
+		 */
+		void onSave (BehaviorTree tree, FileHandle file, BehaviorTreeModel model);
+
+		void onStepError (Exception ex, BehaviorTreeModel model);
 
 	}
 }

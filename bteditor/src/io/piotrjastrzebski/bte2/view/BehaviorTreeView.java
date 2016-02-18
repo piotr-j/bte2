@@ -3,8 +3,6 @@ package io.piotrjastrzebski.bte2.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
-import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -18,10 +16,7 @@ import com.kotcrab.vis.ui.widget.*;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 import io.piotrjastrzebski.bte2.AIEditor;
-import io.piotrjastrzebski.bte2.BehaviorTreeWriter;
-import io.piotrjastrzebski.bte2.EditorBehaviourTreeLibrary;
 import io.piotrjastrzebski.bte2.model.BehaviorTreeModel;
-import io.piotrjastrzebski.bte2.model.tasks.ReflectionUtils;
 import io.piotrjastrzebski.bte2.model.tasks.TaskModel;
 import io.piotrjastrzebski.bte2.view.edit.ViewTaskAttributeEdit;
 
@@ -29,7 +24,7 @@ import io.piotrjastrzebski.bte2.view.edit.ViewTaskAttributeEdit;
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
-public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChangeListener {
+public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelChangeListener {
 	public static String DRAWABLE_WHITE = "dialogDim";
 	private static final String TAG = BehaviorTreeView.class.getSimpleName();
 	protected BehaviorTreeModel model;
@@ -321,12 +316,20 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.BTChang
 		}
 	}
 
-	@Override public void onListenerAdded (BehaviorTreeModel model) {
+	@Override public void onLoad (BehaviorTree tree, FileHandle file, BehaviorTreeModel model) {
 
 	}
 
-	@Override public void onListenerRemoved (BehaviorTreeModel model) {
+	@Override public void onLoadError (Exception ex, FileHandle file, BehaviorTreeModel model) {
+		Gdx.app.error(TAG, "Tree load failed", ex);
+	}
 
+	@Override public void onSave (BehaviorTree tree, FileHandle file, BehaviorTreeModel model) {
+
+	}
+
+	@Override public void onStepError (Exception ex, BehaviorTreeModel model) {
+		Gdx.app.error(TAG, "Tree step failed", ex);
 	}
 
 	@Override public void onReset (BehaviorTreeModel model) {
