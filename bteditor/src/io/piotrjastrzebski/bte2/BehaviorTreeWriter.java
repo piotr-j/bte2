@@ -237,6 +237,10 @@ public class BehaviorTreeWriter {
 		if (!cName.startsWith("com.badlogic.gdx.ai.btree.") && !classes.contains(aClass, true)) {
 			classes.add(aClass);
 		}
+		Task guard = task.getGuard();
+		if (guard != null) {
+			findClasses(guard, classes);
+		}
 		for (int i = 0; i < task.getChildCount(); i++) {
 			findClasses(task.getChild(i), classes);
 		}
