@@ -144,8 +144,22 @@ public class AIEditorTestProject extends Game {
 	}
 
 	private static Task<Dog> createDogBehavior () {
+		// TODO nested guards explode :/
+
+		RandomSelector<Dog> guard2A = new RandomSelector<>();
+		guard2A.addChild(new Failure<Dog>());
+		guard2A.addChild(new Success<Dog>());
+		Failure<Dog> guardedFailure2 = new Failure<>();
+		guardedFailure2.setGuard(guard2A);
+
 		RandomSelector<Dog> guard = new RandomSelector<>();
-		guard.addChild(new Failure<Dog>());
+		RandomSelector<Dog> guard2 = new RandomSelector<>();
+		guard2.addChild(guardedFailure2);
+		guard2.addChild(new Success<Dog>());
+
+		Failure<Dog> guardedFailure = new Failure<>();
+		guardedFailure.setGuard(guard2);
+		guard.addChild(guardedFailure);
 		guard.addChild(new Success<Dog>());
 
 
@@ -174,8 +188,14 @@ public class AIEditorTestProject extends Game {
 		Sequence<Dog> sequence = new Sequence<>();
 		selector.addChild(sequence);
 
+
+		RandomSelector<Dog> guard3 = new RandomSelector<>();
+		guard3.addChild(new Failure<Dog>());
+		guard3.addChild(new Success<Dog>());
+
 		BarkTask bark1 = new BarkTask();
 		bark1.times = new TriangularIntegerDistribution(1, 5, 2);
+		bark1.setGuard(guard3);
 		sequence.addChild(bark1);
 		sequence.addChild(new WalkTask());
 		sequence.addChild(new BarkTask());
