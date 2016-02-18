@@ -90,7 +90,6 @@ public class BehaviorTreeWriter {
 		for (GuardHolder value : values) {
 			sorted.add(value);
 		}
-		// TODO does the order matter id guard has a guard?
 		sorted.sort();
 
 		for (GuardHolder guard : sorted) {
@@ -101,18 +100,15 @@ public class BehaviorTreeWriter {
 		}
 	}
 
-	private static int findGuards (Task task, ObjectMap<Task, GuardHolder> guards, int count) {
+	private static void findGuards (Task task, ObjectMap<Task, GuardHolder> guards, int depth) {
 		Task guard = task.getGuard();
-		int initialCount = count;
 		if (guard != null) {
-			guards.put(task, new GuardHolder("guard"+count, guard, task));
-			count += 1;
-			count += findGuards(guard, guards, count);
+			guards.put(task, new GuardHolder("guard"+guards.size, depth, guard, task));
+			findGuards(guard, guards, depth + 1);
 		}
 		for (int i = 0; i < task.getChildCount(); i++) {
-			count += findGuards(task.getChild(i), guards, count);
+			findGuards(task.getChild(i), guards, depth + 1);
 		}
-		return count - initialCount;
 	}
 
 	private static void writeTask (StringBuilder sb, Task task, int depth, ObjectMap<Task, GuardHolder> taskToGuard) {
@@ -277,11 +273,13 @@ public class BehaviorTreeWriter {
 
 	private static class GuardHolder implements Comparable<GuardHolder> {
 		public final String name;
+		public final int depth;
 		public final Task guard;
 		public final Task guarded;
 
-		public GuardHolder (String name, Task guard, Task guarded) {
+		public GuardHolder (String name, int depth, Task guard, Task guarded) {
 			this.name = name;
+			this.depth = depth;
 			this.guard = guard;
 			this.guarded = guarded;
 		}
@@ -295,7 +293,10 @@ public class BehaviorTreeWriter {
 		}
 
 		@Override public int compareTo (GuardHolder o) {
-			return name.compareTo(o.name);
+			if (depth == o.depth)
+				return name.compareTo(o.name);
+			// we want stuff that is deeper first
+			return o.depth - depth;
 		}
 	}
 }
