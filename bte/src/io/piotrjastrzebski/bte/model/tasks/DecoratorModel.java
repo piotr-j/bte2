@@ -8,12 +8,12 @@ import io.piotrjastrzebski.bte.model.BehaviorTreeModel;
  * TODO this would be nice, but is a bit of pain to implement
  * Possible situations, if we allow more than 1 task:
  * - 0 children, invalid state
- * 	- add -> 1 child, valid state
+ * 	- add - 1 child, valid state
  * - 1 child, valid state
- * 	- add -> 2 children, invalid state
- *    - remove -> 0 children, invalid state
+ * 	- add - 2 children, invalid state
+ *    - remove - 0 children, invalid state
  * - 2 children, invalid state
- *    - remove -> 1 child, valid state
+ *    - remove - 1 child, valid state
  *
  * Created by EvilEntity on 04/02/2016.
  */

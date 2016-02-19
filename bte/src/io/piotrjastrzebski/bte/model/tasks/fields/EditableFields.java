@@ -12,7 +12,7 @@ import io.piotrjastrzebski.bte.model.tasks.TaskModel;
 
 /**
  * Wraps a field and allows for easy setting and getting values
- * <p/>
+ *
  * Created by EvilEntity on 15/02/2016.
  */
 public class EditableFields {
