@@ -32,7 +32,7 @@ allprojects {
     }
 }
 
-project(":bteditor") {
+project(":bte") {
     apply plugin: "java"
 
     dependencies {
@@ -42,11 +42,11 @@ project(":bteditor") {
     }
 }
 
-project(":bteditor-test") {
+project(":bte-test") {
     apply plugin: "java"
 
     dependencies {
-        compile project(":bteditor")
+        compile project(":bte")
         compile "junit:junit:$jUnitVersion"
         compile "org.mockito:mockito-core:$mockitoVersion"
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"

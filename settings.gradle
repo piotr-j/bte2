@@ -1,1 +1,1 @@
-include 'bteditor', 'bteditor-test'
+include 'bte', 'bte-test'
