@@ -42,6 +42,16 @@ project(":bte") {
     }
 }
 
+project(":bte-window") {
+    apply plugin: "java"
+
+    dependencies {
+        compile project(":bte")
+        compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+}
+
 project(":bte-test") {
     apply plugin: "java"
 
