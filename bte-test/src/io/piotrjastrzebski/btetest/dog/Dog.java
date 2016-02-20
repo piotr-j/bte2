@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package io.piotrjastrzebski.bte.test.dog;
+package io.piotrjastrzebski.btetest.dog;
 
 import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.ai.btree.BehaviorTree;

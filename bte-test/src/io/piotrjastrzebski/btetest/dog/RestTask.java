@@ -14,35 +14,29 @@
  * limitations under the License.
  ******************************************************************************/
 
-package io.piotrjastrzebski.bte.test.dog;
+package io.piotrjastrzebski.btetest.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 
 /** @author implicit-invocation
  * @author davebaol */
-public class WalkTask extends LeafTask<Dog> {
-
-	private int i = 0;
+public class RestTask extends LeafTask<Dog> {
 
 	@Override
 	public void start () {
-		i = 0;
-		Dog dog = getObject();
-		dog.startWalking();
+		getObject().brainLog("YAWN - So tired...");
 	}
 
 	@Override
 	public Status execute () {
-		i++;
-		Dog dog = getObject();
-		dog.randomlyWalk();
-		return i < 3 ? Status.RUNNING : Status.SUCCEEDED;
+		getObject().brainLog("zz zz zz");
+		return Status.RUNNING;
 	}
 
 	@Override
 	public void end () {
-		getObject().stopWalking();
+		getObject().brainLog("SOB - Time to wake up");
 	}
 
 	@Override

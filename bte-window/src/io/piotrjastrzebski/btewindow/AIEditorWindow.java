@@ -1,4 +1,4 @@
-package io.piotrjastrzebski.bte.window;
+package io.piotrjastrzebski.btewindow;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;

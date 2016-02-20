@@ -1,4 +1,4 @@
-package io.piotrjastrzebski.bte.test;
+package io.piotrjastrzebski.btetest;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -27,7 +27,7 @@ import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import io.piotrjastrzebski.bte.AIEditor;
 import io.piotrjastrzebski.bte.EditorBehaviourTreeLibrary;
-import io.piotrjastrzebski.bte.test.dog.*;
+import io.piotrjastrzebski.btetest.dog.*;
 
 /**
  * Created by EvilEntity on 04/02/2016.
