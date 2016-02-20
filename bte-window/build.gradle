@@ -1,49 +1,46 @@
 apply plugin: "java"
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
+sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = [ "src/" ]
 
-project.ext.mainClassName = "io.piotrjastrzebski.btewindow.AIEditorWindow"
-project.ext.assetsDir = new File("../bte/assets");
+//project.ext.mainClassName = "io.piotrjastrzebski.bte.window.AIEditorWindow"
+//project.ext.assetsDir = new File("../bte/assets");
+//
+//task run(dependsOn: classes, type: JavaExec) {
+//    main = project.mainClassName
+//    classpath = sourceSets.main.runtimeClasspath
+//    standardInput = System.in
+//    workingDir = project.assetsDir
+//    ignoreExitValue = true
+//}
+//
+//task dist(type: Jar) {
+//    from files(sourceSets.main.output.classesDir)
+//    from files(sourceSets.main.output.resourcesDir)
+//    from {configurations.compile.collect {zipTree(it)}}
+//    from files(project.assetsDir);
+//
+//    manifest {
+//        attributes 'Main-Class': project.mainClassName
+//    }
+//}
+//
+//dist.dependsOn classes
 
-task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    workingDir = project.assetsDir
-    ignoreExitValue = true
-}
-
-task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDir)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir);
-
-    manifest {
-        attributes 'Main-Class': project.mainClassName
+eclipse {
+    project {
+        name = appName + "-window"
+        linkedResource name: 'assets', type: '2', location: 'PARENT-1-PROJECT_LOC/bte/assets'
     }
 }
 
-dist.dependsOn classes
-
-eclipse.project {
-    name = appName + "-test"
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-//task javadocJar(type: Jar, dependsOn: javadoc) {
-//    classifier = 'javadoc'
-//    from javadoc.destinationDir
-//}
-
-artifacts {
-    archives sourcesJar
-//    archives javadocJar
+task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
+    doLast {
+        def classpath = new XmlParser().parse(file(".classpath"))
+        new Node(classpath, "classpathentry", [ kind: 'src', path: 'asseyouts' ]);
+        def writer = new FileWriter(file(".classpath"))
+        def printer = new XmlNodePrinter(new PrintWriter(writer))
+        printer.setPreserveWhitespace(true)
+        printer.print(classpath)
+    }
 }

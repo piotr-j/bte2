@@ -19,8 +19,7 @@ public class FakeRootModel extends TaskModel {
 		children.clear();
 		children.add(root);
 		// need some wrapped task so remove command works
-		@SuppressWarnings("rawtypes")
-		Selector selector = new Selector();
+		@SuppressWarnings("rawtypes") Selector selector = new Selector();
 		selector.addChild(root.wrapped);
 		wrapped = selector;
 		root.setParent(this);

@@ -14,33 +14,34 @@
  * limitations under the License.
  ******************************************************************************/
 
-package io.piotrjastrzebski.btetest.dog;
+package io.piotrjastrzebski.bte.desktop.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
 
-public class PlayTask extends LeafTask<Dog> {
+/** @author implicit-invocation
+ * @author davebaol */
+public class CareTask extends LeafTask<Dog> {
 
-	public void start () {
-		Dog dog = getObject();
-		dog.brainLog("WOW - Lets play!");
-	}
+	@TaskAttribute(required = true) public float urgentProb = 0.8f;
 
 	@Override
 	public Status execute () {
+		if (Math.random() < urgentProb) {
+			return Status.SUCCEEDED;
+		}
 		Dog dog = getObject();
-		dog.brainLog("PANT PANT - So fun");
-		return Status.RUNNING;
-	}
-
-	@Override
-	public void end () {
-		Dog dog = getObject();
-		dog.brainLog("SIC - No time to play :(");
+		dog.brainLog("GASP - Something urgent :/");
+		return Status.FAILED;
 	}
 
 	@Override
 	protected Task<Dog> copyTo (Task<Dog> task) {
+		CareTask care = (CareTask)task;
+		care.urgentProb = urgentProb;
+
 		return task;
 	}
+
 }

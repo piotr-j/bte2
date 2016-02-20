@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
-
 import io.piotrjastrzebski.bte.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte.model.tasks.fields.EditableFields;
 import io.piotrjastrzebski.bte.model.tasks.fields.EditableFields.EditableField;
@@ -361,6 +360,6 @@ public abstract class TaskModel implements Pool.Poolable {
 	}
 
 	public interface ChangeListener {
-		void statusChanged(Task.Status from, Task.Status to);
+		void statusChanged (Task.Status from, Task.Status to);
 	}
 }

@@ -1,5 +1,6 @@
-package io.piotrjastrzebski.btewindow;
+package io.piotrjastrzebski.bte.window;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -144,8 +145,7 @@ public class AIEditorWindow {
 		 */
 		void onClose();
 	}
-
 	public static void main (String[] args) {
-		System.out.println("Dummy main, go away!");
+		System.out.println("Hi");
 	}
 }

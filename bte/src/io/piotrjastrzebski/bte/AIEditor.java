@@ -18,7 +18,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisWindow;
-
 import io.piotrjastrzebski.bte.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte.model.tasks.Guard;
 import io.piotrjastrzebski.bte.view.BehaviorTreeView;
@@ -265,7 +264,7 @@ public class AIEditor implements Disposable {
 	}
 
 	public interface EditorWindowClosedListener {
-		boolean onClose();
+		boolean onClose ();
 	}
 
 	public void setClosedListener (EditorWindowClosedListener closedListener) {

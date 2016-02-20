@@ -1,11 +1,13 @@
-package io.piotrjastrzebski.btetest;
+package io.piotrjastrzebski.bte.desktop;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.*;
-import com.badlogic.gdx.ai.btree.decorator.*;
+import com.badlogic.gdx.ai.btree.decorator.AlwaysFail;
+import com.badlogic.gdx.ai.btree.decorator.AlwaysSucceed;
+import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.leaf.Failure;
 import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
@@ -27,7 +29,7 @@ import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import io.piotrjastrzebski.bte.AIEditor;
 import io.piotrjastrzebski.bte.EditorBehaviourTreeLibrary;
-import io.piotrjastrzebski.btetest.dog.*;
+import io.piotrjastrzebski.bte.desktop.dog.*;
 
 /**
  * Created by EvilEntity on 04/02/2016.

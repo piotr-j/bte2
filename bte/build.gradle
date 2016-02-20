@@ -1,13 +1,13 @@
 apply plugin: "java"
 
-sourceCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = 1.7
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
 
 eclipse.project {
-    name = appName + "-lib"
+    name = appName + "-core"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

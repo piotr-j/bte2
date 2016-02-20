@@ -14,43 +14,33 @@
  * limitations under the License.
  ******************************************************************************/
 
-package io.piotrjastrzebski.btetest.dog;
+package io.piotrjastrzebski.bte.desktop.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
-import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
-import com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution;
-import com.badlogic.gdx.ai.utils.random.IntegerDistribution;
 
-/** @author implicit-invocation
- * @author davebaol */
-public class BarkTask extends LeafTask<Dog> {
+public class PlayTask extends LeafTask<Dog> {
 
-	@TaskAttribute
-	public IntegerDistribution times = ConstantIntegerDistribution.ONE;
-
-	private int t;
-
-	@Override
 	public void start () {
-		super.start();
-		t = times.nextInt();
+		Dog dog = getObject();
+		dog.brainLog("WOW - Lets play!");
 	}
 
 	@Override
 	public Status execute () {
 		Dog dog = getObject();
-		for (int i = 0; i < t; i++)
-			dog.bark();
-		return Status.SUCCEEDED;
+		dog.brainLog("PANT PANT - So fun");
+		return Status.RUNNING;
+	}
+
+	@Override
+	public void end () {
+		Dog dog = getObject();
+		dog.brainLog("SIC - No time to play :(");
 	}
 
 	@Override
 	protected Task<Dog> copyTo (Task<Dog> task) {
-		BarkTask bark = (BarkTask)task;
-		bark.times = times;
-
 		return task;
 	}
-
 }

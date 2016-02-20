@@ -128,8 +128,7 @@ public class ReflectionUtils {
 			if (from instanceof BranchTask) {
 				Field field = ClassReflection.getDeclaredField(BranchTask.class, "children");
 				field.setAccessible(true);
-				@SuppressWarnings("unchecked")
-				Array<Task> children = (Array<Task>)field.get(from);
+				@SuppressWarnings("unchecked") Array<Task> children = (Array<Task>)field.get(from);
 				if (children.removeValue(what, true)) {
 					// note in this class there are some more children that we need to deal with
 					if (from instanceof SingleRunningChildBranch) {
