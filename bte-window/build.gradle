@@ -6,28 +6,28 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 sourceSets.main.java.srcDirs = [ "src/" ]
 
 project.ext.mainClassName = "io.piotrjastrzebski.btewindow.AIEditorWindow"
-//project.ext.assetsDir = new File("../bte/assets");
+project.ext.assetsDir = new File("../bte/assets");
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
-//    workingDir = project.assetsDir
+    workingDir = project.assetsDir
     ignoreExitValue = true
 }
 
-//task dist(type: Jar) {
-//    from files(sourceSets.main.output.classesDir)
-//    from files(sourceSets.main.output.resourcesDir)
-//    from {configurations.compile.collect {zipTree(it)}}
-//    from files(project.assetsDir);
-//
-//    manifest {
-//        attributes 'Main-Class': project.mainClassName
-//    }
-//}
+task dist(type: Jar) {
+    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.resourcesDir)
+    from {configurations.compile.collect {zipTree(it)}}
+    from files(project.assetsDir);
 
-//dist.dependsOn classes
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+}
+
+dist.dependsOn classes
 
 eclipse.project {
     name = appName + "-test"
