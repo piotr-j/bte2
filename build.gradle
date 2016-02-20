@@ -13,7 +13,7 @@ allprojects {
     apply plugin: 'maven'
 
     group = 'com.github.piotr-j'
-    version = '0.3-SNAPSHOT'
+    version = '0.5-SNAPSHOT'
     ext {
         appName = "BTEv2"
         gdxVersion = '1.9.2'
@@ -29,16 +29,6 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-    }
-}
-
-project(":bte") {
-    apply plugin: "java"
-
-    dependencies {
-        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-        compile "com.kotcrab.vis:vis-ui:0.9.5"
     }
 }
 
@@ -61,6 +51,16 @@ project(":bte-test") {
         compile "org.mockito:mockito-core:$mockitoVersion"
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+}
+
+project(":bte") {
+    apply plugin: "java"
+
+    dependencies {
+        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+        compile "com.kotcrab.vis:vis-ui:0.9.5"
     }
 }
 

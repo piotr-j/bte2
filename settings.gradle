@@ -1,1 +1,1 @@
-include 'bte', 'bte-window', 'bte-test'
+include 'bte-window', 'bte-test', 'bte'
