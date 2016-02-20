@@ -86,10 +86,10 @@ public class AIEditorWindow {
 		editorWindowConfig.setWindowListener(new Lwjgl3WindowAdapter(){
 			@Override public boolean windowIsClosing () {
 				window.setMovable(true);
+				editorWindow = null;
 				if (listener != null) {
 					listener.onClose();
 				}
-				editorWindow = null;
 				return true;
 			}
 		});
