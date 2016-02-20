@@ -144,4 +144,8 @@ public class AIEditorWindow {
 		 */
 		void onClose();
 	}
+
+	public static void main (String[] args) {
+		System.out.println("Dummy main, go away!");
+	}
 }
