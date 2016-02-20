@@ -1,5 +1,6 @@
 package io.piotrjastrzebski.bte.window;
 
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -77,6 +78,10 @@ public class AIEditorWindow {
 			Gdx.app.error(TAG, "MultiWindow is supported only in Lwjgl3 backend!");
 			return false;
 		}
+		if (editorWindow != null) {
+			Gdx.app.error(TAG, "Window already open!");
+			return false;
+		}
 		Lwjgl3WindowConfiguration editorWindowConfig = new Lwjgl3WindowConfiguration();
 		editorWindowConfig.setWindowListener(new Lwjgl3WindowAdapter(){
 			@Override public boolean windowIsClosing () {
@@ -84,18 +89,20 @@ public class AIEditorWindow {
 				if (listener != null) {
 					listener.onClose();
 				}
+				editorWindow = null;
 				return true;
 			}
 		});
 		editorWindowConfig.setWindowPosition(x, y);
 		editorWindowConfig.setWindowedMode(width, height);
 		editorWindowConfig.setTitle("AIEditor");
-		ApplicationListener editorWindowListener = new ApplicationListener() {
+		ApplicationListener editorWindowListener = new ApplicationAdapter() {
 			Stage stage;
 
 			@Override public void create () {
 				stage = new Stage(new ScreenViewport());
 				stage.addActor(window);
+				window.setMovable(false);
 				Gdx.input.setInputProcessor(stage);
 			}
 
@@ -108,14 +115,6 @@ public class AIEditorWindow {
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 				stage.act(Gdx.graphics.getDeltaTime());
 				stage.draw();
-			}
-
-			@Override public void pause () {
-
-			}
-
-			@Override public void resume () {
-
 			}
 
 			@Override public void dispose () {
@@ -141,6 +140,7 @@ public class AIEditorWindow {
 
 	/**
 	 * Underlying {@link Lwjgl3Window}
+	 * Use with caution!
 	 * @return {@link Lwjgl3Window}
 	 */
 	public Lwjgl3Window getEditorWindow () {
