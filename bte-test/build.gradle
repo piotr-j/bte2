@@ -8,7 +8,7 @@ sourceSets.test.java.srcDirs = [ "test/" ]
 
 
 project.ext.mainClassName = "io.piotrjastrzebski.btetest.AIEditorTestProject"
-//project.ext.assetsDir = new File("../android/assets");
+//project.ext.assetsDir = new File("../bte/assets");
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName

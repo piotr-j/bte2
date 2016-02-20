@@ -16,18 +16,18 @@ task run(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
 }
 
-task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDir)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir);
+//task dist(type: Jar) {
+//    from files(sourceSets.main.output.classesDir)
+//    from files(sourceSets.main.output.resourcesDir)
+//    from {configurations.compile.collect {zipTree(it)}}
+//    from files(project.assetsDir);
+//
+//    manifest {
+//        attributes 'Main-Class': project.mainClassName
+//    }
+//}
 
-    manifest {
-        attributes 'Main-Class': project.mainClassName
-    }
-}
-
-dist.dependsOn classes
+//dist.dependsOn classes
 
 eclipse.project {
     name = appName + "-test"
