@@ -86,6 +86,7 @@ public class AIEditorWindow {
 		editorWindowConfig.setWindowListener(new Lwjgl3WindowAdapter(){
 			@Override public boolean windowIsClosing () {
 				window.setMovable(true);
+				window.setFillParent(false);
 				editorWindow = null;
 				if (listener != null) {
 					listener.onClose();
@@ -103,6 +104,7 @@ public class AIEditorWindow {
 				stage = new Stage(new ScreenViewport());
 				stage.addActor(window);
 				window.setMovable(false);
+				window.setFillParent(true);
 				Gdx.input.setInputProcessor(stage);
 			}
 
