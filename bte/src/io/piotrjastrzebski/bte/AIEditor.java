@@ -185,11 +185,9 @@ public class AIEditor implements Disposable {
 			} else {
 				window.setSize(800, 600);
 			}
-			window.fadeIn();
 			// TODO is this broken or what? you can't drag out the assets, but the hit boxes are outside
 			window.setKeepWithinStage(true);
 		}
-		fadingOut = false;
 		window.clearActions();
 		window.centerWindow();
 	}
@@ -198,10 +196,6 @@ public class AIEditor implements Disposable {
 		if (window == null) {
 			Gdx.app.error(TAG, "Using default window, consider calling prepareWindow() first");
 			prepareWindow();
-		}
-		// fade in the window if needed
-		if (!isWindowVisible()) {
-			window.fadeIn();
 		}
 		return window;
 	}
@@ -215,6 +209,9 @@ public class AIEditor implements Disposable {
 
 	public void showWindow (Group group) {
 		group.addActor(getWindow());
+		window.clearActions();
+		window.fadeIn();
+		fadingOut = false;
 	}
 
 	public void hideWindow() {
