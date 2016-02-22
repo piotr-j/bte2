@@ -192,14 +192,16 @@ public class AIEditor implements Disposable {
 		fadingOut = false;
 		window.clearActions();
 		window.centerWindow();
-		if (!isWindowVisible())
-			window.fadeIn();
 	}
 
 	public Window getWindow () {
 		if (window == null) {
 			Gdx.app.error(TAG, "Using default window, consider calling prepareWindow() first");
 			prepareWindow();
+		}
+		// fade in the window if needed
+		if (!isWindowVisible()) {
+			window.fadeIn();
 		}
 		return window;
 	}

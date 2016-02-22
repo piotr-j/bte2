@@ -12,10 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.kotcrab.vis.ui.VisUI;
@@ -133,28 +130,12 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 		// add dim to tree so its in same coordinates as nodes
 		treeView.add(tree).fill().expand();
 		treeScrollPane = new VisScrollPane(treeView);
-		treeScrollPane.addListener(new InputListener(){
-			@Override public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) {
-				getStage().setScrollFocus(null);
-			}
-
-			@Override public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				getStage().setScrollFocus(treeScrollPane);
-			}
-		});
+		treeScrollPane.addListener(new FocusOnEnterListener());
 
 		VisTable taskView =  new VisTable(true);
 		taskView.add(taskDrawer).fill().expand();
 		drawerScrollPane = new VisScrollPane(taskView);
-		drawerScrollPane.addListener(new InputListener(){
-			@Override public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) {
-				getStage().setScrollFocus(null);
-			}
-
-			@Override public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor) {
-				getStage().setScrollFocus(drawerScrollPane);
-			}
-		});
+		drawerScrollPane.addListener(new FocusOnEnterListener());
 
 		taskEdit = new VisTable(true);
 		taskEdit.add(vtEdit = new ViewTaskAttributeEdit()).expand().top();
@@ -365,4 +346,21 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 	@Override public void onReset (BehaviorTreeModel model) {
 		clearTree();
 	}
+
+	private static class FocusOnEnterListener extends InputListener {
+		@Override public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) {
+			Stage stage = event.getTarget().getStage();
+			if (stage != null) {
+				stage.setScrollFocus(null);
+			}
+		}
+
+		@Override public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor) {
+			Stage stage = event.getTarget().getStage();
+			if (stage != null) {
+				stage.setScrollFocus(event.getTarget());
+			}
+		}
+	}
+
 }
