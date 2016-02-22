@@ -36,7 +36,9 @@ public class AIEditorWindow {
 	 */
 	public AIEditorWindow (AIEditor editor) {
 		this.editor = editor;
-		window = editor.getWindow(false);
+		// we dont want this window to be closable
+		editor.prepareWindow(false);
+		window = editor.getWindow();
 	}
 
 	/**
