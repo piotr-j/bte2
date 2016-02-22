@@ -155,12 +155,12 @@ public class AIEditor implements Disposable {
 		}
 	};
 
-	public Window getWindow () {
-		return getWindow(true);
+
+	public void prepareWindow() {
+		prepareWindow(true);
 	}
 
-	private boolean isWindowCloseable;
-	public Window getWindow (boolean closeable) {
+	public void prepareWindow(boolean closeable) {
 		if (window == null || isWindowCloseable != closeable) {
 			if (window != null) {
 				window.clear();
@@ -194,9 +194,19 @@ public class AIEditor implements Disposable {
 		window.centerWindow();
 		if (!isWindowVisible())
 			window.fadeIn();
+	}
+
+	public Window getWindow () {
+		if (window == null) {
+			Gdx.app.error(TAG, "Using default window, consider calling prepareWindow() first");
+			prepareWindow();
+		}
 		return window;
 	}
+
+	private boolean isWindowCloseable;
 	private boolean fadingOut;
+
 	public boolean isWindowVisible() {
 		return window != null && window.getParent() != null && !fadingOut;
 	}
