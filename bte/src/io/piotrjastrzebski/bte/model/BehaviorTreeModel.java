@@ -40,11 +40,12 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	public void init (BehaviorTree tree) {
 		reset();
 		if (tree == null) throw new IllegalArgumentException("BehaviorTree cannot be null!");
-		dirty = true;
+		dirty = false;
 		this.tree = tree;
 		tree.addListener(this);
 		root = TaskModel.wrap(tree.getChild(0), this);
 		fakeRoot.init(root, this);
+		valid = root.isValid();
 		// notify last so we are setup
 		for (ModelChangeListener listener : listeners) {
 			listener.onInit(this);
