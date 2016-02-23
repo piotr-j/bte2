@@ -49,7 +49,6 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	public BehaviorTreeView (final AIEditor editor) {
 		this.model = editor.getModel();
-		model.addChangeListener(this);
 		dimImg = new SpriteDrawable((SpriteDrawable)VisUI.getSkin().getDrawable(DRAWABLE_WHITE));
 		dimImg.getSprite().setColor(Color.WHITE);
 		// create label style with background used by ViewPayloads
@@ -345,6 +344,16 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	@Override public void onReset (BehaviorTreeModel model) {
 		clearTree();
+	}
+
+	public void onShow () {
+		model.addChangeListener(this);
+		// force update
+		onChange(model);
+	}
+
+	public void onHide () {
+		model.removeChangeListener(this);
 	}
 
 	private static class FocusOnEnterListener extends InputListener {

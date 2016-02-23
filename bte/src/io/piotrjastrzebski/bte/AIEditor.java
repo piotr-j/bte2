@@ -10,10 +10,12 @@ import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.leaf.Wait;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.kotcrab.vis.ui.VisUI;
@@ -151,6 +153,14 @@ public class AIEditor implements Disposable {
 	private Action onCloseAction = new Action() {
 		@Override public boolean act (float delta) {
 			if (closedListener != null) closedListener.onClose();
+			view.onHide();
+			return true;
+		}
+	};
+
+	private Action onShowAction = new Action() {
+		@Override public boolean act (float delta) {
+			view.onShow();
 			return true;
 		}
 	};
@@ -170,6 +180,12 @@ public class AIEditor implements Disposable {
 				// we override fade out so we know when the window was closed
 				public void fadeOut (float time) {
 					addAction(Actions.sequence(Actions.fadeOut(time, Interpolation.fade), onCloseAction, Actions.removeActor()));
+				}
+
+				@Override public VisWindow fadeIn (float time) {
+					setColor(1, 1, 1, 0);
+					addAction(Actions.sequence(Actions.fadeIn(time, Interpolation.fade), onShowAction));
+					return this;
 				}
 			};
 			window.setResizable(true);
