@@ -30,6 +30,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	private CommandManager commands;
 	private boolean dirty;
 	private boolean valid;
+	private boolean initialized;
 
 	public BehaviorTreeModel () {
 		commands = new CommandManager();
@@ -40,6 +41,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	public void init (BehaviorTree tree) {
 		reset();
 		if (tree == null) throw new IllegalArgumentException("BehaviorTree cannot be null!");
+		initialized = true;
 		dirty = false;
 		this.tree = tree;
 		tree.addListener(this);
@@ -54,6 +56,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 
 	@SuppressWarnings("unchecked")
 	public void reset () {
+		initialized = false;
 		commands.reset();
 		if (tree != null) {
 			tree.listeners.removeValue(this, true);
@@ -70,6 +73,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	}
 
 	public TaskModel getRoot () {
+		if (!initialized) return null;
 		return fakeRoot;
 	}
 
@@ -236,7 +240,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	private ObjectIntMap<TaskModel> modelTasks = new ObjectIntMap<>();
 	private ObjectIntMap<Task> tasks = new ObjectIntMap<>();
 	public boolean isValid () {
-		if (isDirty()) {
+		if (initialized && isDirty()) {
 			boolean newValid = root != null && root.isValid();
 			dirty = false;
 			if (newValid != valid && newValid) {
@@ -347,7 +351,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	}
 
 	public void step () {
-		if (isValid()) {
+		if (initialized && isValid()) {
 			try {
 				tree.step();
 			} catch (IllegalStateException ex) {
@@ -358,6 +362,10 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 				notifyChanged();
 			}
 		}
+	}
+
+	public boolean isInitialized () {
+		return initialized;
 	}
 
 	public interface ModelChangeListener {

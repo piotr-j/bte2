@@ -251,8 +251,10 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	private void rebuildTree () {
 		clearTree();
-		fillTree(null, model.getRoot());
-		tree.expandAll();
+		if (model.isInitialized()) {
+			fillTree(null, model.getRoot());
+			tree.expandAll();
+		}
 	}
 
 	private void fillTree (Tree.Node parent, TaskModel task) {
