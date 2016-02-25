@@ -34,6 +34,8 @@ import io.piotrjastrzebski.bte.view.BehaviorTreeView;
  * same for remove/move actions
  * we also could store a some sort of history of data changes in each task
  *
+ * TODO add Subtree fake task, ala guard so we can split stuff
+ *
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")

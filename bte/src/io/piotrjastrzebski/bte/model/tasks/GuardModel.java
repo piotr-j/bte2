@@ -6,6 +6,8 @@ import io.piotrjastrzebski.bte.model.BehaviorTreeModel;
 /**
  * Model for fake GuardTask
  *
+ * TODO add a way to set name in written tree
+ *
  * Created by EvilEntity on 04/02/2016.
  */
 @SuppressWarnings("rawtypes")
