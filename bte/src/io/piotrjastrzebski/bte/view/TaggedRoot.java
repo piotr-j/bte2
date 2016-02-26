@@ -70,12 +70,14 @@ public class TaggedRoot extends Tree.Node implements Pool.Poolable {
 	}
 
 	@Override public void add (Tree.Node node) {
-		super.add(node);
 		if (node instanceof TaggedTask) {
 			TaggedTask task = (TaggedTask)node;
 			task.setParentTag(this);
 			tasks.add(task);
-			visibleTasks.add(true);
+			visibleTasks.add(task.visible);
+			if (task.visible) {
+				super.add(node);
+			}
 		} else {
 			Gdx.app.error(TAG, "Node added to TaggedRoot should be TaggedTask, was " + node);
 		}
@@ -124,5 +126,9 @@ public class TaggedRoot extends Tree.Node implements Pool.Poolable {
 
 	public void free () {
 		pool.free(this);
+	}
+
+	public boolean has (TaggedTask task) {
+		return tasks.contains(task, true);
 	}
 }

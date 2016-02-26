@@ -114,9 +114,9 @@ public class AIEditorTestProject extends Game {
 
 	private void addTaskClasses () {
 		editor.addTaskClass("dog", BarkTask.class);
-		editor.addTaskClass("dog", CareTask.class);
+		editor.addTaskClass("dog", CareTask.class, false);
 		editor.addTaskClass("dog", MarkTask.class);
-		editor.addTaskClass("dog", RestTask.class);
+		editor.addTaskClass("dog", RestTask.class, false);
 		editor.addTaskClass("dog", WalkTask.class);
 	}
 

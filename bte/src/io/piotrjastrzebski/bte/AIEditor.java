@@ -229,7 +229,11 @@ public class AIEditor implements Disposable {
 	}
 
 	public void addTaskClass (String tag, Class<? extends Task> cls) {
-		view.addSrcTask(tag, cls);
+		addTaskClass(tag, cls, true);
+	}
+
+	public void addTaskClass (String tag, Class<? extends Task> cls, boolean visible) {
+		view.addSrcTask(tag, cls, visible);
 	}
 
 	public void addDefaultTaskClasses () {

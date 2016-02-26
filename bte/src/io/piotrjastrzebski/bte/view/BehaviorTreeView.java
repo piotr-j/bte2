@@ -271,8 +271,8 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	private Array<TaggedTask> taggedTasks = new Array<>();
 	private ObjectMap<String, TaggedRoot> tagToNode = new ObjectMap<>();
-	public void addSrcTask (String tag, Class<? extends Task> cls) {
-		TaggedTask taggedTask = TaggedTask.obtain(tag, cls, this);
+	public void addSrcTask (String tag, Class<? extends Task> cls, boolean visible) {
+		TaggedTask taggedTask = TaggedTask.obtain(tag, cls, this, visible);
 		taggedTasks.add(taggedTask);
 		taggedTasks.sort();
 
@@ -285,7 +285,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 				tagToNode.put(tag, categoryNode);
 				taskDrawer.add(categoryNode);
 			}
-			if (categoryNode.findNode(task) == null){
+			if (!categoryNode.has(task)){
 				categoryNode.add(task);
 			}
 		}

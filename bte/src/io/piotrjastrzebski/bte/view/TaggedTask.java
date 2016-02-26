@@ -22,8 +22,8 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 		}
 	};
 
-	public static TaggedTask obtain (String tag, Class<? extends Task> cls, BehaviorTreeView view) {
-		return pool.obtain().init(tag, cls, view);
+	public static TaggedTask obtain (String tag, Class<? extends Task> cls, BehaviorTreeView view, boolean visible) {
+		return pool.obtain().init(tag, cls, view, visible);
 	}
 
 	public static void free (TaggedTask task) {
@@ -35,19 +35,20 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 	protected VisTable container;
 	protected VisLabel label;
 	protected String tag;
+	protected boolean visible;
 	protected Class<? extends Task> cls;
 	protected DragAndDrop dad;
 	protected BehaviorTreeModel model;
 	protected String simpleName;
 	protected ViewSource source;
 	protected TaggedRoot parentTag;
-
+	protected VisCheckBox hide;
 	public TaggedTask () {
 		super(new VisTable());
 		container = (VisTable)getActor();
 		label = new VisLabel();
 		container.add(label);
-		final VisCheckBox hide = new VisCheckBox("", "radio");
+		hide = new VisCheckBox("", "radio");
 		hide.setChecked(true);
 		container.add(hide).padLeft(5);
 		hide.addListener(new ClickListener() {
@@ -73,15 +74,17 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 		reset();
 	}
 
-	private TaggedTask init (String tag, Class<? extends Task> cls, BehaviorTreeView view) {
+	private TaggedTask init (String tag, Class<? extends Task> cls, BehaviorTreeView view, boolean visible) {
 		this.tag = tag;
 		this.cls = cls;
+		this.visible = visible;
 		dad = view.dad;
 		model = view.model;
 		simpleName = cls.getSimpleName();
 		label.setText(simpleName);
 		// source for adding task to tree
 		dad.addSource(source);
+		hide.setChecked(visible);
 		return this;
 	}
 
