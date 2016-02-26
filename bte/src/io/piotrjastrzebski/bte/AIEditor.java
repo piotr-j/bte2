@@ -152,22 +152,6 @@ public class AIEditor implements Disposable {
 		}
 	}
 
-	private Action onCloseAction = new Action() {
-		@Override public boolean act (float delta) {
-			if (closedListener != null) closedListener.onClose();
-			view.onHide();
-			return true;
-		}
-	};
-
-	private Action onShowAction = new Action() {
-		@Override public boolean act (float delta) {
-			view.onShow();
-			return true;
-		}
-	};
-
-
 	public void prepareWindow() {
 		prepareWindow(true);
 	}
@@ -179,15 +163,13 @@ public class AIEditor implements Disposable {
 				window.remove();
 			}
 			window = new VisWindow("AIEditor") {
-				// we override fade out so we know when the window was closed
-				public void fadeOut (float time) {
-					addAction(Actions.sequence(Actions.fadeOut(time, Interpolation.fade), onCloseAction, Actions.removeActor()));
-				}
-
-				@Override public VisWindow fadeIn (float time) {
-					setColor(1, 1, 1, 0);
-					addAction(Actions.sequence(Actions.fadeIn(time, Interpolation.fade), onShowAction));
-					return this;
+				@Override protected void setParent (Group parent) {
+					super.setParent(parent);
+					if (parent != null) {
+						view.onShow();
+					} else {
+						view.onHide();
+					}
 				}
 			};
 			window.setResizable(true);
