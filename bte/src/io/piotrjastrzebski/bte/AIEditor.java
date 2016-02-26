@@ -22,6 +22,7 @@ import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisWindow;
 import io.piotrjastrzebski.bte.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte.model.tasks.Guard;
+import io.piotrjastrzebski.bte.model.tasks.TaskModel;
 import io.piotrjastrzebski.bte.view.BehaviorTreeView;
 
 /**
@@ -52,6 +53,7 @@ public class AIEditor implements Disposable {
 	private VisWindow window;
 	private EditorWindowClosedListener closedListener;
 	private boolean autoStep = true;
+	private TaskInjector injector;
 
 	/**
 	 * Create AIEditor with internal VisUI skin
@@ -282,6 +284,10 @@ public class AIEditor implements Disposable {
 
 	public void setClosedListener (EditorWindowClosedListener closedListener) {
 		this.closedListener = closedListener;
+	}
+
+	public void setTaskInjector (TaskInjector injector) {
+		TaskModel.injector = injector;
 	}
 
 	@Override public void dispose () {

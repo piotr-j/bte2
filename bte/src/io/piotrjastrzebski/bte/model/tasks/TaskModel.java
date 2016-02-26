@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bte.TaskInjector;
 import io.piotrjastrzebski.bte.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte.model.tasks.fields.EditableFields;
 import io.piotrjastrzebski.bte.model.tasks.fields.EditableFields.EditableField;
@@ -22,6 +23,7 @@ import io.piotrjastrzebski.bte.model.tasks.fields.EditableFields.EditableField;
 @SuppressWarnings("rawtypes")
 public abstract class TaskModel implements Pool.Poolable {
 	private static final String TAG = TaskModel.class.getSimpleName();
+	public static TaskInjector injector;
 
 	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL, GUARD;}
 
@@ -58,6 +60,9 @@ public abstract class TaskModel implements Pool.Poolable {
 			if (cls == Repeat.class) {
 				Repeat<?> repeat = (Repeat<?>)task;
 				repeat.times = ConstantIntegerDistribution.ONE;
+			}
+			if (injector != null) {
+				injector.inject(task);
 			}
 			return wrap(task, model);
 		} catch (ReflectionException e) {
