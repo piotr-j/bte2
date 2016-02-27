@@ -46,6 +46,9 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 	protected final VisTextButton btReset;
 	private Tree.Node selectedNode;
 	private final ViewTaskAttributeEdit vtEdit;
+	private VisTextButton saveBtn;
+	private VisTextButton saveAsBtn;
+	private VisTextButton loadBtn;
 
 	public BehaviorTreeView (final AIEditor editor) {
 		this.model = editor.getModel();
@@ -85,12 +88,14 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 		btControls.add(btToggle);
 		btToggle.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
+				if (btToggle.isDisabled()) return;
 				editor.setAutoStepBehaviorTree(btToggle.isChecked());
 			}
 		});
 		btStep = new VisTextButton("Step");
 		btStep.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
+				if (btStep.isDisabled()) return;
 				editor.forceStepBehaviorTree();
 			}
 		});
@@ -98,6 +103,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 		btReset = new VisTextButton("Restart");
 		btReset.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
+				if (btReset.isDisabled()) return;
 				editor.restartBehaviorTree();
 			}
 		});
@@ -161,12 +167,16 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 		// TODO figure out proper save/load overwrite strategy
 		// TODO some error handling maybe
 		FileChooser.setFavoritesPrefsName("io.piotrjastrzebski.bte");
-		VisTextButton save = new VisTextButton("Save");
-		VisTextButton saveAs = new VisTextButton("Save As");
-		final VisTextButton load = new VisTextButton("Load");
-		menu.add(save);
-		menu.add(saveAs);
-		menu.add(load);
+		saveBtn = new VisTextButton("Save");
+		saveAsBtn = new VisTextButton("Save As");
+		loadBtn = new VisTextButton("Load");
+		// NOTE disabled at start, we need an initialized model to save/load stuff
+		saveBtn.setDisabled(true);
+		saveAsBtn.setDisabled(true);
+		loadBtn.setDisabled(true);
+		menu.add(saveBtn);
+		menu.add(saveAsBtn);
+		menu.add(loadBtn);
 		final FileChooser saveChooser = new FileChooser(FileChooser.Mode.SAVE);
 		saveChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
 		saveChooser.setMultiSelectionEnabled(false);
@@ -181,8 +191,9 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 			}
 		});
 
-		save.addListener(new ClickListener(){
+		saveBtn.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
+				if (saveAsBtn.isDisabled()) return;
 				if (lastSave == null) {
 					getStage().addActor(saveChooser.fadeIn());
 				} else {
@@ -191,8 +202,9 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 				}
 			}
 		});
-		saveAs.addListener(new ClickListener(){
+		saveAsBtn.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
+				if (saveAsBtn.isDisabled()) return;
 				getStage().addActor(saveChooser.fadeIn());
 			}
 		});
@@ -212,8 +224,9 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 				Gdx.app.log(TAG, "Loaded tree from " + fh.path());
 			}
 		});
-		load.addListener(new ClickListener(){
+		loadBtn.addListener(new ClickListener(){
 			@Override public void clicked (InputEvent event, float x, float y) {
+				if (loadBtn.isDisabled()) return;
 				getStage().addActor(loadChooser.fadeIn());
 			}
 		});
@@ -240,6 +253,9 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 		this.model = model;
 
 		rebuildTree();
+		saveBtn.setDisabled(false);
+		saveAsBtn.setDisabled(false);
+		loadBtn.setDisabled(false);
 	}
 
 	private void clearTree () {
@@ -346,12 +362,18 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	@Override public void onReset (BehaviorTreeModel model) {
 		clearTree();
+		saveBtn.setDisabled(true);
+		saveAsBtn.setDisabled(true);
+		loadBtn.setDisabled(true);
 	}
 
 	public void onShow () {
 		model.addChangeListener(this);
 		// force update
 		onChange(model);
+		saveBtn.setDisabled(!model.isInitialized());
+		saveAsBtn.setDisabled(!model.isInitialized());
+		loadBtn.setDisabled(!model.isInitialized());
 	}
 
 	public void onHide () {
