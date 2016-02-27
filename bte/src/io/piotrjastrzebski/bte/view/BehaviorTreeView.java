@@ -49,6 +49,8 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 	private VisTextButton saveBtn;
 	private VisTextButton saveAsBtn;
 	private VisTextButton loadBtn;
+	private FileChooser saveChooser;
+	private FileChooser loadChooser;
 
 	public BehaviorTreeView (final AIEditor editor) {
 		this.model = editor.getModel();
@@ -177,7 +179,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 		menu.add(saveBtn);
 		menu.add(saveAsBtn);
 		menu.add(loadBtn);
-		final FileChooser saveChooser = new FileChooser(FileChooser.Mode.SAVE);
+		saveChooser = new FileChooser(FileChooser.Mode.SAVE);
 		saveChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
 		saveChooser.setMultiSelectionEnabled(false);
 		// TODO filter maybe
@@ -209,7 +211,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 			}
 		});
 
-		final FileChooser loadChooser = new FileChooser(FileChooser.Mode.OPEN);
+		loadChooser = new FileChooser(FileChooser.Mode.OPEN);
 		loadChooser.setSelectionMode(FileChooser.SelectionMode.FILES);
 		loadChooser.setMultiSelectionEnabled(false);
 		// TODO filter maybe
@@ -378,6 +380,11 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 
 	public void onHide () {
 		model.removeChangeListener(this);
+	}
+
+	public void setSaveLoadDirectory (FileHandle directory) {
+		saveChooser.setDirectory(directory);
+		loadChooser.setDirectory(directory);
 	}
 
 	private static class FocusOnEnterListener extends InputListener {

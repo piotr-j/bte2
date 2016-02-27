@@ -294,6 +294,15 @@ public class AIEditor implements Disposable {
 		model.setBackupDirectory(fh);
 	}
 
+	/**
+	 * Set initial directory that will be used by save/load dialogs
+	 * The default is user home directory
+	 * @param fh file handle to an existing directory
+	 */
+	public void setSaveLoadDirectory (FileHandle fh) {
+		view.setSaveLoadDirectory(fh);
+	}
+
 	@Override public void dispose () {
 		if (ownsSkin) {
 			VisUI.dispose();
