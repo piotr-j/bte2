@@ -8,14 +8,10 @@ import com.badlogic.gdx.ai.btree.decorator.*;
 import com.badlogic.gdx.ai.btree.leaf.Failure;
 import com.badlogic.gdx.ai.btree.leaf.Success;
 import com.badlogic.gdx.ai.btree.leaf.Wait;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.scenes.scene2d.Action;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.kotcrab.vis.ui.VisUI;
@@ -288,6 +284,14 @@ public class AIEditor implements Disposable {
 
 	public void setTaskInjector (TaskInjector injector) {
 		TaskModel.injector = injector;
+	}
+
+	/**
+	 * Set directory used for backups, backups are saved when tree is modified and is valid
+	 * @param fh file handle to an existing directory where backups will be saved
+	 */
+	public void setBackupDirectory (FileHandle fh) {
+		model.setBackupDirectory(fh);
 	}
 
 	@Override public void dispose () {

@@ -249,6 +249,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 			}
 			valid = newValid;
 			if (valid) {
+				saveBackup();
 				// TODO remove this probably
 				modelTasks.clear();
 				tasks.clear();
@@ -316,9 +317,45 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		this.valid = invalid;
 	}
 
+	// TODO move this save/load garbage to other class
+	private FileHandle defaultBackupDir = Gdx.files.external("bte2/backups/");
+	private FileHandle backupDir;
+	private String treeName;
+	/**
+	 * Set backup folder
+	 * @param backup folder in which automatic backups will be saved, null to use default
+	 */
+	public void setBackupDirectory (FileHandle backup) {
+		if (backup != null && !backup.exists() && !backup.isDirectory()) {
+			Gdx.app.error(TAG, "Backup folder must be a directory and exist!");
+		}
+		backupDir = backup;
+	}
+
+	private void saveBackup () {
+		// TODO do we want to limit number of backups?
+		FileHandle dir = (backupDir != null)?backupDir:defaultBackupDir;
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		String serialize = BehaviorTreeWriter.serialize(tree);
+		String name;
+		// we don't want - in name
+		int hc = Math.abs(serialize.hashCode());
+		if (treeName != null) {
+			name = treeName + "_" + hc + ".tree";
+		} else {
+			name = "tree_" + hc + ".tree";
+		}
+		FileHandle child = dir.child(name);
+		child.writeString(serialize, false);
+//		Gdx.app.log(TAG, "Created backup: " + child.file().getAbsolutePath());
+	}
+
 	public void saveTree (FileHandle fh) {
 		String serialize = BehaviorTreeWriter.serialize(tree);
 		fh.writeString(serialize, false);
+		treeName = fh.nameWithoutExtension();
 	}
 
 	public void loadTree (FileHandle fh) {
@@ -342,6 +379,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 				((EditorBehaviourTreeLibrary)library).updateComments(this);
 			}
 			TaskModel.inject(old);
+			treeName = fh.nameWithoutExtension();
 			for (ModelChangeListener listener : listeners) {
 				listener.onLoad(loadedTree, fh, this);
 			}
