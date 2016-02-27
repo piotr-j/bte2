@@ -323,6 +323,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 
 	public void loadTree (FileHandle fh) {
 		try {
+			// TODO we probably want an option to load/save a tree without current one set
 			BehaviorTreeLibrary library = BehaviorTreeLibraryManager.getInstance().getLibrary();
 			BehaviorTree loadedTree = library.createBehaviorTree(fh.path());
 	//				model.btLoaded(loadedTree);
@@ -340,6 +341,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 				// TODO this is super garbage
 				((EditorBehaviourTreeLibrary)library).updateComments(this);
 			}
+			TaskModel.inject(old);
 			for (ModelChangeListener listener : listeners) {
 				listener.onLoad(loadedTree, fh, this);
 			}
