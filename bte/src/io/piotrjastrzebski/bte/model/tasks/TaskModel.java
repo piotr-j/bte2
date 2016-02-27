@@ -1,10 +1,7 @@
 package io.piotrjastrzebski.bte.model.tasks;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.btree.BranchTask;
-import com.badlogic.gdx.ai.btree.Decorator;
-import com.badlogic.gdx.ai.btree.LeafTask;
-import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.ai.btree.*;
 import com.badlogic.gdx.ai.btree.decorator.Include;
 import com.badlogic.gdx.ai.btree.decorator.Repeat;
 import com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution;
@@ -24,6 +21,16 @@ import io.piotrjastrzebski.bte.model.tasks.fields.EditableFields.EditableField;
 public abstract class TaskModel implements Pool.Poolable {
 	private static final String TAG = TaskModel.class.getSimpleName();
 	public static TaskInjector injector;
+
+	/**
+	 * Injects dependencies into {@link Task} and its children, if it was set via {@link io.piotrjastrzebski.bte.AIEditor#setTaskInjector(TaskInjector)}
+	 * @param task task to inject dependencies into
+	 */
+	public static void inject (Task task) {
+		if (injector != null && task != null) {
+			injector.inject(task);
+		}
+	}
 
 	public enum Type {INCLUDE, LEAF, BRANCH, DECORATOR, ROOT, NULL, GUARD;}
 
@@ -61,9 +68,7 @@ public abstract class TaskModel implements Pool.Poolable {
 				Repeat<?> repeat = (Repeat<?>)task;
 				repeat.times = ConstantIntegerDistribution.ONE;
 			}
-			if (injector != null) {
-				injector.inject(task);
-			}
+			inject(task);
 			return wrap(task, model);
 		} catch (ReflectionException e) {
 			e.printStackTrace();
