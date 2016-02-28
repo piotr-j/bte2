@@ -31,6 +31,7 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	private boolean dirty;
 	private boolean valid;
 	private boolean initialized;
+	private boolean rebuild;
 
 	public BehaviorTreeModel () {
 		commands = new CommandManager();
@@ -303,7 +304,9 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		}
 		TaskModel taskModel = root.getModelTask(task);
 		if (taskModel == null) {
+			// TODO we are adding some tasks dynamically in our tree,
 			Gdx.app.error(TAG, "Mddel task for " + task + " not found, wtf?");
+			rebuild = true;
 			return;
 		}
 		taskModel.wrappedUpdated(previousStatus, task.getStatus());
@@ -391,6 +394,9 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 	}
 
 	public void step () {
+		if (rebuild) {
+			rebuild();
+		}
 		if (initialized && isValid()) {
 			try {
 				tree.step();
@@ -401,6 +407,17 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 				}
 				notifyChanged();
 			}
+		}
+	}
+
+	/**
+	 * Rebuild current tree representation
+	 * This can be used if tree structure changed for some reason
+	 */
+	public void rebuild () {
+		if (initialized) {
+			init(tree);
+			rebuild = false;
 		}
 	}
 
