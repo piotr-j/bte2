@@ -18,9 +18,11 @@ package io.piotrjastrzebski.bte.desktop.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import io.piotrjastrzebski.bte.TaskComment;
 
 /** @author implicit-invocation
  * @author davebaol */
+@TaskComment("Walk around for a bit")
 public class WalkTask extends LeafTask<Dog> {
 
 	private int i = 0;

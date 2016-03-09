@@ -7,8 +7,10 @@ import com.badlogic.gdx.ai.btree.decorator.Repeat;
 import com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bte.TaskComment;
 import io.piotrjastrzebski.bte.TaskInjector;
 import io.piotrjastrzebski.bte.model.BehaviorTreeModel;
 import io.piotrjastrzebski.bte.model.tasks.fields.EditableFields;
@@ -100,7 +102,10 @@ public abstract class TaskModel implements Pool.Poolable {
 	protected int minChildren;
 	protected int maxChildren;
 	protected BehaviorTreeModel model;
+	// comment from wrapped task class
 	protected String comment;
+	// user comment from loaded tree
+	protected String userComment;
 	protected Array<EditableField> fields = new Array<>();
 
 	public void init (Task task, BehaviorTreeModel model) {
@@ -120,6 +125,13 @@ public abstract class TaskModel implements Pool.Poolable {
 			this.guard.setIsGuard(this);
 		}
 		EditableFields.get(this, fields);
+
+		Class<? extends Task> aClass = wrapped.getClass();
+		Annotation a = ClassReflection.getDeclaredAnnotation(aClass, TaskComment.class);
+		if (a != null) {
+			TaskComment tc = a.getAnnotation(TaskComment.class);
+			comment = tc.value();
+		}
 	}
 
 	public void setIsGuard (TaskModel guarded) {
@@ -307,22 +319,27 @@ public abstract class TaskModel implements Pool.Poolable {
 		name = null;
 		readOnly = false;
 		comment = null;
+		userComment = null;
 		listeners.clear();
 		EditableFields.release(fields);
 	}
 
 	public boolean hasComment () {
-		return comment != null && comment.length() > 0;
+		return userComment != null && userComment.length() > 0;
+	}
+
+	public String getUserComment () {
+		return userComment;
+	}
+
+	public TaskModel setUserComment (String userComment) {
+		if (userComment != null) userComment = userComment.trim();
+		this.userComment = userComment;
+		return this;
 	}
 
 	public String getComment () {
 		return comment;
-	}
-
-	public TaskModel setComment (String comment) {
-		if (comment != null) comment = comment.trim();
-		this.comment = comment;
-		return this;
 	}
 
 	public Array<EditableField> getEditableFields () {

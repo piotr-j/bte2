@@ -18,9 +18,11 @@ package io.piotrjastrzebski.bte.desktop.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import io.piotrjastrzebski.bte.TaskComment;
 
 /** @author implicit-invocation
  * @author davebaol */
+@TaskComment("zZz for a bit")
 public class RestTask extends LeafTask<Dog> {
 
 	@Override

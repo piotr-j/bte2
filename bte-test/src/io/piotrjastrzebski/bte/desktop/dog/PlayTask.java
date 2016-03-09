@@ -18,7 +18,9 @@ package io.piotrjastrzebski.bte.desktop.dog;
 
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import io.piotrjastrzebski.bte.TaskComment;
 
+@TaskComment("Play until interrupted")
 public class PlayTask extends LeafTask<Dog> {
 
 	public void start () {

@@ -162,7 +162,7 @@ public class BehaviorTreeWriter {
 				sb.append("  ");
 			}
 			sb.append("# ");
-			sb.append(modelTask.getComment());
+			sb.append(modelTask.getUserComment());
 			sb.append('\n');
 		}
 		for (int i = 0; i < depth; i++) {

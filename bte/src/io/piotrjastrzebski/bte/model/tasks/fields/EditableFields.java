@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.reflect.Annotation;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.reflect.ReflectionException;
+import io.piotrjastrzebski.bte.TaskComment;
 import io.piotrjastrzebski.bte.model.tasks.TaskModel;
 
 /**
@@ -26,6 +27,7 @@ public class EditableFields {
 		Object getOwner ();
 
 		String getName ();
+		String getComment ();
 
 		Class getType ();
 
@@ -35,11 +37,11 @@ public class EditableFields {
 	}
 
 	/**
-	 * Get all editable fields for this TaskModel wrapped task + comment
+	 * Get all editable fields for this TaskModel wrapped task + userComment
 	 */
 	public static Array<EditableField> get (TaskModel modelTask, Array<EditableField> out) {
-		get(modelTask.getWrapped(), out);
 		out.add(CommentEditableField.obtain(modelTask));
+		get(modelTask.getWrapped(), out);
 		return out;
 	}
 
@@ -51,7 +53,12 @@ public class EditableFields {
 			if (a == null)
 				continue;
 			TaskAttribute annotation = a.getAnnotation(TaskAttribute.class);
-			addField(task, annotation, f, out);
+			a = f.getDeclaredAnnotation(TaskComment.class);
+			TaskComment tc = null;
+			if (a != null) {
+				tc = a.getAnnotation(TaskComment.class);
+			}
+			addField(task, annotation, f, tc, out);
 		}
 		return out;
 	}
@@ -63,12 +70,13 @@ public class EditableFields {
 		fields.clear();
 	}
 
-	private static void addField (Task task, TaskAttribute ann, Field field, Array<EditableField> out) {
+	private static void addField (Task task, TaskAttribute ann, Field field, TaskComment tc, Array<EditableField> out) {
 		String name = ann.name();
 		if (name == null || name.length() == 0) {
 			name = field.getName();
 		}
-		out.add(BaseEditableField.obtain(name, task, field, ann.required()));
+		String comment = (tc != null)? tc.value():null;
+		out.add(BaseEditableField.obtain(name, task, field, ann.required(), comment));
 	}
 
 	private static class BaseEditableField implements EditableField, Pool.Poolable {
@@ -78,20 +86,22 @@ public class EditableFields {
 			}
 		};
 
-		public static EditableField obtain (String name, Task task, Field field, boolean required) {
-			return pool.obtain().init(name, task, field, required);
+		public static EditableField obtain (String name, Task task, Field field, boolean required, String comment) {
+			return pool.obtain().init(name, task, field, required, comment);
 		}
 
 		private String name;
 		private Task task;
 		private Field field;
 		private boolean required;
+		private String comment;
 
-		private EditableField init (String name, Task task, Field field, boolean required) {
+		private EditableField init (String name, Task task, Field field, boolean required, String comment) {
 			this.name = name;
 			this.task = task;
 			this.field = field;
 			this.required = required;
+			this.comment = comment;
 			return this;
 		}
 
@@ -119,6 +129,10 @@ public class EditableFields {
 
 		@Override public String getName () {
 			return name;
+		}
+
+		@Override public String getComment () {
+			return comment;
 		}
 
 		@Override public Object getOwner () {
@@ -163,17 +177,21 @@ public class EditableFields {
 		}
 
 		@Override public Object get () {
-			return owner.getComment();
+			return owner.getUserComment();
 		}
 
 		@Override public void set (Object value) {
 			if (value.getClass() != String.class)
 				throw new AssertionError("Invalid value type for field "+getName()+", got " + value.getClass() + ", expected String.class");
-			owner.setComment((String)value);
+			owner.setUserComment((String)value);
 		}
 
 		@Override public String getName () {
 			return "# Comment";
+		}
+
+		@Override public String getComment () {
+			return null;
 		}
 
 		@Override public Object getOwner () {
