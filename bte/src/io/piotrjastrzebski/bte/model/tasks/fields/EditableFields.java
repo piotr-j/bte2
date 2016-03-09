@@ -19,19 +19,45 @@ import io.piotrjastrzebski.bte.model.tasks.TaskModel;
 public class EditableFields {
 
 	public interface EditableField {
-
+		/**
+		 * @return values of this field for assigned instance
+		 */
 		Object get ();
 
+		/**
+		 * @param object value of the field, must be of correct type
+		 */
 		void set (Object object);
 
+		/**
+		 * @return owner instance of this field
+		 */
 		Object getOwner ();
 
+		/**
+		 * @return name of the field
+		 */
 		String getName ();
+
+		/**
+		 * @return comment fpr this field or null
+		 */
 		String getComment ();
 
+		/**
+		 * @return type of this field
+		 */
 		Class getType ();
 
+		/**
+		 * @return if this field is annotated as required
+		 */
 		boolean isRequired ();
+
+		/**
+		 * @return if the field name should be skipped
+		 */
+		boolean skipName ();
 
 		void free ();
 	}
@@ -75,8 +101,13 @@ public class EditableFields {
 		if (name == null || name.length() == 0) {
 			name = field.getName();
 		}
-		String comment = (tc != null)? tc.value():null;
-		out.add(BaseEditableField.obtain(name, task, field, ann.required(), comment));
+		if (tc != null) {
+			String comment = tc.value().trim();
+			boolean skipName = tc.skipFieldName();
+			out.add(BaseEditableField.obtain(name, task, field, ann.required(), comment, skipName));
+		} else {
+			out.add(BaseEditableField.obtain(name, task, field, ann.required(), null, false));
+		}
 	}
 
 	private static class BaseEditableField implements EditableField, Pool.Poolable {
@@ -86,8 +117,8 @@ public class EditableFields {
 			}
 		};
 
-		public static EditableField obtain (String name, Task task, Field field, boolean required, String comment) {
-			return pool.obtain().init(name, task, field, required, comment);
+		public static EditableField obtain (String name, Task task, Field field, boolean required, String comment, boolean skipName) {
+			return pool.obtain().init(name, task, field, required, comment, skipName);
 		}
 
 		private String name;
@@ -95,13 +126,15 @@ public class EditableFields {
 		private Field field;
 		private boolean required;
 		private String comment;
+		private boolean skipName;
 
-		private EditableField init (String name, Task task, Field field, boolean required, String comment) {
+		private EditableField init (String name, Task task, Field field, boolean required, String comment, boolean skipName) {
 			this.name = name;
 			this.task = task;
 			this.field = field;
 			this.required = required;
 			this.comment = comment;
+			this.skipName = skipName;
 			return this;
 		}
 
@@ -145,6 +178,10 @@ public class EditableFields {
 
 		@Override public boolean isRequired () {
 			return required;
+		}
+
+		@Override public boolean skipName () {
+			return skipName;
 		}
 
 		@Override public void free () {
@@ -203,6 +240,10 @@ public class EditableFields {
 		}
 
 		@Override public boolean isRequired () {
+			return false;
+		}
+
+		@Override public boolean skipName () {
 			return false;
 		}
 

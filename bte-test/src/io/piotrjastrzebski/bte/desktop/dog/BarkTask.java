@@ -29,7 +29,7 @@ import io.piotrjastrzebski.bte.TaskComment;
 public class BarkTask extends LeafTask<Dog> {
 
 	@TaskAttribute
-	@TaskComment("# of barks")
+	@TaskComment(value = "# of barks", skipFieldName = false)
 	public IntegerDistribution times = ConstantIntegerDistribution.ONE;
 
 	private int t;

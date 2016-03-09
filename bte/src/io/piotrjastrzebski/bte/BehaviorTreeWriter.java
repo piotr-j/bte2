@@ -157,7 +157,7 @@ public class BehaviorTreeWriter {
 	}
 
 	private static void writeTask (StringBuilder sb, TaskModel modelTask, int depth) {
-		if (modelTask.hasComment()) {
+		if (modelTask.hasUserComment()) {
 			for (int i = 0; i < depth; i++) {
 				sb.append("  ");
 			}

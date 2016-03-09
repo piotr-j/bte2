@@ -19,11 +19,14 @@ package io.piotrjastrzebski.bte.desktop.dog;
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.annotation.TaskAttribute;
+import io.piotrjastrzebski.bte.TaskComment;
 
 /** @author implicit-invocation
  * @author davebaol */
+@TaskComment("Gotta pee!")
 public class CareTask extends LeafTask<Dog> {
 
+	@TaskComment("how often?")
 	@TaskAttribute(required = true) public float urgentProb = 0.8f;
 
 	@Override

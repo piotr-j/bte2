@@ -48,12 +48,16 @@ public class ViewTaskAttributeEdit extends VisTable {
 	private void addTaskFields (TaskModel task) {
 		for (EditableField field : task.getEditableFields()) {
 			VisTable cont = new VisTable();
-			cont.add(new VisLabel(field.getName())).row();
 			String comment = field.getComment();
-			if (comment != null) {
-				VisLabel tc = new VisLabel(comment, "small");
-				tc.setColor(Color.LIGHT_GRAY);
-				cont.add(tc).row();
+			if (field.skipName() && comment != null) {
+				cont.add(new VisLabel(comment)).row();
+			} else {
+				cont.add(new VisLabel(field.getName())).row();
+				if (comment != null) {
+					VisLabel tc = new VisLabel(comment, "small");
+					tc.setColor(Color.LIGHT_GRAY);
+					cont.add(tc).row();
+				}
 			}
 			if (task.getType() == TaskModel.Type.INCLUDE && field.getName().equals("subtree")) {
 				cont.add(AttrFieldEdit.createPathEditField(field));

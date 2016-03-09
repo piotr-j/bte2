@@ -16,4 +16,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.TYPE})
 public @interface TaskComment {
 	String value() default "";
+
+	/**
+	 * @return if field name should be hidden, only comment will be shown
+	 */
+	boolean skipFieldName() default true;
 }

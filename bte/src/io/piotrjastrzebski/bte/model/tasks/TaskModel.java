@@ -130,7 +130,10 @@ public abstract class TaskModel implements Pool.Poolable {
 		Annotation a = ClassReflection.getDeclaredAnnotation(aClass, TaskComment.class);
 		if (a != null) {
 			TaskComment tc = a.getAnnotation(TaskComment.class);
-			comment = tc.value();
+			String value = tc.value();
+			if (value.length() > 0) {
+				comment = value;
+			}
 		}
 	}
 
@@ -324,7 +327,7 @@ public abstract class TaskModel implements Pool.Poolable {
 		EditableFields.release(fields);
 	}
 
-	public boolean hasComment () {
+	public boolean hasUserComment () {
 		return userComment != null && userComment.length() > 0;
 	}
 
