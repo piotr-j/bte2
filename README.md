@@ -22,3 +22,6 @@ Stick this into your build.gradle
    }
 ````
 Replace `0.6` with `master-SNAPSHOT` to get the latest commit on the master branch.
+
+### Screenshot
+![editor screenshot](extras/bte.jpg)
