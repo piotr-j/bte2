@@ -94,7 +94,6 @@ public class AIEditor implements Disposable {
 	 */
 	public void initialize (final BehaviorTree tree, boolean copy) {
 		reset();
-		Gdx.app.log(TAG, "Editing tree " + tree);
 		if (copy) {
 			this.tree = (BehaviorTree)tree.cloneTask();
 		} else {
