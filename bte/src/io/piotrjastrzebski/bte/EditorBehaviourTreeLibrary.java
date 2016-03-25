@@ -15,20 +15,32 @@ import io.piotrjastrzebski.bte.model.tasks.TaskModel;
 /**
  * A {@code BehaviorTreeLibrary} is a repository of behavior tree archetypes. Behavior tree archetypes never run. Indeed, they are
  * only cloned to create behavior tree instances that can run. Has extra functionality useful for AIEditor
+ * If useEditorBehaviourTree is {@code true}, a subclass of BehaviourTree will be returned, with some extra functionality, default is {@code false}
  *
  * Created by PiotrJ on 16/02/16.
  */
 public class EditorBehaviourTreeLibrary extends BehaviorTreeLibrary {
+	public EditorBehaviourTreeLibrary () {
+		this(BehaviorTreeParser.DEBUG_NONE);
+	}
+
 	public EditorBehaviourTreeLibrary (int parseDebugLevel) {
 		this(GdxAI.getFileSystem().newResolver(Files.FileType.Internal), parseDebugLevel);
 	}
 
 	protected EditorBehaviourTreeReader<?> reader;
+	protected EditorParser<?> editorParser;
 	protected ObjectMap<Task, String> taskToComment = new ObjectMap<>();
+
 	public EditorBehaviourTreeLibrary (FileHandleResolver resolver, int parseDebugLevel) {
+		this(resolver, parseDebugLevel, false);
+	}
+
+	public EditorBehaviourTreeLibrary (FileHandleResolver resolver, int parseDebugLevel, boolean useEditorBehaviourTree) {
 		super(resolver, parseDebugLevel);
 		reader = new EditorBehaviourTreeReader<>();
-		parser = new BehaviorTreeParser<>(new DistributionAdapters(), parseDebugLevel, reader);
+		parser = editorParser =  new EditorParser<>(new DistributionAdapters(), parseDebugLevel, reader);
+		editorParser.useEditorBehaviourTree = useEditorBehaviourTree;
 	}
 
 	public <T> BehaviorTree<T> createBehaviorTree (String treeReference, T blackboard) {
@@ -69,6 +81,19 @@ public class EditorBehaviourTreeLibrary extends BehaviorTreeLibrary {
 		return taskToComment.get(task, null);
 	}
 
+	/**
+	 * If set to {@code true} newly parsed trees will be {@link EditorBehaviourTree}s with extra capabilities for the editor
+	 * The tree will ignore {@link BehaviorTree#step()} if it is being edited
+	 * @param useEditorBehaviourTree if true, newly parsed trees will be {@link EditorBehaviourTree}s
+	 */
+	public void setUseEditorBehaviourTree (boolean useEditorBehaviourTree) {
+		editorParser.useEditorBehaviourTree = useEditorBehaviourTree;
+	}
+
+	public boolean isUseEditorBehaviourTree () {
+		return editorParser.useEditorBehaviourTree;
+	}
+
 	protected class EditorBehaviourTreeReader<E> extends BehaviorTreeParser.DefaultBehaviorTreeReader<E> {
 		public EditorBehaviourTreeReader () {
 			super(true);
@@ -88,4 +113,68 @@ public class EditorBehaviourTreeLibrary extends BehaviorTreeLibrary {
 			}
 		}
 	}
-}
+
+	protected class EditorParser<E> extends BehaviorTreeParser<E> {
+		protected boolean useEditorBehaviourTree;
+
+		public EditorParser (DistributionAdapters distributionAdapters, int debugLevel, DefaultBehaviorTreeReader<E> reader) {
+			super(distributionAdapters, debugLevel, reader);
+		}
+
+		@Override public BehaviorTree<E> createBehaviorTree (Task<E> root, E object) {
+			if (debugLevel > BehaviorTreeParser.DEBUG_LOW) printTree(root, 0);
+			if (useEditorBehaviourTree) {
+				return new EditorBehaviourTree<>(root, object);
+			}
+			return new BehaviorTree<E>(root, object);
+		}
+	}
+
+	public static class EditorBehaviourTree<E> extends BehaviorTree<E> {
+		/** Creates a {@code BehaviorTree} with no root task and no blackboard object. Both the root task and the blackboard object must
+		 * be set before running this behavior tree, see {@link #addChild(Task) addChild()} and {@link #setObject(Object) setObject()}
+		 * respectively. */
+		public EditorBehaviourTree () {
+			this(null, null);
+		}
+
+		/** Creates a behavior tree with a root task and no blackboard object. Both the root task and the blackboard object must be set
+		 * before running this behavior tree, see {@link #addChild(Task) addChild()} and {@link #setObject(Object) setObject()}
+		 * respectively.
+		 *
+		 * @param rootTask the root task of this tree. It can be {@code null}. */
+		public EditorBehaviourTree (Task<E> rootTask) {
+			this(rootTask, null);
+		}
+
+		/** Creates a behavior tree with a root task and a blackboard object. Both the root task and the blackboard object must be set
+		 * before running this behavior tree, see {@link #addChild(Task) addChild()} and {@link #setObject(Object) setObject()}
+		 * respectively.
+		 *
+		 * @param rootTask the root task of this tree. It can be {@code null}.
+		 * @param object the blackboard. It can be {@code null}. */
+		public EditorBehaviourTree (Task<E> rootTask, E object) {
+			super(rootTask, object);
+		}
+
+		protected boolean isEdited;
+
+		@Override public void step () {
+			if (!isEdited) {
+				super.step();
+			}
+		}
+
+		public void forceStep () {
+			super.step();
+		}
+
+		public void setEdited (boolean edited) {
+			isEdited = edited;
+		}
+
+		public boolean isEdited () {
+			return isEdited;
+		}
+	}
+ }

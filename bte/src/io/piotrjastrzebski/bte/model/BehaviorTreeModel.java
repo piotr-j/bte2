@@ -25,6 +25,7 @@ import io.piotrjastrzebski.bte.model.tasks.TaskModel;
 public class BehaviorTreeModel implements BehaviorTree.Listener {
 	private static final String TAG = BehaviorTreeModel.class.getSimpleName();
 	private BehaviorTree tree;
+	private EditorBehaviourTreeLibrary.EditorBehaviourTree eTree;
 	private FakeRootModel fakeRoot;
 	private TaskModel root;
 	private CommandManager commands;
@@ -45,6 +46,10 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		initialized = true;
 		dirty = false;
 		this.tree = tree;
+		if (tree instanceof EditorBehaviourTreeLibrary.EditorBehaviourTree) {
+			eTree = (EditorBehaviourTreeLibrary.EditorBehaviourTree)tree;
+			eTree.setEdited(true);
+		}
 		tree.addListener(this);
 		root = TaskModel.wrap(tree.getChild(0), this);
 		fakeRoot.init(root, this);
@@ -68,6 +73,10 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		}
 		TaskModel.free(fakeRoot);
 		tree = null;
+		if (eTree != null) {
+			eTree.setEdited(false);
+		}
+		eTree = null;
 		root = null;
 		dirty = false;
 		valid = false;
@@ -399,7 +408,11 @@ public class BehaviorTreeModel implements BehaviorTree.Listener {
 		}
 		if (initialized && isValid()) {
 			try {
-				tree.step();
+				if (eTree != null) {
+					eTree.forceStep();
+				} else {
+					tree.step();
+				}
 			} catch (IllegalStateException ex) {
 				valid = false;
 				for (ModelChangeListener listener : listeners) {
