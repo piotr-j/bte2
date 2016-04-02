@@ -56,6 +56,7 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 	protected VisImage separator;
 
 	protected boolean isMoving;
+	protected boolean sourceAdded;
 
 	protected boolean isMarkedAsGuarded;
 
@@ -171,6 +172,7 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		label.setText(task.getName());
 		if (task.getType() != TaskModel.Type.ROOT && !task.isReadOnly()) {
 			dad.addSource(source);
+			sourceAdded = true;
 		}
 		if (task.getType() != TaskModel.Type.GUARD) {
 			task.addListener(this);
@@ -244,9 +246,12 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		label.setText("<INVALID>");
 		status.setText("");
 		if (dad != null) {
-			dad.removeSource(source);
+			if (sourceAdded) {
+				dad.removeSource(source);
+			}
 			dad.removeTarget(target);
 		}
+		sourceAdded = false;
 		separator.setVisible(false);
 		model = null;
 		for (Tree.Node node : getChildren()) {
