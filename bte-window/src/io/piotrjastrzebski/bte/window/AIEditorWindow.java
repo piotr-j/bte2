@@ -29,6 +29,7 @@ public class AIEditorWindow {
 	private final Window window;
 	private WindowListener listener;
 	private Lwjgl3Window editorWindow;
+	private boolean isOpen;
 
 	/**
 	 *
@@ -128,7 +129,7 @@ public class AIEditorWindow {
 		};
 		Lwjgl3Application app = (Lwjgl3Application)Gdx.app;
 		editorWindow = app.newWindow(editorWindowListener, editorWindowConfig);
-
+		isOpen = true;
 		return true;
 	}
 
@@ -139,7 +140,12 @@ public class AIEditorWindow {
 		if (editorWindow != null) {
 			editorWindow.closeWindow();
 			editorWindow = null;
+			isOpen = false;
 		}
+	}
+
+	public boolean isOpen () {
+		return isOpen;
 	}
 
 	/**
