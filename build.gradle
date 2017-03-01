@@ -13,12 +13,12 @@ allprojects {
     apply plugin: "maven"
 
     group = 'com.github.piotr-j'
-    version = '0.7.2'
+    version = '0.7.3'
     ext {
         appName = "bte"
-        gdxVersion = '1.9.2'
-        aiVersion = '1.8.0'
-        visUiVersion = '1.0.1'
+        gdxVersion = '1.9.5'
+        aiVersion = '1.8.1'
+        visUiVersion = '1.2.4'
     }
 
     repositories {
