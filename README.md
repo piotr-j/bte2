@@ -2,12 +2,33 @@
 
 [![Release](https://jitpack.io/v/piotr-j/bte2.svg)](https://jitpack.io/#piotr-j/bte2)
 
-TODO:
-Readme
+
 
 See bte-test for example usage
 
-import gradle project, gradle install
+This is mostly the same as libgdx project created with setup up, make sure you can run that without issues first.
+
+Local installation is recommended. Open the project and run install task.
+```
+   repositories { 
+      ...
+      mavenLocal()
+   }
+   
+project(":core") {
+   ...
+   dependencies {
+      ...
+      compile 'com.github.piotr-j:bte:0.7.3'
+      // lwjgl3 required
+      compile 'com.github.piotr-j:bte-window:0.7.3'
+   }
+}
+```
+
+
+
+You can also try jitpack:
 
 Stick this into your build.gradle
 ````
