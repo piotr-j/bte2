@@ -10,19 +10,19 @@ This is mostly the same as libgdx project created with setup up, make sure you c
 
 Local installation is recommended. Open the project and run install task.
 ```
-   repositories { 
-      ...
-      mavenLocal()
-   }
+repositories { 
+  ...
+  mavenLocal()
+}
    
 project(":core") {
-   ...
-   dependencies {
-      ...
-      compile 'com.github.piotr-j:bte:0.7.3'
-      // lwjgl3 required
-      compile 'com.github.piotr-j:bte-window:0.7.3'
-   }
+  ...
+  dependencies {
+    ...
+    compile 'com.github.piotr-j:bte:0.7.3'
+    // lwjgl3 required
+    compile 'com.github.piotr-j:bte-window:0.7.3'
+  }
 }
 ```
 
