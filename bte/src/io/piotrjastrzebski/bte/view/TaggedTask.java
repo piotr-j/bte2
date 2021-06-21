@@ -59,7 +59,6 @@ class TaggedTask extends Tree.Node implements Pool.Poolable, Comparable<TaggedTa
 			}
 		});
 
-		setObject(this);
 		source = new ViewSource(label) {
 			@Override public DragAndDrop.Payload dragStart (InputEvent event, float x, float y, int pointer) {
 				return ViewPayload.obtain(simpleName, TaskModel.wrap(cls, model)).asAdd();

@@ -128,7 +128,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 		tree.getSelection().setMultiple(false);
 		tree.addListener(new ChangeListener() {
 			@Override public void changed (ChangeEvent event, Actor actor) {
-				Tree.Node newNode = tree.getSelection().getLastSelected();
+				Tree.Node newNode = (Tree.Node) tree.getSelection().getLastSelected();
 				onSelectionChanged(selectedNode, newNode);
 				selectedNode = newNode;
 			}
@@ -261,7 +261,7 @@ public class BehaviorTreeView extends Table implements BehaviorTreeModel.ModelCh
 	}
 
 	private void clearTree () {
-		for (Tree.Node node : tree.getNodes()) {
+		for (Object node : tree.getNodes()) {
 			ViewTask.free((ViewTask)node);
 		}
 		tree.clearChildren();
