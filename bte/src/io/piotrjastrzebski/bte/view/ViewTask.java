@@ -73,7 +73,7 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		container.add(status).padLeft(5);
 		container.setTouchable(Touchable.enabled);
 
-		setObject(this);
+		setValue(this);
 		target = new ViewTarget(container) {
 			boolean copy = false;
 
@@ -254,7 +254,7 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		sourceAdded = false;
 		separator.setVisible(false);
 		model = null;
-		for (Tree.Node node : getChildren()) {
+		for (Object node : getChildren()) {
 			free((ViewTask)node);
 		}
 		getChildren().clear();
