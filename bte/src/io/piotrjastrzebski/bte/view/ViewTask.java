@@ -73,6 +73,7 @@ class ViewTask extends Tree.Node implements Pool.Poolable, TaskModel.ChangeListe
 		container.add(status).padLeft(5);
 		container.setTouchable(Touchable.enabled);
 
+		setValue(this);
 		target = new ViewTarget(container) {
 			boolean copy = false;
 
